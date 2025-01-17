@@ -1,0 +1,79 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  :host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #e0f7fa, #4881e2);
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .login-container {
+    width: 100%;
+    max-width: 500px; /* Increase the max-width for larger screens */
+    padding: 20px;
+  }
+  
+  .login-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    justify-content: center;
+  }
+  
+  
+    .cloud-logo {
+      width: 20%;
+      height: 20%;
+      margin-bottom: 10px;
+    }
+  
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+  
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+  
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #666;
+      font-weight: bold;
+    }
+  
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  
+    .login-button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #4881e2;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+  
+    .login-button:hover {
+      opacity: 0.9;
+    }
