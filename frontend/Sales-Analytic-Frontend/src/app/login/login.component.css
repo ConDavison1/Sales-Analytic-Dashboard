@@ -49,16 +49,14 @@ p {
   margin-bottom: 24px;
 }
 
-.input-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
+
 
 label {
   font-size: 14px;
   margin-bottom: 8px;
   color: #202124;
 }
+
 
 input {
   width: 100%;
@@ -75,6 +73,34 @@ input:focus {
   outline: none;
   box-shadow: 0 0 2px #1a73e8;
 }
+
+
+.input-group {
+  position: relative; 
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group input {
+  padding-right: 20px; 
+}
+
+
+.input-group i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  cursor: pointer;
+  color: #dadce0;
+  transition: color 0.3s ease;
+}
+
+.input-group i:hover {
+  color: #1a73e8;
+}
+
 
 .login-button {
   width: 100%;

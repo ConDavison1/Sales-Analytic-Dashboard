@@ -1,21 +1,36 @@
 <div class="login-container">
   <div class="login-card">
     <img
-      src="assets/Google-Cloud-Logo.png"
+      src="assets/google-cloud-logo.png"
       alt="Cloud Logo"
       class="cloud-logo"
     />
     <h1>Sign In</h1>
-    <form>
+    <form (submit)="onLogin()">
       <div class="input-group">
         <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Type your username" />
+        <input
+          type="text"
+          id="username"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Type your username"
+          required
+        />
       </div>
       <div class="input-group">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Type your password" />
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Type your password"
+          required
+        />
       </div>
-      <button type="button" class="login-button">Login</button>
+      <button type="submit" class="login-button">Login</button>
     </form>
+    <p *ngIf="message">{{ message }}</p>
   </div>
 </div>
