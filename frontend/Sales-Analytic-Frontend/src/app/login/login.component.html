@@ -29,6 +29,9 @@
           required
         />
       </div>
+      <div>
+        <a href="javascript:void(0)" (click)="openForgotPasswordModal()" class="forgot-password">Forgot your password?</a>
+      </div>
       <button type="submit" class="login-button">Login</button>
     </form>
     <p *ngIf="message">{{ message }}</p>
