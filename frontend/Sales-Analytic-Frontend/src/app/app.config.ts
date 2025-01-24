@@ -17,6 +17,6 @@ export const appConfig: ApplicationConfig = {
       MatInputModule,
       MatFormFieldModule,
       BrowserModule
-    ),
+    ), provideAnimationsAsync('noop'),
   ],
 };
