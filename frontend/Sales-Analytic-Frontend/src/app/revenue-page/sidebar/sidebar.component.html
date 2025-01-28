@@ -1,0 +1,68 @@
+<div class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <!-- Branding Section -->
+    <div class="sidebar-brand">
+      <h3 *ngIf="!isSidebarCollapsed">Sales Analytics</h3> <!-- Hide title if collapsed -->
+    </div>
+  
+    <!-- Navigation Links -->
+    <nav>
+      <a href="#" [class.active]="isActive('dashboard')" (click)="setActive('dashboard')">
+        <i class="material-icons">dashboard</i>
+        <span *ngIf="!isSidebarCollapsed">Dashboard</span> <!-- Show text if not collapsed -->
+      </a>
+      <a href="#" [class.active]="isActive('clients')" (click)="setActive('clients')">
+        <i class="material-icons">person</i>
+        <span *ngIf="!isSidebarCollapsed">Clients</span>
+      </a>
+      <a href="#" [class.active]="isActive('account-execs')" (click)="setActive('account-execs')">
+        <i class="material-icons">account_circle</i>
+        <span *ngIf="!isSidebarCollapsed">Account Exec's</span>
+      </a>
+    </nav>
+  
+    <!-- Sales Section -->
+    <div class="sidebar-section">
+      <h3 *ngIf="!isSidebarCollapsed">Sales</h3> <!-- Show header if not collapsed -->
+      <nav>
+        <a href="#" [class.active]="isActive('revenue')" (click)="setActive('revenue')">
+          <i class="material-icons">trending_up</i>
+          <span *ngIf="!isSidebarCollapsed">Revenue</span>
+        </a>
+        <a href="#" [class.active]="isActive('pipeline')" (click)="setActive('pipeline')">
+          <i class="material-icons">bar_chart</i>
+          <span *ngIf="!isSidebarCollapsed">Pipeline</span>
+        </a>
+        <a href="#" [class.active]="isActive('count-to-wins')" (click)="setActive('count-to-wins')">
+          <i class="material-icons">emoji_events</i>
+          <span *ngIf="!isSidebarCollapsed">Count to Wins</span>
+        </a>
+        <a href="#" [class.active]="isActive('signings')" (click)="setActive('signings')">
+          <i class="material-icons">attach_money</i>
+          <span *ngIf="!isSidebarCollapsed">Signings</span>
+        </a>
+      </nav>
+    </div>
+  
+    <!-- Footer Section -->
+    <div class="sidebar-footer">
+      <a href="#" [class.active]="isActive('settings')" (click)="setActive('settings')">
+        <i class="material-icons">settings</i>
+        <span *ngIf="!isSidebarCollapsed">Settings</span>
+      </a>
+      <a href="#" [class.active]="isActive('logout')" (click)="setActive('logout')">
+        <i class="material-icons">logout</i>
+        <span *ngIf="!isSidebarCollapsed">Logout</span>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Toggle Button -->
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <i class="material-icons">{{ isSidebarCollapsed ? 'menu' : 'close' }}</i>
+  </button>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1>Welcome to the Dashboard</h1>
+    <p>This is the main content area. It moves with the sidebar!</p>
+  </div>
