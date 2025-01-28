@@ -1,0 +1,180 @@
+<!-- dashboard.component.html -->
+<div class="dashboard">
+  <!-- Cards Section -->
+  <div class="cards">
+    <div class="card">
+      <h3>{{ cards[0].title }}</h3>
+      <p>{{ cards[0].value }}</p>
+      <p>{{ cards[0].percentage }}</p>
+    </div>
+    <div class="card">
+      <h3>{{ cards[1].title }}</h3>
+      <p>{{ cards[1].value }}</p>
+      <p>{{ cards[1].percentage }}</p>
+    </div>
+    <div class="card">
+      <h3>{{ cards[2].title }}</h3>
+      <p>{{ cards[2].value }}</p>
+      <p>{{ cards[2].percentage }}</p>
+    </div>
+    <div class="card">
+      <h3>{{ cards[3].title }}</h3>
+      <p>{{ cards[3].value }}</p>
+      <p>{{ cards[3].percentage }}</p>
+    </div>
+  </div>
+
+  <!-- Chart Section -->
+  <div id="chart">
+    <apx-chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [dataLabels]="chartOptions.dataLabels"
+      [plotOptions]="chartOptions.plotOptions"
+      [yaxis]="chartOptions.yaxis"
+      [xaxis]="chartOptions.xaxis"
+      [fill]="chartOptions.fill"
+      [tooltip]="chartOptions.tooltip"
+      [stroke]="chartOptions.stroke"
+    ></apx-chart>
+  </div>
+
+  <!-- Account Executives Section -->
+  <div class="account-executives">
+    <div class="custom-card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <div class="scrollable-table">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  @for (sale of product_sale; track sale) {
+                    <th>
+                      <span>
+                        {{ sale.title }}
+                      </span>
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Account Executive 1</td>
+                  @for (progress of progressBar; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 2</td>
+                  @for (progress of progressBar2; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 3</td>
+                  @for (progress of progressBar3; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 4</td>
+                  @for (progress of progressBar4; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 5</td>
+                  @for (progress of progressBar5; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 6</td>
+                  @for (progress of progressBar6; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 7</td>
+                  @for (progress of progressBar7; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 8</td>
+                  @for (progress of progressBar8; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 9</td>
+                  @for (progress of progressBar9; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+                <tr>
+                  <td>Account Executive 10</td>
+                  @for (progress of progressBar10; track progress) {
+                    <td>
+                      {{ progress.value }}
+                      <div class="progress">
+                        <div class="progress-bar" [style.width.%]="progress.percentage" [style.backgroundColor]="progress.color"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+</div>

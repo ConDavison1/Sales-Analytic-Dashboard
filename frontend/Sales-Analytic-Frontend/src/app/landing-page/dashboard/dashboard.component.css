@@ -1,0 +1,133 @@
+/* dashboard.component.css */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns for the cards */
+  gap: 16px; /* Space between cards and chart */
+  margin: 20px; /* Add space around the grid */
+}
+
+/* Cards Section */
+.cards {
+  grid-column: 1 / -1; /* Cards span all 4 columns */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cards in a row */
+  gap: 16px; /* Space between cards */
+  max-width: 100%;
+}
+
+.card {
+  color: #5f6368; /* Text color */
+  padding: 16px; /* Inner padding */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+  text-align: center; /* Center text */
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Smooth hover effect */
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Lift up the card on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* More shadow on hover */
+}
+
+.card h3 {
+  font-size: 18px;
+  margin-bottom: 12px; /* Spacing below title */
+  font-weight: bold;
+}
+
+.card p {
+  margin: 6px 0; /* Spacing between values */
+  font-size: 16px;
+}
+
+.card p:nth-child(3) {
+  font-size: 14px; /* Smaller size for percentage */
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Chart Section */
+#chart {
+  grid-column: span 2; /* Chart spans 2 columns */
+  max-width: 100%; /* Ensure the chart takes full width of its container */
+  margin: 0; /* Remove margin to align with the grid */
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+/* Account Executives Section */
+.account-executives {
+  grid-column: 1 / -1; /* Span all columns */
+  
+}
+
+.custom-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.custom-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.progress {
+  height: 4px;
+  background-color: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on smaller screens */
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr); /* 2 cards per row on smaller screens */
+  }
+
+  #chart {
+    grid-column: span 2; /* Chart spans 2 columns on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    grid-template-columns: 1fr; /* 1 column on very small screens */
+  }
+
+  .cards {
+    grid-template-columns: 1fr; /* 1 card per row on very small screens */
+  }
+
+  #chart {
+    grid-column: span 1; /* Chart spans 1 column on very small screens */
+  }
+}
