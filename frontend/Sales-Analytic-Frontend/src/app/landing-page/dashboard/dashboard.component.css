@@ -58,6 +58,15 @@
   background-color: #ffffff;
 }
 
+#territory-chart {
+  grid-column: span 2; 
+  max-width: 100%; /* Ensure it takes full width */
+  padding: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
 /* Account Executives Section */
 .account-executives {
   grid-column: 1 / -1; /* Span all columns */
@@ -85,6 +94,8 @@
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #dee2e6;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #5f6368;
 }
 
 .custom-table th {

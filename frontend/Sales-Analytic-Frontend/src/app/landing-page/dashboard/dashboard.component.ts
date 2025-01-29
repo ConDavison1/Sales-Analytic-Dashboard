@@ -14,6 +14,8 @@ import {
   ApexXAxis,
   ApexFill,
   ApexTooltip,
+  ApexTitleSubtitle,
+  ApexMarkers,
 } from 'ng-apexcharts';
 
 // Define the ChartOptions type
@@ -28,6 +30,21 @@ export type ChartOptions = {
   tooltip: ApexTooltip;
   stroke: ApexStroke;
   legend: ApexLegend;
+};
+
+export type TerritoryChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  title: ApexTitleSubtitle;
+  stroke: ApexStroke;
+  dataLabels: ApexDataLabels;
+  tooltip: any;
+  plotOptions: ApexPlotOptions;
+  fill: ApexFill;
+  colors: string[];
+  yaxis: ApexYAxis;
+  markers: ApexMarkers;
+  xaxis: ApexXAxis;
 };
 
 interface ProgressBarItem {
@@ -46,6 +63,7 @@ interface ProgressBarItem {
 export class DashboardComponent {
   @ViewChild('chart', { static: true }) chart!: ChartComponent; // Use definite assignment assertion
   public chartOptions: ChartOptions; // Chart configuration (no Partial)
+  public territoryChartOptions: TerritoryChartOptions; // Chart configuration (no Partial)
 
   // Cards Data
   cards = [
@@ -130,6 +148,7 @@ export class DashboardComponent {
         {
           name: 'Revenue',
           data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
+          
         },
         {
           name: 'Pipeline',
@@ -175,10 +194,15 @@ export class DashboardComponent {
           'Sep',
           'Oct',
         ],
+        
       },
       yaxis: {
         title: {
-          text: '$ (thousands)',
+          text: '$ Thousands',
+          style: {
+            color: '#5f6368',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
         },
       },
       fill: {
@@ -193,6 +217,86 @@ export class DashboardComponent {
       },
       legend: {
         show: true, // Ensure legend is defined
+      },
+    };
+
+    // Initialize territory chart options
+    this.territoryChartOptions = {
+      series: [
+        {
+          name: 'Series 1',
+          data: [20, 100, 40, 30, 50, 80, 33],
+        },
+      ],
+      chart: {
+        height: 350,
+        type: 'radar',
+      },
+      dataLabels: {
+        enabled: true,
+      },
+      plotOptions: {
+        radar: {
+          size: 140,
+          polygons: {
+            strokeColors: '#e9e9e9',
+            fill: {
+              colors: ['#f8f8f8', '#fff'],
+            },
+          },
+        },
+      },
+      title: {
+        text: 'Territories',
+        style: {
+          color: '#5f6368',
+          fontFamily: 'Arial, Helvetica, sans-serif',
+        },
+      },
+      colors: ['#FF4560'],
+      markers: {
+        size: 4,
+        colors: ['#fff'],
+        strokeColors: ['#FF4560'],
+        strokeWidth: 2,
+      },
+      tooltip: {
+        y: {
+          formatter: function (val: number) {
+            return val.toString();
+          },
+        },
+      },
+      xaxis: {
+        categories: [
+          '1',
+          '2',
+          '3',
+          '4',
+          '5',
+          '6',
+          '7',
+        ],
+      },
+      yaxis: {
+        tickAmount: 7,
+        labels: {
+          formatter: function (val:number, i: number) {
+            if (i % 2 === 0) {
+              return val.toString();
+            } else {
+              return '';
+            }
+          },
+        },
+      },
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ['#FF4560'],
+      },
+      fill: {
+        opacity: 0.9,
       },
     };
   }
