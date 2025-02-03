@@ -1,2 +1,74 @@
 <app-header></app-header>
 <app-sidebar></app-sidebar>
+<div class="container">
+  <!-- Summary Cards -->
+  <div class="card-container">
+    <div class="card">
+      <h2>Revenue</h2>
+      <p class="value">$53,000,000</p>
+      <span>+55%</span>
+    </div>
+    <div class="card">
+      <h2>Pipeline</h2>
+      <p class="value">$80,300,000</p>
+      <span>+5%</span>
+    </div>
+    <div class="card">
+      <h2>Count To Wins</h2>
+      <p class="value">200</p>
+      <span>-14%</span>
+    </div>
+    <div class="card">
+      <h2>Signings</h2>
+      <p class="value">$53,000,000</p>
+      <span>+8%</span>
+    </div>
+  </div>
+
+  <!-- Revenue Estimates Table -->
+  <div class="table-container">
+    <h2 class="text-xl font-semibold mb-4">Revenue Estimates</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Account Name</th>
+          <th>Revenue Type</th>
+          <th>Total Revenue ($)</th>
+          <th>ARR ($)</th>
+          <th>Time Period</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of revenueData">
+          <td>{{ row.accountName }}</td>
+          <td>{{ row.revenueType }}</td>
+          <td>{{ row.totalRevenue | currency }}</td>
+          <td>{{ row.arr | currency }}</td>
+          <td>{{ row.timePeriod }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="chart-container">
+    <apx-chart 
+      [series]="barChart.series" 
+      [chart]="barChart.chart" 
+      [xaxis]="barChart.xaxis"
+      [plotOptions]="barChart.plotOptions"
+      [dataLabels]="barChart.dataLabels"
+      [colors]="barChart.colors">
+    </apx-chart>
+  </div>
+
+  <!-- Revenue Target Gauge-->
+  <div class="chart-container relative">
+    <apx-chart 
+      [series]="gaugeChart.series" 
+      [chart]="gaugeChart.chart"
+      [plotOptions]="gaugeChart.plotOptions"
+      [fill]="gaugeChart.fill"
+      [stroke]="gaugeChart.stroke">
+    </apx-chart>
+  </div>
