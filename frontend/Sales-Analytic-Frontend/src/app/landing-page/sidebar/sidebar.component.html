@@ -41,19 +41,19 @@
     <nav>
       <a
         href="#"
-        [class.active]="isActive('revenue')"
-        (click)="setActive('revenue')"
-      >
-        <i class="material-icons">trending_up</i>
-        <span *ngIf="!isSidebarCollapsed">Revenue</span>
-      </a>
-      <a
-        href="#"
         [class.active]="isActive('pipeline')"
         (click)="setActive('pipeline')"
       >
         <i class="material-icons">bar_chart</i>
         <span *ngIf="!isSidebarCollapsed">Pipeline</span>
+      </a>
+      <a
+        href="#"
+        [class.active]="isActive('revenue')"
+        (click)="setActive('revenue')"
+      >
+        <i class="material-icons">trending_up</i>
+        <span *ngIf="!isSidebarCollapsed">Revenue</span>
       </a>
       <a
         href="#"

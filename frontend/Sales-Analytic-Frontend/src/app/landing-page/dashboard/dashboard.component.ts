@@ -1,5 +1,5 @@
-// dashboard.component.ts
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
+import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
@@ -60,18 +60,25 @@ interface ProgressBarItem {
   templateUrl: './dashboard.component.html', // Link to the HTML file
   styleUrls: ['./dashboard.component.css'], // Link to the CSS file
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   @ViewChild('chart', { static: true }) chart!: ChartComponent; // Use definite assignment assertion
   public chartOptions: ChartOptions; // Chart configuration (no Partial)
   public territoryChartOptions: TerritoryChartOptions; // Chart configuration (no Partial)
 
   // Cards Data
-  cards = [
-    { title: 'Revenue', value: '$53,000,000', percentage: '+55%' },
-    { title: 'Pipeline', value: '$80,300,000', percentage: '+5%' },
-    { title: 'Count To Wins', value: '200', percentage: '-14%' },
-    { title: 'Signings', value: '$53,000,000', percentage: '+8%' },
-  ];
+  pipelineCount: number = 0;
+  revenueCount: number = 0;
+  signingsCount: number = 0;
+  winsCount: number = 0;
+
+  get cards() {
+    return [
+      { title: 'Pipeline', value: `$${this.pipelineCount}`, percentage: '+55%' },
+      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
+      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' },
+      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+8%' },
+    ];
+  }
 
   // Account Executives Data
   product_sale = [
@@ -141,17 +148,17 @@ export class DashboardComponent {
     { value: '44%', color: '#ffc107', percentage: 44 },
   ];
 
-  constructor() {
+
+  constructor(private dashboardService: DashboardService) {
     // Initialize chart options with all required properties
     this.chartOptions = {
       series: [
         {
-          name: 'Revenue',
+          name: 'Pipeline',
           data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-          
         },
         {
-          name: 'Pipeline',
+          name: 'Revenue',
           data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
         },
         {
@@ -194,7 +201,6 @@ export class DashboardComponent {
           'Sep',
           'Oct',
         ],
-        
       },
       yaxis: {
         title: {
@@ -299,5 +305,28 @@ export class DashboardComponent {
         opacity: 0.9,
       },
     };
+  }
+
+  ngOnInit(): void {
+    this.fetchDashboardData();
+  }
+
+  fetchDashboardData(): void {
+
+    this.dashboardService.getPipelineCount().subscribe((response) => {
+      this.pipelineCount = response.pipeline_count;
+    });
+
+    this.dashboardService.getRevenueSum().subscribe((response) => {
+      this.revenueCount = response.revenue_sum;
+    });
+
+    this.dashboardService.getSigningsCount().subscribe((response) => {
+      this.signingsCount = response.signings_count;
+    });
+
+    this.dashboardService.getWinsCount().subscribe((response) => {
+      this.winsCount = response.wins_count;
+    });
   }
 }
