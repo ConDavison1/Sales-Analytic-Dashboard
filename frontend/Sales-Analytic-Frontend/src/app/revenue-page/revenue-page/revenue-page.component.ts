@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { HeaderComponent } from '../header/header.component';
@@ -10,9 +10,17 @@ import { ApexChart } from 'ng-apexcharts';
   imports: [HeaderComponent, SidebarComponent, NgApexchartsModule, CommonModule],
   standalone: true,
   templateUrl: './revenue-page.component.html',
-  styleUrl: './revenue-page.component.css'
+  styleUrl: './revenue-page.component.css',
+  encapsulation: ViewEncapsulation.Emulated
 })
 export class RevenuePageComponent {
+
+  cards = [
+    { title: 'Revenue', value: '$53,000,000', percentage: '+55%' },
+    { title: 'Pipeline', value: '$80,300,000', percentage: '+5%' },
+    { title: 'Count To Wins', value: '200', percentage: '-14%' },
+    { title: 'Signings', value: '$53,000,000', percentage: '+8%' },
+  ];
 
   revenueData = [
     { accountName: "Client 7", revenueType: "GCP", totalRevenue: 1200000, arr: 480000, timePeriod: 2024 },
