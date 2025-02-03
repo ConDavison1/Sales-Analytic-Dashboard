@@ -1,27 +1,27 @@
 <app-header></app-header>
 <app-sidebar></app-sidebar>
-<div class="container">
+<div class="revenue-container">
   <!-- Summary Cards -->
-  <div class="card-container">
+  <div class="cards">
     <div class="card">
-      <h2>Revenue</h2>
-      <p class="value">$53,000,000</p>
-      <span>+55%</span>
+      <h3>{{ cards[0].title }}</h3>
+      <p>{{ cards[0].value }}</p>
+      <p>{{ cards[0].percentage }}</p>
     </div>
     <div class="card">
-      <h2>Pipeline</h2>
-      <p class="value">$80,300,000</p>
-      <span>+5%</span>
+      <h3>{{ cards[1].title }}</h3>
+      <p>{{ cards[1].value }}</p>
+      <p>{{ cards[1].percentage }}</p>
     </div>
     <div class="card">
-      <h2>Count To Wins</h2>
-      <p class="value">200</p>
-      <span>-14%</span>
+      <h3>{{ cards[2].title }}</h3>
+      <p>{{ cards[2].value }}</p>
+      <p>{{ cards[2].percentage }}</p>
     </div>
     <div class="card">
-      <h2>Signings</h2>
-      <p class="value">$53,000,000</p>
-      <span>+8%</span>
+      <h3>{{ cards[3].title }}</h3>
+      <p>{{ cards[3].value }}</p>
+      <p>{{ cards[3].percentage }}</p>
     </div>
   </div>
 
