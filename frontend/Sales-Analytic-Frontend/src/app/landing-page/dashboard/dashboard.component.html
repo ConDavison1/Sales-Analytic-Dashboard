@@ -2,25 +2,10 @@
 <div class="dashboard">
   <!-- Cards Section -->
   <div class="cards">
-    <div class="card">
-      <h3>{{ cards[0].title }}</h3>
-      <p>{{ cards[0].value }}</p>
-      <p>{{ cards[0].percentage }}</p>
-    </div>
-    <div class="card">
-      <h3>{{ cards[1].title }}</h3>
-      <p>{{ cards[1].value }}</p>
-      <p>{{ cards[1].percentage }}</p>
-    </div>
-    <div class="card">
-      <h3>{{ cards[2].title }}</h3>
-      <p>{{ cards[2].value }}</p>
-      <p>{{ cards[2].percentage }}</p>
-    </div>
-    <div class="card">
-      <h3>{{ cards[3].title }}</h3>
-      <p>{{ cards[3].value }}</p>
-      <p>{{ cards[3].percentage }}</p>
+    <div *ngFor="let card of cards" class="card">
+      <h3>{{ card.title }}</h3>
+      <p>{{ card.value }}</p>
+      <span>{{ card.percentage }}</span>
     </div>
   </div>
 
