@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// Define interfaces for the API responses
+
 interface RevenueSumResponse {
   revenue_sum: number;
 }
@@ -20,12 +20,12 @@ interface WinsCountResponse {
 }
 
 @Injectable({
-  providedIn: 'root', // Provided in root so it is a singleton service
+  providedIn: 'root',
 })
 export class DashboardService {
-  private baseUrl = 'http://localhost:5000'; // Adjust with your API base URL
+  private baseUrl = 'http://localhost:5000';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getRevenueSum(): Observable<RevenueSumResponse> {
     return this.http.get<RevenueSumResponse>(`${this.baseUrl}/revenue-sum`);
@@ -41,5 +41,9 @@ export class DashboardService {
 
   getWinsCount(): Observable<WinsCountResponse> {
     return this.http.get<WinsCountResponse>(`${this.baseUrl}/wins-count`);
+  }
+
+  getAccountExecutives(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/account-executives`);
   }
 }
