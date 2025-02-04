@@ -15,12 +15,19 @@ import { ApexChart } from 'ng-apexcharts';
 })
 export class RevenuePageComponent {
 
-  cards = [
-    { title: 'Revenue', value: '$53,000,000', percentage: '+55%' },
-    { title: 'Pipeline', value: '$80,300,000', percentage: '+5%' },
-    { title: 'Count To Wins', value: '200', percentage: '-14%' },
-    { title: 'Signings', value: '$53,000,000', percentage: '+8%' },
-  ];
+  pipelineCount: number = 0;
+  revenueCount: number = 0;
+  signingsCount: number = 0;
+  winsCount: number = 0;
+
+  get cards() {
+    return [
+      { title: 'Pipeline', value: `$${this.pipelineCount}`, percentage: '+55%' },
+      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
+      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' },
+      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+8%' },
+    ];
+  }
 
   revenueData = [
     { accountName: "Client 7", revenueType: "GCP", totalRevenue: 1200000, arr: 480000, timePeriod: 2024 },

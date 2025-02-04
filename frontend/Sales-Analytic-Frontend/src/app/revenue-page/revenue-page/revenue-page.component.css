@@ -1,15 +1,13 @@
-:host {
-  display: block;
-}
-
-:host .revenue-container {
-  max-width: 1200px;
-  margin: auto;
+/*revenue.component.css*/
+.revenue {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns for the cards */
+  gap: 16px; /* Space between cards and chart */
+  margin: 20px; /* Add space around the grid */
 }
 
+/*Cards*/
+/* Cards Section */
 .cards {
   grid-column: 1 / -1; /* Cards span all 4 columns */
   display: grid;
@@ -50,40 +48,61 @@
   opacity: 0.8;
 }
 
-:host .chart-container {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
-}
-
-:host .table-container {
-  width: 100%;
-  background-color: white;
+.chart-container,
+.table-container,
+.gauge-container {
+  grid-column: 1 / -1; /* Span across all columns */
+  max-width: 100%;
+  margin: 0;
   padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  background-color: #ffffff;
 }
 
-:host .table-container table {
+/* Chart Section */
+/* .chart-container {
+  grid-column: span 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+} */
+
+/*Revenue Table*/
+/* .table-container {
+  grid-column: span 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+} */
+
+.table-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-:host .table-container th, :host .table-container td {
+.table-container th, .table-container td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-:host .table-container thead {
+.table-container thead {
   background-color: #f7f7f7;
 }
 
-:host .gauge-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  width: 100%;
-}
+/*Revenue Goal*/
+/* .gauge-container {
+  grid-column: span 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+} */

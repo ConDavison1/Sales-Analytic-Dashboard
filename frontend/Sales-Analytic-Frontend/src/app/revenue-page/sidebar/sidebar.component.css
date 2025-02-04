@@ -28,7 +28,7 @@
     padding: 15px 20px;
     font-size: 20px;
     font-weight: bold;
-    color: #202124; /* Explicitly set text color to black */
+    color: #5f6368; /* Explicitly set text color to black */
     border-bottom: 1px solid #e0e0e0;
   }
   
@@ -136,7 +136,7 @@
     border: none;
     cursor: pointer;
     font-size: 24px;
-    color: #202124; /* Google-style text color */
+    color: #5f6368; /* Gray Google-like text */
     transition: left 0.3s ease;
   }
   
