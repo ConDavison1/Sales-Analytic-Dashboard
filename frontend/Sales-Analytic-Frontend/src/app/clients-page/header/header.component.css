@@ -1,0 +1,52 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px; /* Add horizontal padding */
+    background-color: #ffffff; /* Google white */
+    color: #333; /* Darker text color for contrast */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Ensure full width */
+    height: 60px; /* Adjust height as needed */
+    z-index: 1000; /* Keeps it above other content */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+    box-sizing: border-box; /* Include padding in width calculation */
+  }
+  
+  .logo img {
+    width: 81%;
+    height: 44px; /* Keep a consistent height */
+    object-fit: contain;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #f1f3f4; /* Subtle gray background for the search bar */
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #333;
+    flex-grow: 1; /* Allows the search bar to expand */
+    max-width: 600px; /* Prevents it from becoming too large */
+    margin: 0 20px; /* Space between sections */
+  }
+  
+  .search-bar input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    font-size: 14px;
+    background: transparent; /* Matches search bar background */
+    color: #333;
+  }
+  
+  .actions img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
