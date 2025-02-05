@@ -1,4 +1,3 @@
-<!-- dashboard.component.html -->
 <div class="dashboard">
   <!-- Cards Section -->
   <div class="cards">
@@ -10,60 +9,48 @@
   </div>
 
   <!-- Chart Section -->
-  <!-- <div id="chart">
+  <div id="chart">
+    <div *ngIf="isLoadingChartData">
+      <p>Loading chart data...</p>
+    </div>
     <apx-chart
-      [series]="chartOptions.series"
+      *ngIf="!isLoadingChartData"
+      [series]="chartOptions.series || []"
       [chart]="chartOptions.chart"
-      [dataLabels]="chartOptions.dataLabels"
-      [plotOptions]="chartOptions.plotOptions"
-      [yaxis]="chartOptions.yaxis"
       [xaxis]="chartOptions.xaxis"
+      [yaxis]="chartOptions.yaxis"
+      [plotOptions]="chartOptions.plotOptions"
+      [dataLabels]="chartOptions.dataLabels"
+      [stroke]="chartOptions.stroke"
       [fill]="chartOptions.fill"
       [tooltip]="chartOptions.tooltip"
-      [stroke]="chartOptions.stroke"
+      [legend]="chartOptions.legend"
     ></apx-chart>
-  </div> -->
-
-  <!-- Territory Chart Section -->
-  <!-- <div id="territory-chart">
-    <apx-chart
-      [series]="territoryChartOptions.series"
-      [chart]="territoryChartOptions.chart"
-      [xaxis]="territoryChartOptions.xaxis"
-      [stroke]="territoryChartOptions.stroke"
-      [colors]="territoryChartOptions.colors"
-      [dataLabels]="territoryChartOptions.dataLabels"
-      [tooltip]="territoryChartOptions.tooltip"
-      [plotOptions]="territoryChartOptions.plotOptions"
-      [markers]="territoryChartOptions.markers"
-      [yaxis]="territoryChartOptions.yaxis"
-      [fill]="territoryChartOptions.fill"
-      [title]="territoryChartOptions.title"
-    ></apx-chart>
-  </div> -->
-  <div *ngIf="accountExecutives.length">
-    <table>
-      <thead>
-        <tr>
-          <th>Executive ID</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let executive of accountExecutives">
-          <td>{{ executive.executive_id }}</td>
-          <td>{{ executive.first_name }}</td>
-          <td>{{ executive.last_name }}</td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
-  <div *ngIf="!accountExecutives.length">
-    <p>Loading account executives...</p>
+  <!-- Account Executives Section -->
+  <div class="account-executives">
+    <div class="custom-card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Executive ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let executive of accountExecutives">
+                <td>{{ executive.executive_id }}</td>
+                <td>{{ executive.first_name }}</td>
+                <td>{{ executive.last_name }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
-
-
-
 </div>

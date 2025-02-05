@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-
 interface RevenueSumResponse {
   revenue_sum: number;
 }
@@ -19,13 +18,26 @@ interface WinsCountResponse {
   wins_count: number;
 }
 
+interface AccountExecutive {
+  executive_id: number;
+  first_name: string;
+  last_name: string;
+}
+
+interface ChartDataResponse {
+  pipeline: number[];
+  revenue: number[];
+  wins: number[];
+  signings: number[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
   private baseUrl = 'http://localhost:5000';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getRevenueSum(): Observable<RevenueSumResponse> {
     return this.http.get<RevenueSumResponse>(`${this.baseUrl}/revenue-sum`);
@@ -43,7 +55,11 @@ export class DashboardService {
     return this.http.get<WinsCountResponse>(`${this.baseUrl}/wins-count`);
   }
 
-  getAccountExecutives(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/account-executives`);
+  getAccountExecutives(): Observable<AccountExecutive[]> {
+    return this.http.get<AccountExecutive[]>(`${this.baseUrl}/account-executives`);
+  }
+
+  getChartData(): Observable<ChartDataResponse> {
+    return this.http.get<ChartDataResponse>(`${this.baseUrl}/account-executives`);
   }
 }
