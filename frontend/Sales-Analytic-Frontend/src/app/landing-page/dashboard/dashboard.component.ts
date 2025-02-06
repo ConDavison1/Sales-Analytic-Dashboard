@@ -111,15 +111,17 @@ export class DashboardComponent implements OnInit {
   fetchAccountExecutives(): void {
     this.dashboardService.getAccountExecutives().subscribe(
       (response) => {
-        this.accountExecutives = response;
-        this.isLoadingAccountExecutives = false;
+        console.log('API Response:', response);  // Log the response here to see how the data is formatted
+        this.accountExecutives = response;  // Assign the response to accountExecutives
+        this.isLoadingAccountExecutives = false;  // Set loading flag to false after data is fetched
       },
       (error) => {
-        console.error('Error fetching account executives:', error);
-        this.isLoadingAccountExecutives = false;
+        console.error('Error fetching account executives:', error);  // Log any error to the console
+        this.isLoadingAccountExecutives = false;  // Set loading flag to false even if there is an error
       }
     );
   }
+  
 
   fetchChartData(): void {
     this.dashboardService.getChartData().subscribe(

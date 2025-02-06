@@ -56,10 +56,10 @@ export class DashboardService {
   }
 
   getAccountExecutives(): Observable<AccountExecutive[]> {
-    return this.http.get<AccountExecutive[]>(`${this.baseUrl}/account-executives`);
+    return this.http.get<AccountExecutive[]>(`${this.baseUrl}/account_executives`); 
   }
 
   getChartData(): Observable<ChartDataResponse> {
-    return this.http.get<ChartDataResponse>(`${this.baseUrl}/account-executives`);
+    return this.http.get<ChartDataResponse>(`${this.baseUrl}/chart-data`);
   }
 }
