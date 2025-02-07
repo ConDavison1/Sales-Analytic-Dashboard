@@ -48,8 +48,8 @@
 }
 
 /* Chart Section */
-#chart {
-  grid-column: span 2; /* Chart spans 2 columns */
+#chartone, #charttwo, #chartthree, #chartfour {
+  grid-column: span 1; /* Chart spans 2 columns */
   max-width: 100%; /* Ensure the chart takes full width of its container */
   margin: 0; /* Remove margin to align with the grid */
   padding: 16px;

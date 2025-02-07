@@ -14,6 +14,7 @@ export type ChartOptions = {
   fill: any;
   tooltip: any;
   legend: any;
+  colors: any;
 };
 
 @Component({
@@ -33,57 +34,90 @@ export class DashboardComponent implements OnInit {
   isLoadingAccountExecutives: boolean = true;
   isLoadingChartData: boolean = true;
 
-  chartOptions!: Partial<ChartOptions>;
+  chartOptionsOne!: Partial<ChartOptions>;
+  chartOptionsTwo!: Partial<ChartOptions>;
+  chartOptionsThree!: Partial<ChartOptions>;
+  chartOptionsFour!: Partial<ChartOptions>;
 
   constructor(private dashboardService: DashboardService) {
-    this.chartOptions = {
-      series: [
-        { name: 'Pipeline', data: [] },
-        { name: 'Revenue', data: [] },
-        { name: 'Count To Wins', data: [] },
-        { name: 'Signings', data: [] },
-      ],
-      chart: {
-        type: 'bar',
-        height: 350,
-      },
+    this.chartOptionsOne = {
+      series: [{ name: 'Pipeline', data: [] }],
+      chart: { type: 'bar', height: 350 },
+      colors: ['#1E88E5'], // Blue
       plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '55%',
-          borderRadius: 8,
-        },
+        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
+      },
+      fill: { 
+        opacity: 1, 
+        colors: ['#1E88E5'], // Blue, added explicitly in fill
       },
       dataLabels: { enabled: false },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent'],
-      },
-      xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      },
-      yaxis: {
-        title: {
-          text: '$ Thousands',
-          style: {
-            color: '#5f6368',
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      fill: { opacity: 1 },
-      tooltip: {
-        y: {
-          formatter: function (val: number) {
-            return '$ ' + val + ' thousands';
-          },
-        },
-      },
+      stroke: { show: true, width: 2, colors: ['transparent'] },
+      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
+      yaxis: { title: { text: 'Amount ($)', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
       legend: { show: true },
     };
+    
+    this.chartOptionsTwo = {
+      series: [{ name: 'Revenue', data: [] }],
+      chart: { type: 'bar', height: 350 },
+      colors: ['#F4511E'], // Red
+      fill: { 
+        opacity: 1, 
+        colors: ['#F4511E'], // Red, added explicitly in fill
+      },
+      plotOptions: {
+        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
+      },
+      dataLabels: { enabled: false },
+      stroke: { show: true, width: 2, colors: ['transparent'] },
+      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
+      yaxis: { title: { text: 'Amount ($)', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      tooltip: { y: { formatter: (val: number) => '$ ' + val} },
+      legend: { show: true },
+    };
+    
+    this.chartOptionsThree = {
+      series: [{ name: 'Signings', data: [] }],
+      chart: { type: 'bar', height: 350 },
+      colors: ['#43A047'], // Green
+      fill: { 
+        opacity: 1, 
+        colors: ['#43A047'], // Green, added explicitly in fill
+      },
+      plotOptions: {
+        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
+      },
+      dataLabels: { enabled: false },
+      stroke: { show: true, width: 2, colors: ['transparent'] },
+      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
+      yaxis: { title: { text: 'Amount ($)', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
+      legend: { show: true },
+    };
+    
+    this.chartOptionsFour = {
+      series: [{ name: 'Wins', data: [] }],
+      chart: { type: 'bar', height: 350 },
+      colors: ['#FDD835'], // Yellow
+      fill: { 
+        opacity: 1, 
+        colors: ['#FDD835'], // Yellow, added explicitly in fill
+      },
+      plotOptions: {
+        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
+      },
+      dataLabels: { enabled: false },
+      stroke: { show: true, width: 2, colors: ['transparent'] },
+      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
+      yaxis: { title: { text: 'Amount', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      tooltip: { y: { formatter: (val: number) => val } },
+      legend: { show: true },
+    };
+    
   }
-
+  
   ngOnInit(): void {
     this.fetchCardData();
     this.fetchAccountExecutives();
@@ -126,14 +160,10 @@ export class DashboardComponent implements OnInit {
   fetchChartData(): void {
     this.dashboardService.getChartData().subscribe(
       (response) => {
-        this.chartOptions = Object.assign({}, this.chartOptions, {
-          series: [
-            { name: 'Pipeline', data: response.pipeline },
-            { name: 'Revenue', data: response.revenue },
-            { name: 'Count To Wins', data: response.wins },
-            { name: 'Signings', data: response.signings },
-          ],
-        });
+        this.chartOptionsOne.series = [{ name: 'Pipeline', data: response.pipeline }];
+        this.chartOptionsTwo.series = [{ name: 'Revenue', data: response.revenue }];
+        this.chartOptionsThree.series = [{ name: 'Signings', data: response.signings }];
+        this.chartOptionsFour.series = [{ name: 'Wins', data: response.wins }];
         this.isLoadingChartData = false;
       },
       (error) => {
@@ -145,10 +175,10 @@ export class DashboardComponent implements OnInit {
 
   get cards() {
     return [
-      { title: 'Pipeline', value: `$${this.pipelineCount}`, percentage: '+55%' },
-      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
-      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' },
-      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+89%' },
+      { title: 'Pipeline', value: `${this.pipelineCount}`, percentage: '+55%' },
+      { title: 'Revenue', value: `${this.revenueCount}`, percentage: '+5%' },
+      { title: 'Signings', value: `${this.signingsCount}`, percentage: '+89%' },
+      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' }
     ];
   }
 }

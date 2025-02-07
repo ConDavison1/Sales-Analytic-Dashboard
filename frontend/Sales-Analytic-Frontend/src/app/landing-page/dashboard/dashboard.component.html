@@ -9,24 +9,70 @@
   </div>
 
   <!-- Chart Section -->
-  <div id="chart">
-    <div *ngIf="isLoadingChartData">
-      <p>Loading chart data...</p>
-    </div>
-    <apx-chart
-      *ngIf="!isLoadingChartData"
-      [series]="chartOptions.series || []"
-      [chart]="chartOptions.chart"
-      [xaxis]="chartOptions.xaxis"
-      [yaxis]="chartOptions.yaxis"
-      [plotOptions]="chartOptions.plotOptions"
-      [dataLabels]="chartOptions.dataLabels"
-      [stroke]="chartOptions.stroke"
-      [fill]="chartOptions.fill"
-      [tooltip]="chartOptions.tooltip"
-      [legend]="chartOptions.legend"
+  <div id="chartone">
+    <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+    <apx-chart *ngIf="!isLoadingChartData"
+      [series]="chartOptionsOne.series || []"
+      [chart]="chartOptionsOne.chart"
+      [xaxis]="chartOptionsOne.xaxis"
+      [yaxis]="chartOptionsOne.yaxis"
+      [plotOptions]="chartOptionsOne.plotOptions"
+      [dataLabels]="chartOptionsOne.dataLabels"
+      [stroke]="chartOptionsOne.stroke"
+      [fill]="chartOptionsOne.fill"
+      [tooltip]="chartOptionsOne.tooltip"
+      [legend]="chartOptionsOne.legend"
     ></apx-chart>
   </div>
+  
+  <div id="charttwo">
+    <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+    <apx-chart *ngIf="!isLoadingChartData"
+      [series]="chartOptionsTwo.series || []"
+      [chart]="chartOptionsTwo.chart"
+      [xaxis]="chartOptionsTwo.xaxis"
+      [yaxis]="chartOptionsTwo.yaxis"
+      [plotOptions]="chartOptionsTwo.plotOptions"
+      [dataLabels]="chartOptionsTwo.dataLabels"
+      [stroke]="chartOptionsTwo.stroke"
+      [fill]="chartOptionsTwo.fill"
+      [tooltip]="chartOptionsTwo.tooltip"
+      [legend]="chartOptionsTwo.legend"
+    ></apx-chart>
+  </div>
+  
+  <div id="chartthree">
+    <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+    <apx-chart *ngIf="!isLoadingChartData"
+      [series]="chartOptionsThree.series || []"
+      [chart]="chartOptionsThree.chart"
+      [xaxis]="chartOptionsThree.xaxis"
+      [yaxis]="chartOptionsThree.yaxis"
+      [plotOptions]="chartOptionsThree.plotOptions"
+      [dataLabels]="chartOptionsThree.dataLabels"
+      [stroke]="chartOptionsThree.stroke"
+      [fill]="chartOptionsThree.fill"
+      [tooltip]="chartOptionsThree.tooltip"
+      [legend]="chartOptionsThree.legend"
+    ></apx-chart>
+  </div>
+  
+  <div id="chartfour">
+    <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+    <apx-chart *ngIf="!isLoadingChartData"
+      [series]="chartOptionsFour.series || []"
+      [chart]="chartOptionsFour.chart"
+      [xaxis]="chartOptionsFour.xaxis"
+      [yaxis]="chartOptionsFour.yaxis"
+      [plotOptions]="chartOptionsFour.plotOptions"
+      [dataLabels]="chartOptionsFour.dataLabels"
+      [stroke]="chartOptionsFour.stroke"
+      [fill]="chartOptionsFour.fill"
+      [tooltip]="chartOptionsFour.tooltip"
+      [legend]="chartOptionsFour.legend"
+    ></apx-chart>
+  </div>
+  
 
 <!-- Account Executives Section -->
 <div class="account-executives">
@@ -55,6 +101,3 @@
     </div>
   </div>
 </div>
-
-
-
