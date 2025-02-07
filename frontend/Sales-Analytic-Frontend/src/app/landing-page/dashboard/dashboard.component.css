@@ -48,8 +48,8 @@
 }
 
 /* Chart Section */
-#chart {
-  grid-column: span 2; /* Chart spans 2 columns */
+#chartone, #charttwo, #chartthree, #chartfour {
+  grid-column: span 1; /* Chart spans 2 columns */
   max-width: 100%; /* Ensure the chart takes full width of its container */
   margin: 0; /* Remove margin to align with the grid */
   padding: 16px;
@@ -70,7 +70,6 @@
 /* Account Executives Section */
 .account-executives {
   grid-column: 1 / -1; /* Span all columns */
-  
 }
 
 .custom-card {
@@ -83,6 +82,14 @@
   padding: 16px;
 }
 
+.table-responsive {
+  overflow-x: auto;
+}
+
+.scrollable-table {
+  max-height: 400px;
+  overflow-y: auto;
+}
 
 .custom-table {
   width: 100%;
@@ -103,15 +110,11 @@
   font-weight: bold;
 }
 
-.progress {
-  height: 4px;
-  background-color: #e9ecef;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
+.loading-message {
+  text-align: center;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #888;
 }
 
 /* Responsive Design */
