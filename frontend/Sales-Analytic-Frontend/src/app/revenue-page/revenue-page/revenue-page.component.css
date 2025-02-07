@@ -1,89 +1,147 @@
-:host {
-  display: block;
-}
-
-:host .revenue-container {
-  max-width: 1200px;
-  margin: auto;
+/*revenue.component.css*/
+.revenue {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px; 
+  margin: 20px; 
 }
 
+
+/* Cards Section */
 .cards {
-  grid-column: 1 / -1; /* Cards span all 4 columns */
+  grid-column: 1 / -1; 
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 cards in a row */
-  gap: 16px; /* Space between cards */
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 16px; 
   max-width: 100%;
 }
 
 .card {
-  color: #5f6368; /* Text color */
-  padding: 16px; /* Inner padding */
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
-  text-align: center; /* Center text */
+  color: #5f6368; 
+  padding: 16px; 
+  border-radius: 12px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
+  text-align: center; 
   background-color: #ffffff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Smooth hover effect */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; 
 }
 
 .card:hover {
-  transform: translateY(-5px); /* Lift up the card on hover */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* More shadow on hover */
+  transform: translateY(-5px); 
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); 
 }
 
 .card h3 {
   font-size: 18px;
-  margin-bottom: 12px; /* Spacing below title */
+  margin-bottom: 12px; 
   font-weight: bold;
 }
 
 .card p {
-  margin: 6px 0; /* Spacing between values */
+  margin: 6px 0; 
   font-size: 16px;
 }
 
 .card p:nth-child(3) {
-  font-size: 14px; /* Smaller size for percentage */
+  font-size: 14px; 
   font-weight: 500;
   opacity: 0.8;
 }
 
-:host .chart-container {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
-}
-
-:host .table-container {
-  width: 100%;
-  background-color: white;
+.chart-container,
+.table-container,
+.gauge-container {
+  grid-column: 1 / -1; 
+  max-width: 100%;
+  margin: 0;
   padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  background-color: #ffffff;
 }
 
-:host .table-container table {
+/* Chart Section */
+/* .chart-container {
+  grid-column: span 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+} */
+
+/*Revenue Table*/
+/* .table-container {
+  grid-column: span 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+} */
+
+.table-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-:host .table-container th, :host .table-container td {
+.table-container th, .table-container td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-:host .table-container thead {
+.table-container thead {
   background-color: #f7f7f7;
 }
 
-:host .gauge-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  width: 100%;
+/*Revenue Goal*/
+/* .gauge-container {
+  grid-column: span 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+} */
+.table-container {
+  grid-column: 1 / -1; 
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden; 
 }
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container thead {
+  background-color: #f7f7f7;
+}
+
+.table-container th, .table-container td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+
+.table-container tbody {
+  display: block;
+  max-height: 300px; 
+  overflow-y: auto;
+}
+
+.table-container tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+

@@ -1,54 +1,60 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router'; 
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Import required modules
+  imports: [CommonModule, RouterModule], 
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  isSidebarCollapsed = false; // Track sidebar state
-  activeLink: string = 'dashboard'; // Track active link
+  isSidebarCollapsed = false; 
+  activeLink: string = ''; 
 
-  // Initialize margin on component load
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) { }
+
+  
   ngOnInit(): void {
-    this.adjustMainContentMargin(); // Set initial margin
+    this.adjustMainContentMargin(); 
+
+    
+    this.router.events.subscribe(() => {
+      const currentRoute = this.activatedRoute.snapshot.firstChild?.routeConfig?.path;
+      if (currentRoute) {
+        this.setActive(currentRoute); 
+      }
+    });
   }
 
-  // Toggle sidebar collapse
+  
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
-    this.adjustMainContentMargin(); // Adjust main content margin dynamically
+    this.adjustMainContentMargin(); 
   }
 
-  // Check if a link is active
-  isActive(link: string): boolean {
-    return this.activeLink === link;
-  }
-
-  // Set the active link
+  
   setActive(link: string): void {
     this.activeLink = link;
   }
 
-  // Adjust main content margin based on sidebar state
+  
   private adjustMainContentMargin(): void {
     const mainContent = document.querySelector('.main-content') as HTMLElement;
     if (mainContent) {
       if (this.isSidebarCollapsed) {
-        mainContent.style.marginLeft = '70px'; // Collapsed width
+        mainContent.style.marginLeft = '70px'; 
       } else {
-        mainContent.style.marginLeft = '250px'; // Expanded width
+        mainContent.style.marginLeft = '250px'; 
       }
     }
   }
 
-  // Optional: Handle window resize for responsiveness
+  
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
-    this.adjustMainContentMargin(); // Re-adjust margin on window resize
+    this.adjustMainContentMargin(); 
   }
 }
