@@ -2,32 +2,30 @@
   <!-- Branding Section -->
   <div class="sidebar-brand">
     <h3 *ngIf="!isSidebarCollapsed">Sales Analytics</h3>
-    <!-- Hide title if collapsed -->
   </div>
 
   <!-- Navigation Links -->
   <nav>
     <a
-      href="#"
-      [class.active]="isActive('dashboard')"
-      (click)="setActive('dashboard')"
+      [routerLink]="['/landing-page']"
+      [routerLinkActive]="'active'"
+      [class.active]="activeLink === 'dashboard'"
     >
       <i class="material-icons">dashboard</i>
       <span *ngIf="!isSidebarCollapsed">Dashboard</span>
-      <!-- Show text if not collapsed -->
     </a>
     <a
-      href="#"
-      [class.active]="isActive('clients')"
-      (click)="setActive('clients')"
+      [routerLink]="['/clients']"
+      [routerLinkActive]="'active'"
+      [class.active]="activeLink === 'clients'"
     >
       <i class="material-icons">person</i>
       <span *ngIf="!isSidebarCollapsed">Clients</span>
     </a>
     <a
-      href="#"
-      [class.active]="isActive('account-execs')"
-      (click)="setActive('account-execs')"
+      [routerLink]="['/account-execs']"
+      [routerLinkActive]="'active'"
+      [class.active]="activeLink === 'account-execs'"
     >
       <i class="material-icons">account_circle</i>
       <span *ngIf="!isSidebarCollapsed">Account Exec's</span>
@@ -37,36 +35,35 @@
   <!-- Sales Section -->
   <div class="sidebar-section">
     <h3 *ngIf="!isSidebarCollapsed">Sales</h3>
-    <!-- Show header if not collapsed -->
     <nav>
       <a
-        href="#"
-        [class.active]="isActive('pipeline')"
-        (click)="setActive('pipeline')"
+        [routerLink]="['/pipeline']"
+        [routerLinkActive]="'active'"
+        [class.active]="activeLink === 'pipeline'"
       >
         <i class="material-icons">bar_chart</i>
         <span *ngIf="!isSidebarCollapsed">Pipeline</span>
       </a>
       <a
-        href="#"
-        [class.active]="isActive('revenue')"
-        (click)="setActive('revenue')"
+        [routerLink]="['/revenue-page']"
+        [routerLinkActive]="'active'"
+        [class.active]="activeLink === 'revenue'"
       >
         <i class="material-icons">trending_up</i>
         <span *ngIf="!isSidebarCollapsed">Revenue</span>
       </a>
       <a
-        href="#"
-        [class.active]="isActive('count-to-wins')"
-        (click)="setActive('count-to-wins')"
+        [routerLink]="['/count-to-wins']"
+        [routerLinkActive]="'active'"
+        [class.active]="activeLink === 'count-to-wins'"
       >
         <i class="material-icons">emoji_events</i>
         <span *ngIf="!isSidebarCollapsed">Count to Wins</span>
       </a>
       <a
-        href="#"
-        [class.active]="isActive('signings')"
-        (click)="setActive('signings')"
+        [routerLink]="['/signings']"
+        [routerLinkActive]="'active'"
+        [class.active]="activeLink === 'signings'"
       >
         <i class="material-icons">attach_money</i>
         <span *ngIf="!isSidebarCollapsed">Signings</span>
@@ -77,17 +74,17 @@
   <!-- Footer Section -->
   <div class="sidebar-footer">
     <a
-      href="#"
-      [class.active]="isActive('settings')"
-      (click)="setActive('settings')"
+      [routerLink]="['/settings']"
+      [routerLinkActive]="'active'"
+      [class.active]="activeLink === 'settings'"
     >
       <i class="material-icons">settings</i>
       <span *ngIf="!isSidebarCollapsed">Settings</span>
     </a>
     <a
-      href="/login"
-      [class.active]="isActive('logout')"
-      (click)="setActive('logout')"
+      [routerLink]="['/login']"
+      [routerLinkActive]="'active'"
+      [class.active]="activeLink === 'logout'"
     >
       <i class="material-icons">logout</i>
       <span *ngIf="!isSidebarCollapsed">Logout</span>
@@ -97,5 +94,5 @@
 
 <!-- Toggle Button -->
 <button class="sidebar-toggle" (click)="toggleSidebar()">
-  <i class="material-icons">{{ isSidebarCollapsed ? "menu" : "close" }}</i>
+  <i class="material-icons">{{ isSidebarCollapsed ? 'menu' : 'close' }}</i>
 </button>

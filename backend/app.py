@@ -131,6 +131,47 @@ def sign_chart_data():
         if connection:
             connection.close()
 
+            
+@app.route('/revenue-client', methods=['GET'])
+def get_revenue_clients():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Retrieve data from the database and order by opportunity_id
+        cursor.execute("""
+        SELECT account_name, revenue_type, total_revenue, iacv
+        FROM revenue
+        ORDER BY opportunity_id
+        """)
+
+        # Fetch all results
+        revenue_clients = cursor.fetchall()
+
+        # Process the results into a list of dictionaries
+        revenue_clients_data = [
+            {
+                "account_name": client[0],
+                "revenue_type": client[1],
+                "total_revenue": client[2],
+                "iacv": client[3]
+            }
+            for client in revenue_clients
+        ]
+        
+        return jsonify(revenue_clients_data), 200
+
+    except psycopg2.Error as e:
+        return jsonify({"message": f"Database error: {e}"}), 500
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
 # Define the Account Executives table data route
 @app.route('/account-executives', methods=['GET'])
 def get_account_executives():

@@ -6,6 +6,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class RevenueService {
+  private apiUrl = 'http://localhost:5000';
 
-  constructor() { }
+  constructor(private http: HttpClient) {}
+
+  getRevenueClients(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/revenue-client`);
+  }
+  getRevenueChart(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/revenue-chart-data`);
+  }
 }
