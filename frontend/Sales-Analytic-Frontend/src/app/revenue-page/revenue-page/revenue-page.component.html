@@ -35,15 +35,19 @@
 
   <!-- Charts Section -->
   <div class="chart-container">
-    <apx-chart 
-      [series]="barChart.series" 
-      [chart]="barChart.chart" 
-      [xaxis]="barChart.xaxis"
-      [plotOptions]="barChart.plotOptions"
-      [dataLabels]="barChart.dataLabels"
-      [colors]="barChart.colors">
-    </apx-chart>
+    <apx-chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [dataLabels]="chartOptions.dataLabels"
+      [plotOptions]="chartOptions.plotOptions"
+      [yaxis]="chartOptions.yaxis"
+      [xaxis]="chartOptions.xaxis"
+      [fill]="chartOptions.fill"
+      [tooltip]="chartOptions.tooltip"
+      [stroke]="chartOptions.stroke"
+    ></apx-chart>
   </div>
+
 
   <!-- Revenue Target Gauge-->
   <div class="chart-container relative">
