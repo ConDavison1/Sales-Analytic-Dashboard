@@ -60,40 +60,69 @@ def login():
         if connection:
             connection.close()
 
-# Define the chart data route
+import traceback  # Add this for debugging
+
 @app.route('/chart-data', methods=['GET'])
 def chart_data():
-    
-    # Retrieves the number of pipeline clients in each category (Omit, Upside, Pipeline, Commit)
-    # and returns the data as JSON for the frontend.
-    
     try:
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Query to count pipeline in each category
+        # Query Pipeline
         cursor.execute("""
-                    SELECT forecast_category, COUNT(*) AS count
-                    FROM pipeline  
-                    GROUP BY forecast_category
-                    ORDER BY forecast_category
-                    """)
+            SELECT forecast_category, COUNT(*) AS count
+            FROM pipeline  
+            GROUP BY forecast_category
+            ORDER BY forecast_category
+        """)
+        pipeline_data = [row[1] for row in cursor.fetchall()]
 
-        results = cursor.fetchall()
+        cursor.execute("""
+            SELECT months, SUM(total_revenue)
+            FROM revenue  
+            GROUP BY months
+            ORDER BY months;
+        """)
 
-        # Transform the results into JSON format
-        chart_data = [{"category": row[0], "count": row[1]} for row in results]
-        return jsonify(chart_data), 200
+        revenue_data = [row[1] for row in cursor.fetchall()]
 
-    except psycopg2.Error as e:
-        return jsonify({"message": f"Database error: {e}"}), 500
+        # Query Wins
+        cursor.execute("""
+            SELECT months, COUNT(*) 
+            FROM wins 
+            WHERE is_win = TRUE            
+            GROUP BY months
+            ORDER BY months
+        """)
+        wins_data = [row[1] for row in cursor.fetchall()]
+
+        # Query Signings
+        cursor.execute("""
+            SELECT months, SUM(incremental_acv)
+            FROM signings 
+            GROUP BY months
+            ORDER BY months
+        """)
+        signings_data = [row[1] for row in cursor.fetchall()]
+
+        return jsonify({
+            "pipeline": pipeline_data,
+            "revenue": revenue_data,
+            "wins": wins_data,
+            "signings": signings_data
+        }), 200
+
     except Exception as e:
+        print("Error in /chart-data:", traceback.format_exc())  # Logs the full error
         return jsonify({"message": f"An error occurred: {e}"}), 500
     finally:
         if cursor:
             cursor.close()
         if connection:
             connection.close()
+
+
+
 
 
 # Define the signings chart data route
@@ -131,35 +160,54 @@ def sign_chart_data():
         if connection:
             connection.close()
 
-# Define the Account Executives table data route
-@app.route('/account-executives', methods=['GET'])
-def get_account_executives():
-   
-    # Retrieves a list of account executives with their ID, first name, and last name.
-  
+@app.route('/account_executives', methods=['GET'])
+def account_executives():
     try:
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        
         cursor.execute("""
-            SELECT executive_id, first_name, last_name
+            SELECT first_name, last_name, assigned_accounts, performance_metrics, status 
             FROM account_executives
         """)
         
-        account_executives = cursor.fetchall()
+        data = cursor.fetchall()
+        executives = []
 
-       
-        executives_data = [
-            {
-                "executive_id": executive[0],
-                "first_name": executive[1],
-                "last_name": executive[2],
-            }
-            for executive in account_executives
-        ]
-        
-        return jsonify(executives_data), 200
+        for row in data:
+            first_name, last_name, assigned_accounts, performance_metrics, status = row
+
+            # Convert assigned_accounts from string format to list (assumes it's a valid list in string form)
+            assigned_accounts = eval(assigned_accounts) if isinstance(assigned_accounts, str) else assigned_accounts
+            number_of_clients = len(assigned_accounts)  # Count the number of clients assigned
+
+            # Parse performance_metrics as JSON
+            try:
+                performance_metrics = eval(performance_metrics) if isinstance(performance_metrics, str) else performance_metrics
+                sales = performance_metrics.get('sales', 0)
+                targets = performance_metrics.get('targets', 0)
+            except (ValueError, TypeError):
+                sales = 0
+                targets = 0
+
+            # Calculate the performance percentage
+            performance_percentage = targets if targets > 0 else 0
+
+            executives.append({
+                "name": f"{first_name} {last_name}",
+                "clients": number_of_clients,
+                "performance": {
+                    "value": f"${sales}",
+                    "percentage": performance_percentage,
+                    "color": "green" if performance_percentage >= 70 else ("#ffc107" if performance_percentage >= 40 else "red")
+                },
+                "status": {
+                    "value": status,
+                    "percentage": 100,
+                    "color": "green" if status == "Active" else "red"
+                }
+            })
+        return jsonify(executives), 200
 
     except psycopg2.Error as e:
         return jsonify({"message": f"Database error: {e}"}), 500
@@ -170,6 +218,7 @@ def get_account_executives():
             cursor.close()
         if connection:
             connection.close()
+
 
 
 # Define the Wins table data route
