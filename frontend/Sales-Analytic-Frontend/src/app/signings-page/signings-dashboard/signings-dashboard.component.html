@@ -23,7 +23,7 @@
                 <tr>Time Period</tr>
             </thead>
             <tbody>
-                <tr>
+                <tr *ngFor="let row of signingsData">
                     <td>{{ row.account_name }}</td>
                     <td>{{ row.opportunity_id }}</td>
                     <td>{{ row.stage }}</td>

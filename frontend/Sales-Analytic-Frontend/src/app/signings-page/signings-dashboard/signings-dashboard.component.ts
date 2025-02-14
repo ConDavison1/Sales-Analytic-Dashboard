@@ -33,6 +33,10 @@ export class SigningsDashboardComponent {
   signingsCount: number = 0;
   winsCount: number = 0;
 
+  signingsData: any[] = [];
+  signingsChartData: any[] = [];
+  isDataLoaded: boolean = false;
+
   constructor(private dashboardService: DashboardService, private signingsService: SigningsService) {}
   
   ngOnInit(): void {
@@ -90,7 +94,7 @@ export class SigningsDashboardComponent {
         endAngle: 90,
         track: { background: '#e7e7e7', strokeWidth: '97%' },
         dataLabels: {
-          name: { show: true, fontSize: '16px', offsetY: 20, color: '#333', formatter: () => 'Revenue Target Score' },
+          name: { show: true, fontSize: '16px', offsetY: 20, color: '#333', formatter: () => 'Signings Target Score' },
           value: { fontSize: '24px', show: true, offsetY: -10, formatter: (val: number) => `${Math.round((val / 100) * 60)}M` }
         }
       }
