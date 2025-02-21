@@ -23,10 +23,10 @@ export type ChartOptions = {
   imports: [NgApexchartsModule, CommonModule],
   standalone: true,
   templateUrl: './signings-dashboard.component.html',
-  styleUrl: './signings-dashboard.component.css',
+  styleUrls: ['./signings-dashboard.component.css'],
   encapsulation: ViewEncapsulation.Emulated
 })
-export class SigningsDashboardComponent {
+export class SigningsDashboardComponent implements OnInit {
 
   pipelineCount: number = 0;
   revenueCount: number = 0;
@@ -41,6 +41,36 @@ export class SigningsDashboardComponent {
   
   ngOnInit(): void {
     this.fetchDashboardData();
+
+    // Static mock data
+    this.signingsData = [
+    {
+      account_name: 'Acme Corp',
+      opportunity_id: 'OPP12345',
+      stage: 'Negotiation',
+      forecast_category: 'Commit',
+      probability: '80%',
+      iacv: '$120,000',
+      signing_date: '2025-03-15',
+      time_period: 'Q1 2025'
+    },
+    {
+      account_name: 'Globex Inc',
+      opportunity_id: 'OPP67890',
+      stage: 'Proposal',
+      forecast_category: 'Best Case',
+      probability: '60%',
+      iacv: '$90,000',
+      signing_date: '2025-04-20',
+      time_period: 'Q2 2025'
+    }
+  ];
+
+  // Add static mock data for the bar chart
+  this.barChart.series = [
+    { name: 'Probability', data: [15, 30, 26, 47] }
+  ];
+  this.barChart.xaxis.categories = ['0%', '33%', '66%', '90%'];
   }
 
   fetchDashboardData(): void {
@@ -59,6 +89,27 @@ export class SigningsDashboardComponent {
     this.dashboardService.getWinsCount().subscribe((response: { wins_count: number; }) => {
       this.winsCount = response.wins_count;
     });
+  }
+
+  fetchSigningsCount(): void {
+    this.signingsService.getSigningsCount().subscribe((data) => {
+      this.signingsData = data;
+    });
+  }
+
+  fetchSigningsChart(): void {
+    this.signingsService.getSigningsChart().subscribe((data) => {
+      this.signingsChartData = data;
+      this.isDataLoaded = true;
+      this.updateBarChartData();
+    });
+  }
+
+  updateBarChartData(): void {
+    if (this.signingsChartData.length > 0) {
+      this.barChart.series = this.signingsChartData.map((item) => item.clients);
+      this.barChart.xaxis.categories = this.signingsChartData.map((item) => item.month);
+    }
   }
 
   get cards() {

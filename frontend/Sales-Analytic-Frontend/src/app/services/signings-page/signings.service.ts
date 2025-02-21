@@ -25,4 +25,12 @@ export class SigningsService {
   private apiUrl = 'http://localhost:5000';
 
   constructor(private http: HttpClient) {}
+
+
+  getSigningsCount(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/signings-count`);
+  }
+  getSigningsChart(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/sign-chart-data`);
+  }
 }

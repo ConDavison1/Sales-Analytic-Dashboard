@@ -1,6 +1,6 @@
 <div class="signings">
     <!-- Cards Section -->
-    <div *ngIf="isDataLoaded" class="cards">
+    <div class="cards">
         <div *ngFor="let card of cards" class="card">
         <h3>{{ card.title }}</h3>
         <p>{{ card.value }}</p>
@@ -13,14 +13,16 @@
         <h2 class="text-xl font-semibold mb-4">Signings Estimates</h2>
         <table class="scrollable-table">
             <thead>
-                <tr>Account Name</tr>
-                <tr>Opportunity ID</tr>
-                <tr>Stage</tr>
-                <tr>Forecast Category</tr>
-                <tr>Probability</tr>
-                <tr>iACV</tr>
-                <tr>Signing Date</tr>
-                <tr>Time Period</tr>
+                <tr>
+                    <th>Account Name</th>
+                    <th>Opportunity ID</th>
+                    <th>Stage</th>
+                    <th>Forecast Category</th>
+                    <th>Probability</th>
+                    <th>iACV</th>
+                    <th>Signing Date</th>
+                    <th>Time Period</th>
+                </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let row of signingsData">
