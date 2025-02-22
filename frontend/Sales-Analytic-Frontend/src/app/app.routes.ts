@@ -3,6 +3,7 @@ import { RevenuePageFullComponent } from './revenue-page/revenue-page-full/reven
 import { DashboardComponent } from './landing-page/dashboard/dashboard.component';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
+import { ClientsPageComponent } from './clients-page/clients-page/clients-page.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -10,4 +11,5 @@ export const appRoutes: Routes = [
   { path: 'landing-page', component: LandingPageComponent },
   { path: 'revenue-page', component: RevenuePageFullComponent },
   { path: 'dashboard', component: DashboardComponent }, // Add the dashboard route
+  { path: 'clients-page', component: ClientsPageComponent}
 ];

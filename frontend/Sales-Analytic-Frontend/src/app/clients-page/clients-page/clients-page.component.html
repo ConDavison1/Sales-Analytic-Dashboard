@@ -1,0 +1,48 @@
+<div class="container">
+    <app-sidebar></app-sidebar>
+    <div class="main-content">
+        <div class="clients-page">
+            <app-header></app-header>
+            <!-- Cards Section -->
+            <div class="cards">
+                <div *ngFor="let card of cards" class="card">
+                <h3>{{ card.title }}</h3>
+                <p>{{ card.value }}</p>
+                <span>{{ card.percentage }}</span>
+            </div>
+
+            <!-- Clients Section -->
+            <div class="clients">
+                <div class="custom-card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                            <tr>
+                                <th>Client ID</th>
+                                <th>Executive ID</th>
+                                <th>Company</th>
+                                <th>Industry</th>
+                                <th>Location</th>
+                                <th>Email</th>
+                            </tr>
+                            </thead>
+                            <!-- <tbody>
+                            <tr *ngFor="let client of clients">
+                                <td>{{ client.id }}</td>
+                                <td>{{ client.analystId }}</td>
+                                <td>{{ client.company }}</td>
+                                <td>{{ client.industry }}</td>
+                                <td>{{ client.location }}</td>
+                                <td>{{ client.email }}</td>
+                            </tr>
+                            </tbody> -->
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
