@@ -13,6 +13,7 @@ app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
 
+#Login post method
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -58,6 +59,7 @@ def chart_data():
         print("Error in /chart-data:", traceback.format_exc())
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+# Get Method for the signings chart being displayed on the landing page
 @app.route('/sign-chart-data', methods=['GET'])
 def sign_chart_data():
     try:
@@ -83,6 +85,8 @@ def get_revenue_clients():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+
+# Get Account Exec Information
 @app.route('/account_executives', methods=['GET'])
 def account_executives():
     try:
@@ -113,6 +117,7 @@ def account_executives():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+# Get Method for the revenue chart being displayed on the landing page
 @app.route('/revenue-chart-data', methods=['GET'])
 def revenue_chart_data():
     try:
@@ -121,7 +126,8 @@ def revenue_chart_data():
         return jsonify(chart_data), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
-
+        
+#Revenue Card get method
 @app.route('/revenue-sum', methods=['GET'])
 def revenue_sum():
     try:
@@ -130,6 +136,7 @@ def revenue_sum():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Pipeline Card get method
 @app.route('/pipeline-count', methods=['GET'])
 def pipeline_count():
     try:
@@ -138,6 +145,7 @@ def pipeline_count():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Signings Card get method
 @app.route('/signings-count', methods=['GET'])
 def signings_count():
     try:
@@ -145,7 +153,8 @@ def signings_count():
         return jsonify({"signings_count": total}), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
-    
+
+#Wins Card get method    
 @app.route('/wins-count', methods=['GET'])
 def wins_count():
     try:
