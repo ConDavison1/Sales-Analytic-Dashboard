@@ -1,0 +1,96 @@
+    
+.clients-page {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns for the cards */
+    gap: 0px; /* Space between cards and chart */
+    margin: 20px; /* Add space around the grid */
+}
+  
+
+/* Cards Section */
+.cards {
+    grid-column: 1 / -1; /* Cards span all 4 columns */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cards in a row */
+    gap: 16px; /* Space between cards */
+    max-width: 100%;
+}
+  
+.card {
+    
+    padding: 16px; /* Inner padding */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+    text-align: center; /* Center text */
+    background-color: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Smooth hover effect */
+}
+  
+.card:hover {
+    transform: translateY(-5px); /* Lift up the card on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* More shadow on hover */
+}
+  
+.card h3 {
+    font-size: 18px;
+    margin-bottom: 12px; /* Spacing below title */
+    font-weight: bold;
+}
+  
+.card p {
+    margin: 6px 0; /* Spacing between values */
+    font-size: 16px;
+}
+  
+.card p:nth-child(3) {
+    font-size: 14px; /* Smaller size for percentage */
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Clients Section */
+.table-container {
+    grid-column: 1 / -1; /* Clients span all 4 columns */
+    max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+  
+.table-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+  
+.scrollable-table {
+    max-height: 400px;
+    overflow-y: auto;
+}
+  
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+  
+.custom-table th,
+.custom-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+    font-family: Arial, Helvetica, sans-serif;
+    
+}
+  
+.custom-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
