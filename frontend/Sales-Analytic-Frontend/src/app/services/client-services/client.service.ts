@@ -18,15 +18,9 @@ interface WinsCountResponse {
   wins_count: number;
 }
 
-interface AccountExecutive {
-  executive_id: number;
-  first_name: string;
-  last_name: string;
-}
-
-interface Client {
+interface Clients {
   client_id: number;
-  accountexec_id: number;
+  executive_id: number;
   company: string;
   industry: string;
   location: string;
@@ -57,8 +51,8 @@ export class ClientService {
     return this.http.get<WinsCountResponse>(`${this.baseUrl}/wins-count`);
   }
 
-  getAccountExecutives(): Observable<AccountExecutive[]> {
-    return this.http.get<AccountExecutive[]>(`${this.baseUrl}/account_executives`); 
+  getClient(): Observable<Clients[]> {
+    return this.http.get<Clients[]>(`${this.baseUrl}/clients`); 
   }
 
 }

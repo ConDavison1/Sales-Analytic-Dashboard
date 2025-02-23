@@ -13,6 +13,8 @@ import { CommonModule } from '@angular/common';
 })
 export class ClientsPageComponent implements OnInit {
 
+  Clients: any[] = [];
+  isLoadingClients: boolean = true;
 
   pipelineCount: number = 0;
   revenueCount: number = 0;
@@ -23,9 +25,9 @@ export class ClientsPageComponent implements OnInit {
   
   ngOnInit(): void {
     this.fetchCardData();
+    this.fetchClients();
   }
   
-
   fetchCardData(): void {
     this.clientService.getPipelineCount().subscribe((response) => {
       this.pipelineCount = response.pipeline_count;
@@ -42,7 +44,6 @@ export class ClientsPageComponent implements OnInit {
     this.clientService.getWinsCount().subscribe((response) => {
       this.winsCount = response.wins_count;
     });
-    
   }
 
   get cards() {
@@ -54,5 +55,10 @@ export class ClientsPageComponent implements OnInit {
     ];
   }
 
-
+  fetchClients(): void {
+    this.clientService.getClient().subscribe((response) => {
+        this.Clients = response;
+      }
+    );
+  }
 }
