@@ -17,7 +17,7 @@
 }
   
 .card {
-    color: #5f6368; /* Text color */
+    
     padding: 16px; /* Inner padding */
     border-radius: 12px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
@@ -49,22 +49,20 @@
 }
 
 /* Clients Section */
-.clients {
+.table-container {
     grid-column: 1 / -1; /* Clients span all 4 columns */
+    max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
 }
   
-.custom-card {
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff;
-}
-  
-.card-body {
-    padding: 16px;
-}
-  
-.table-responsive {
-    overflow-x: auto;
+.table-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
 }
   
 .scrollable-table {
@@ -83,7 +81,7 @@
     text-align: left;
     border-bottom: 1px solid #dee2e6;
     font-family: Arial, Helvetica, sans-serif;
-    color: #5f6368;
+    
 }
   
 .custom-table th {
@@ -95,5 +93,4 @@
     text-align: center;
     padding: 20px;
     font-family: Arial, Helvetica, sans-serif;
-    color: #888;
 }
