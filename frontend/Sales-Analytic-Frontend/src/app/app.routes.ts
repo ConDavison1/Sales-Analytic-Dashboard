@@ -12,7 +12,7 @@ export const appRoutes: Routes = [
   { path: 'landing-page', component: LandingPageComponent },
   { path: 'revenue-page', component: RevenuePageFullComponent },
   { path: 'dashboard', component: DashboardComponent }, // Add the dashboard route
-  { path: 'clients-page', component: ClientsPageComponent}
+  { path: 'clients-page', component: ClientsPageComponent},
   { path: 'signings', component: SigningsPageComponent }
   
 ];
