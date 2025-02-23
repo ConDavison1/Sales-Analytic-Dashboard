@@ -36,10 +36,12 @@ class Win(db.Model):
 
 class Signing(db.Model):
     __tablename__ = 'signings'
+    account_name = db.Column(db.String(255), primary_key=True)
     opportunity_id = db.Column(db.Integer, primary_key=True)
     months = db.Column(db.String(20), nullable=False)
     incremental_acv = db.Column(db.Float, nullable=False)
     forecast_category = db.Column(db.String(50), nullable=False)
+    signing_date = db.Column(db.Date, nullable=False)
 
 class AccountExecutive(db.Model):
     __tablename__ = 'account_executives'
