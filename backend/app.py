@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from models import db, User, Pipeline, Revenue, Win, Signing, AccountExecutive
+from models import db, User, Pipeline, Revenue, Win, Signing, AccountExecutive, Client
 from sqlalchemy.exc import IntegrityError
 from config_module import Config
 import uuid
@@ -154,7 +154,22 @@ def wins_count():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
-
+@app.route('/clients', methods=['GET'])
+def clients():
+    try:
+        clients = []
+        for row in Client.query.all():
+            clients.append({
+                "client_id": row.client_id,
+                "executive_id": row.executive_id,
+                "company_name": row.company_name,
+                "industry": row.industry,
+                "email": row.email,
+                "location": row.location
+            })
+        return jsonify(clients), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
 
 
 @app.route('/test', methods=['GET'])

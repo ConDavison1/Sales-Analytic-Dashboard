@@ -21,7 +21,7 @@ interface WinsCountResponse {
 interface Clients {
   client_id: number;
   executive_id: number;
-  company: string;
+  company_name: string;
   industry: string;
   location: string;
   email: string;
