@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from models import db, User, Pipeline, Revenue, Win, Signing, AccountExecutive
-from sqlalchemy.exc import IntegrityError
 from config_module import Config
 import uuid
 import traceback
@@ -126,7 +125,7 @@ def revenue_chart_data():
         return jsonify(chart_data), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
-        
+
 #Revenue Card get method
 @app.route('/revenue-sum', methods=['GET'])
 def revenue_sum():
