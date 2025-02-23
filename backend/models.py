@@ -49,3 +49,12 @@ class AccountExecutive(db.Model):
     assigned_accounts = db.Column(db.Text, nullable=False)  
     performance_metrics = db.Column(db.Text, nullable=False) 
     status = db.Column(db.String(20), nullable=False)
+
+class Client(db.Model):
+    __tablename__ = 'client'
+    client_id = db.Column(db.Integer, primary_key=True)
+    executive_id = db.Column(db.Integer, db.ForeignKey('account_executives.executive_id'), nullable=False)
+    company_name = db.Column(db.String(255), nullable=False)
+    industry = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255), nullable=False)
