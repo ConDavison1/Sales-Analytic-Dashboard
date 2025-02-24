@@ -17,7 +17,10 @@ export type ChartOptions = {
   tooltip: any;
   legend: any;
 };
-
+interface ChartData {
+  category: string;
+  count: number;
+}
 @Component({
   selector: 'app-signings-dashboard',
   imports: [NgApexchartsModule, CommonModule],
@@ -26,6 +29,7 @@ export type ChartOptions = {
   styleUrls: ['./signings-dashboard.component.css'],
   encapsulation: ViewEncapsulation.Emulated
 })
+
 export class SigningsDashboardComponent implements OnInit {
 
   pipelineCount: number = 0;
@@ -34,7 +38,10 @@ export class SigningsDashboardComponent implements OnInit {
   winsCount: number = 0;
 
   signingsData: any[] = [];
-  signingsChartData: any[] = [];
+
+  
+  signingsChartData: ChartData[] = [];
+  
   isDataLoaded: boolean = false;
 
   constructor(private dashboardService: DashboardService, private signingsService: SigningsService) {}
@@ -88,16 +95,20 @@ export class SigningsDashboardComponent implements OnInit {
 
   updateBarChartData(): void {
     if (this.signingsChartData.length > 0) {
-      // Update series data (counts for each category)
-      this.barChart.series = [{
-        name: "Forecast Categories", // Name of the series
-        data: this.signingsChartData.map(item => item.count) // Map to the count value
-      }];
-      
-      // Update x-axis categories (category names like "pipeline", "upside", etc.)
-      this.barChart.xaxis.categories = this.signingsChartData.map(item => item.category);
+      this.barChart = {
+        ...this.barChart,
+        series: [{
+          data: this.signingsChartData.map(item => item.count),
+          name: ''
+        }],
+        xaxis: { 
+          categories: this.signingsChartData.map(item => String(item.category)) 
+        }
+      };
     }
   }
+  
+  
   
   
   
@@ -121,7 +132,7 @@ export class SigningsDashboardComponent implements OnInit {
       data: [] as number[]
     }],
     xaxis: { 
-      categories: [] as string[] 
+      categories: [] as string[]
     },
     plotOptions: {
       bar: { 

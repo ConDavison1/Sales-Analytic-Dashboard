@@ -6,6 +6,7 @@ from config_module import Config
 import uuid
 import traceback
 from flask_cors import CORS
+from sqlalchemy import func
 
 
 
@@ -198,20 +199,18 @@ def signingschart():
         return jsonify(signings), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
-    
-from collections import Counter
-from flask import jsonify
+
+from sqlalchemy import func
 
 @app.route('/signingsChart', methods=['GET'])
 def signingsChart():
     try:
-        signings_data = [s.forecast_category for s in Signing.query.all()]
-        category_counts = dict(Counter(signings_data))
-        formatted_data = [{"category": k, "count": v} for k, v in category_counts.items()]
-
-        return jsonify(formatted_data), 200
+        results = db.session.query(Signing.forecast_category, func.count()).group_by(Signing.forecast_category).all()
+        chart_data = [{"category": row[0], "count": row[1]} for row in results]
+        return jsonify(chart_data), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
 
 @app.route('/test', methods=['GET'])
