@@ -6,6 +6,7 @@ from config_module import Config
 import uuid
 import traceback
 from flask_cors import CORS
+from sqlalchemy import func
 
 
 
@@ -198,11 +199,7 @@ def signingschart():
         return jsonify(signings), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
-    
-from collections import Counter
-from flask import jsonify
 
-from flask import jsonify
 from sqlalchemy import func
 
 @app.route('/signingsChart', methods=['GET'])
