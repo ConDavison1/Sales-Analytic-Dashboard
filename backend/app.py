@@ -165,6 +165,7 @@ def wins_count():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Clients table get method
 @app.route('/clients', methods=['GET'])
 def clients():
     try:
@@ -180,6 +181,39 @@ def clients():
             })
         return jsonify(clients), 200
     except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+#Clients table delete method
+@app.route('/clients/<int:client_id>', methods=['DELETE'])
+def delete_client(client_id):
+    try:
+        client = db.session.get(Client, client_id)
+        db.session.delete(client)
+        db.session.commit()
+        return jsonify({"message": "Client deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+#Clients table post method
+@app.route('/clients', methods=['POST'])
+def add_client():
+    try:
+        data = request.get_json()
+        client = Client(
+            executive_id=data.get('executive_id'),
+            company_name=data.get('company_name'),
+            industry=data.get('industry'),
+            email=data.get('email'),
+            location=data.get('location')
+        )
+        db.session.add(client)
+        db.session.commit()
+        return jsonify({"message": "Client added successfully"}), 200
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({"message": f"Client already exists"}), 400
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
 #Signings Estimates table get method

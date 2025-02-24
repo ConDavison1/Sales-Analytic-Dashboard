@@ -29,7 +29,7 @@ export class DashboardComponent implements OnInit {
   revenueCount: number = 0;
   signingsCount: number = 0;
   winsCount: number = 0;
-  
+
   accountExecutives: any[] = [];
   isLoadingAccountExecutives: boolean = true;
   isLoadingChartData: boolean = true;
@@ -47,24 +47,47 @@ export class DashboardComponent implements OnInit {
       plotOptions: {
         bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
       },
-      fill: { 
-        opacity: 1, 
+      fill: {
+        opacity: 1,
         colors: ['#1E88E5'], // Blue, added explicitly in fill
       },
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
-      yaxis: { title: { text: 'Amount ($)', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      xaxis: {
+        categories: [
+          'J',
+          'F',
+          'M',
+          'A',
+          'M',
+          'J',
+          'J',
+          'A',
+          'S',
+          'O',
+          'N',
+          'D',
+        ],
+      },
+      yaxis: {
+        title: {
+          text: 'Amount ($)',
+          style: {
+            color: '#5f6368',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
+      },
       tooltip: { y: { formatter: (val: number) => '$ ' + val } },
       legend: { show: true },
     };
-    
+
     this.chartOptionsTwo = {
       series: [{ name: 'Revenue', data: [] }],
       chart: { type: 'bar', height: 350 },
       colors: ['#F4511E'], // Red
-      fill: { 
-        opacity: 1, 
+      fill: {
+        opacity: 1,
         colors: ['#F4511E'], // Red, added explicitly in fill
       },
       plotOptions: {
@@ -72,18 +95,41 @@ export class DashboardComponent implements OnInit {
       },
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
-      yaxis: { title: { text: 'Amount ($)', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val} },
+      xaxis: {
+        categories: [
+          'J',
+          'F',
+          'M',
+          'A',
+          'M',
+          'J',
+          'J',
+          'A',
+          'S',
+          'O',
+          'N',
+          'D',
+        ],
+      },
+      yaxis: {
+        title: {
+          text: 'Amount ($)',
+          style: {
+            color: '#5f6368',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
+      },
+      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
       legend: { show: true },
     };
-    
+
     this.chartOptionsThree = {
       series: [{ name: 'Signings', data: [] }],
       chart: { type: 'bar', height: 350 },
       colors: ['#43A047'], // Green
-      fill: { 
-        opacity: 1, 
+      fill: {
+        opacity: 1,
         colors: ['#43A047'], // Green, added explicitly in fill
       },
       plotOptions: {
@@ -91,18 +137,41 @@ export class DashboardComponent implements OnInit {
       },
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
-      yaxis: { title: { text: 'Amount ($)', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      xaxis: {
+        categories: [
+          'J',
+          'F',
+          'M',
+          'A',
+          'M',
+          'J',
+          'J',
+          'A',
+          'S',
+          'O',
+          'N',
+          'D',
+        ],
+      },
+      yaxis: {
+        title: {
+          text: 'Amount ($)',
+          style: {
+            color: '#5f6368',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
+      },
       tooltip: { y: { formatter: (val: number) => '$ ' + val } },
       legend: { show: true },
     };
-    
+
     this.chartOptionsFour = {
       series: [{ name: 'Wins', data: [] }],
       chart: { type: 'bar', height: 350 },
       colors: ['#FDD835'], // Yellow
-      fill: { 
-        opacity: 1, 
+      fill: {
+        opacity: 1,
         colors: ['#FDD835'], // Yellow, added explicitly in fill
       },
       plotOptions: {
@@ -110,14 +179,36 @@ export class DashboardComponent implements OnInit {
       },
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: { categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] },
-      yaxis: { title: { text: 'Amount', style: { color: '#5f6368', fontFamily: 'Arial, Helvetica, sans-serif' } } },
+      xaxis: {
+        categories: [
+          'J',
+          'F',
+          'M',
+          'A',
+          'M',
+          'J',
+          'J',
+          'A',
+          'S',
+          'O',
+          'N',
+          'D',
+        ],
+      },
+      yaxis: {
+        title: {
+          text: 'Amount',
+          style: {
+            color: '#5f6368',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
+      },
       tooltip: { y: { formatter: (val: number) => val } },
       legend: { show: true },
     };
-    
   }
-  
+
   ngOnInit(): void {
     this.fetchCardData();
     this.fetchAccountExecutives();
@@ -145,24 +236,29 @@ export class DashboardComponent implements OnInit {
   fetchAccountExecutives(): void {
     this.dashboardService.getAccountExecutives().subscribe(
       (response) => {
-        console.log('API Response:', response);  // Log the response here to see how the data is formatted
-        this.accountExecutives = response;  // Assign the response to accountExecutives
-        this.isLoadingAccountExecutives = false;  // Set loading flag to false after data is fetched
+        console.log('API Response:', response); // Log the response here to see how the data is formatted
+        this.accountExecutives = response; // Assign the response to accountExecutives
+        this.isLoadingAccountExecutives = false; // Set loading flag to false after data is fetched
       },
       (error) => {
-        console.error('Error fetching account executives:', error);  // Log any error to the console
-        this.isLoadingAccountExecutives = false;  // Set loading flag to false even if there is an error
+        console.error('Error fetching account executives:', error); // Log any error to the console
+        this.isLoadingAccountExecutives = false; // Set loading flag to false even if there is an error
       }
     );
   }
-  
 
   fetchChartData(): void {
     this.dashboardService.getChartData().subscribe(
       (response) => {
-        this.chartOptionsOne.series = [{ name: 'Pipeline', data: response.pipeline }];
-        this.chartOptionsTwo.series = [{ name: 'Revenue', data: response.revenue }];
-        this.chartOptionsThree.series = [{ name: 'Signings', data: response.signings }];
+        this.chartOptionsOne.series = [
+          { name: 'Pipeline', data: response.pipeline },
+        ];
+        this.chartOptionsTwo.series = [
+          { name: 'Revenue', data: response.revenue },
+        ];
+        this.chartOptionsThree.series = [
+          { name: 'Signings', data: response.signings },
+        ];
         this.chartOptionsFour.series = [{ name: 'Wins', data: response.wins }];
         this.isLoadingChartData = false;
       },
@@ -175,10 +271,22 @@ export class DashboardComponent implements OnInit {
 
   get cards() {
     return [
-      { title: 'Pipeline', value: `${this.pipelineCount}`, percentage: '+55%' },
-      { title: 'Revenue', value: `${this.revenueCount}`, percentage: '+5%' },
-      { title: 'Signings', value: `${this.signingsCount}`, percentage: '+89%' },
-      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' }
+      {
+        title: 'Pipeline',
+        value: `$${this.pipelineCount}`,
+        percentage: '+55%',
+      },
+      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
+      {
+        title: 'Signings',
+        value: `$${this.signingsCount}`,
+        percentage: '+89%',
+      },
+      {
+        title: 'Count To Wins',
+        value: `${this.winsCount}`,
+        percentage: '-14%',
+      },
     ];
   }
 }
