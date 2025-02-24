@@ -183,22 +183,45 @@ def clients():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
     
-#Clients table delete method
 @app.route('/clients/<int:client_id>', methods=['DELETE'])
 def delete_client(client_id):
     try:
         client = db.session.get(Client, client_id)
+        if not client:
+            return jsonify({"message": "Client not found"}), 404
+
+        executive_id = client.executive_id
+
+        executive = db.session.get(AccountExecutive, executive_id)
+        if executive and executive.assigned_accounts:
+            if client_id in executive.assigned_accounts:
+                executive.assigned_accounts.remove(client_id)
+
+                db.session.execute(
+                    AccountExecutive.__table__.update().
+                    where(AccountExecutive.executive_id == executive.executive_id).
+                    values(assigned_accounts=executive.assigned_accounts)
+                )
+                db.session.commit()
+
         db.session.delete(client)
         db.session.commit()
+
         return jsonify({"message": "Client deleted successfully"}), 200
+
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
     
-#Clients table post method
 @app.route('/clients', methods=['POST'])
 def add_client():
     try:
         data = request.get_json()
+
+        if not data:
+            return jsonify({"message": "Invalid JSON payload"}), 400
+
         client = Client(
             executive_id=data.get('executive_id'),
             company_name=data.get('company_name'),
@@ -206,12 +229,35 @@ def add_client():
             email=data.get('email'),
             location=data.get('location')
         )
+
+       
         db.session.add(client)
-        db.session.commit()
-        return jsonify({"message": "Client added successfully"}), 200
-    except IntegrityError as e:
+        db.session.commit() 
+
+        executive = db.session.get(AccountExecutive, client.executive_id)
+        if executive:
+            print(f"Before update (executive {executive.executive_id}): {executive.assigned_accounts}") 
+
+            if not executive.assigned_accounts:
+                executive.assigned_accounts = [] 
+
+            executive.assigned_accounts.append(client.client_id)
+            
+            print(f"After update (executive {executive.executive_id}): {executive.assigned_accounts}")  
+
+            db.session.execute(
+                AccountExecutive.__table__.update().
+                where(AccountExecutive.executive_id == executive.executive_id).
+                values(assigned_accounts=executive.assigned_accounts)
+            )
+
+            db.session.commit()
+
+        return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
+
+    except IntegrityError:
         db.session.rollback()
-        return jsonify({"message": f"Client already exists"}), 400
+        return jsonify({"message": "Client already exists"}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
@@ -234,7 +280,7 @@ def signingschart():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
-from sqlalchemy import func
+
 
 @app.route('/signingsChart', methods=['GET'])
 def signingsChart():

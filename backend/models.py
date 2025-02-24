@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import ARRAY
 
 db = SQLAlchemy()
 
@@ -43,14 +44,18 @@ class Signing(db.Model):
     forecast_category = db.Column(db.String(50), nullable=False)
     signing_date = db.Column(db.Date, nullable=False)
 
+
+
+
 class AccountExecutive(db.Model):
     __tablename__ = 'account_executives'
     executive_id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    assigned_accounts = db.Column(db.Text, nullable=False)  
-    performance_metrics = db.Column(db.Text, nullable=False) 
+    assigned_accounts = db.Column(db.JSON, nullable=False, default=[])  # Updated to JSON
+    performance_metrics = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), nullable=False)
+
 
 class Client(db.Model):
     __tablename__ = 'client'
