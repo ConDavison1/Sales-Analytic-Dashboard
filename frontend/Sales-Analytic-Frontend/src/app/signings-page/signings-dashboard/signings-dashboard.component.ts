@@ -121,7 +121,7 @@ export class SigningsDashboardComponent implements OnInit {
       data: [] as number[]
     }],
     xaxis: { 
-      categories: [] as string[] 
+      categories: [] as string[]
     },
     plotOptions: {
       bar: { 
