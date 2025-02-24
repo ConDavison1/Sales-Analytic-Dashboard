@@ -28,7 +28,7 @@ interface Clients {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClientService {
   private baseUrl = 'http://localhost:5000';
@@ -40,11 +40,15 @@ export class ClientService {
   }
 
   getPipelineCount(): Observable<PipelineCountResponse> {
-    return this.http.get<PipelineCountResponse>(`${this.baseUrl}/pipeline-count`);
+    return this.http.get<PipelineCountResponse>(
+      `${this.baseUrl}/pipeline-count`
+    );
   }
 
   getSigningsCount(): Observable<SigningsCountResponse> {
-    return this.http.get<SigningsCountResponse>(`${this.baseUrl}/signings-count`);
+    return this.http.get<SigningsCountResponse>(
+      `${this.baseUrl}/signings-count`
+    );
   }
 
   getWinsCount(): Observable<WinsCountResponse> {
@@ -52,7 +56,14 @@ export class ClientService {
   }
 
   getClient(): Observable<Clients[]> {
-    return this.http.get<Clients[]>(`${this.baseUrl}/clients`); 
+    return this.http.get<Clients[]>(`${this.baseUrl}/clients`);
   }
 
+  deleteClient(clientId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/clients/${clientId}`);
+  }
+
+  addClient(client: Clients): Observable<Clients> {
+    return this.http.post<Clients>(`${this.baseUrl}/clients`, client);
+  }
 }
