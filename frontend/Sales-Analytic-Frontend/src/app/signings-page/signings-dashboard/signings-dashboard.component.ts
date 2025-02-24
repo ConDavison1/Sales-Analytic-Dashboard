@@ -41,37 +41,12 @@ export class SigningsDashboardComponent implements OnInit {
   
   ngOnInit(): void {
     this.fetchDashboardData();
-
-    // Static mock data
-    this.signingsData = [
-    {
-      account_name: 'Acme Corp',
-      opportunity_id: 'OPP12345',
-      stage: 'Negotiation',
-      forecast_category: 'Commit',
-      probability: '80%',
-      iacv: '$120,000',
-      signing_date: '2025-03-15',
-      time_period: 'Q1 2025'
-    },
-    {
-      account_name: 'Globex Inc',
-      opportunity_id: 'OPP67890',
-      stage: 'Proposal',
-      forecast_category: 'Best Case',
-      probability: '60%',
-      iacv: '$90,000',
-      signing_date: '2025-04-20',
-      time_period: 'Q2 2025'
-    }
-  ];
-
-  // Add static mock data for the bar chart
-  this.barChart.series = [
-    { name: 'Probability', data: [15, 30, 26, 47] }
-  ];
-  this.barChart.xaxis.categories = ['0%', '33%', '66%', '90%'];
+    this.fetchSigningsData();
+    this.fetchSigningsChart();
   }
+
+
+
 
   fetchDashboardData(): void {
     this.dashboardService.getPipelineCount().subscribe((response: { pipeline_count: number; }) => {
@@ -91,6 +66,12 @@ export class SigningsDashboardComponent implements OnInit {
     });
   }
 
+
+  fetchSigningsData(): void {
+    this.signingsService.getSigningsData().subscribe((data) => {
+      this.signingsData = data;
+    });
+  }
   fetchSigningsCount(): void {
     this.signingsService.getSigningsCount().subscribe((data) => {
       this.signingsData = data;
@@ -107,10 +88,19 @@ export class SigningsDashboardComponent implements OnInit {
 
   updateBarChartData(): void {
     if (this.signingsChartData.length > 0) {
-      this.barChart.series = this.signingsChartData.map((item) => item.clients);
-      this.barChart.xaxis.categories = this.signingsChartData.map((item) => item.month);
+      // Update series data (counts for each category)
+      this.barChart.series = [{
+        name: "Forecast Categories", // Name of the series
+        data: this.signingsChartData.map(item => item.count) // Map to the count value
+      }];
+      
+      // Update x-axis categories (category names like "pipeline", "upside", etc.)
+      this.barChart.xaxis.categories = this.signingsChartData.map(item => item.category);
     }
   }
+  
+  
+  
 
   get cards() {
     return [
@@ -122,17 +112,32 @@ export class SigningsDashboardComponent implements OnInit {
   }
 
   barChart = {
-    chart: { type: 'bar' as ApexChart['type'], height: 350 },
-    series: [{ name: 'Clients', data: [] as number[] }],
-    xaxis: { categories: [] as string[] },
+    chart: { 
+      type: 'bar' as ApexChart['type'], 
+      height: 350 
+    },
+    series: [{
+      name: 'Forecast Categories', 
+      data: [] as number[]
+    }],
+    xaxis: { 
+      categories: [] as string[] 
+    },
     plotOptions: {
-      bar: { horizontal: false, columnWidth: '50%', distributed: true }
+      bar: { 
+        horizontal: false, 
+        columnWidth: '50%', 
+        distributed: true 
+      }
     },
     dataLabels: { enabled: true },
     colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560'],
     tooltip: {
       enabled: true,
       y: { formatter: (val: number) => `${val} Clients` }
+    },
+    legend: {
+      show: false 
     }
   };
 

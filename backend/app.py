@@ -1,3 +1,4 @@
+from typing import Counter
 from flask import Flask, render_template, request, jsonify
 from models import db, User, Pipeline, Revenue, Win, Signing, AccountExecutive, Client
 from sqlalchemy.exc import IntegrityError
@@ -177,6 +178,38 @@ def clients():
                 "location": row.location
             })
         return jsonify(clients), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
+#Signings Estimates table get method
+@app.route('/signings-data', methods=['GET'])
+def signingschart():
+    try:
+        signings = []
+        for row in Signing.query.all():
+            signings.append({
+                "account_name": row.account_name,
+                "opportunity_id": row.opportunity_id,
+                "incremental_acv": row.incremental_acv,
+                "forecast_category": row.forecast_category,
+                "signing_date": row.signing_date
+
+            })
+        return jsonify(signings), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+from collections import Counter
+from flask import jsonify
+
+@app.route('/signingsChart', methods=['GET'])
+def signingsChart():
+    try:
+        signings_data = [s.forecast_category for s in Signing.query.all()]
+        category_counts = dict(Counter(signings_data))
+        formatted_data = [{"category": k, "count": v} for k, v in category_counts.items()]
+
+        return jsonify(formatted_data), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
