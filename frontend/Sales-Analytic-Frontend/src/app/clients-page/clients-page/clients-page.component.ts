@@ -74,7 +74,6 @@ export class ClientsPageComponent implements OnInit {
   constructor(private clientService: ClientService, private fb: FormBuilder) {
     this.addClientForm = this.fb.group({
       executive_id: ['', Validators.required],
-      client_id: ['', Validators.required],
       company_name: ['', Validators.required],
       industry: ['', Validators.required],
       location: ['', Validators.required],
