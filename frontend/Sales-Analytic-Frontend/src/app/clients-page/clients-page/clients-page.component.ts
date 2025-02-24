@@ -139,9 +139,17 @@ export class ClientsPageComponent implements OnInit {
 
   get cards() {
     return [
-      { title: 'Pipeline', value: `${this.pipelineCount}`, percentage: '+55%' },
-      { title: 'Revenue', value: `${this.revenueCount}`, percentage: '+5%' },
-      { title: 'Signings', value: `${this.signingsCount}`, percentage: '+89%' },
+      {
+        title: 'Pipeline',
+        value: `$${this.pipelineCount}`,
+        percentage: '+55%',
+      },
+      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
+      {
+        title: 'Signings',
+        value: `$${this.signingsCount}`,
+        percentage: '+89%',
+      },
       {
         title: 'Count To Wins',
         value: `${this.winsCount}`,
