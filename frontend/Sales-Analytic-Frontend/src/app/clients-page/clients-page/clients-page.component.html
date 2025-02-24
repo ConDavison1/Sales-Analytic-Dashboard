@@ -1,45 +1,115 @@
 <div class="container">
-    <app-sidebar></app-sidebar>
-    <div class="main-content">
-        <div class="clients-page">
-            <app-header></app-header>
-            <!-- Cards Section -->
-            <div class="cards">
-                <div *ngFor="let card of cards" class="card">
-                <h3>{{ card.title }}</h3>
-                <p>{{ card.value }}</p>
-                <span>{{ card.percentage }}</span>
-            </div>
-
-            <!-- Clients Section -->
-            <div class="table-container">
-                <h2 class="table-title">Client list</h2>
-                <div class="scrollable-table">
-                    <table class="custom-table">
-                        <thead>
-                        <tr>
-                            <th>Client ID</th>
-                            <th>Executive ID</th>
-                            <th>Company</th>
-                            <th>Industry</th>
-                            <th>Location</th>
-                            <th>Email</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let client of Clients">
-                            <td>{{ client.client_id }}</td>
-                            <td>{{ client.executive_id }}</td>
-                            <td>{{ client.company_name }}</td>
-                            <td>{{ client.industry }}</td>
-                            <td>{{ client.location }}</td>
-                            <td>{{ client.email }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <app-sidebar></app-sidebar>
+  <div class="main-content">
+    <div class="clients-page">
+      <app-header></app-header>
+      <!-- Cards Section -->
+      <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.value }}</p>
+          <span>{{ card.percentage }}</span>
         </div>
-    </div>
-</div>
+        <!-- Client Count CHart-->
+        <div id="chart">
+          <h3>Executive Client Count</h3>
+          <apx-chart
+            [series]="chartOptions.series"
+            [chart]="chartOptions.chart"
+            [labels]="chartOptions.labels"
+            [fill]="chartOptions.fill"
+            [stroke]="chartOptions.stroke"
+            [responsive]="chartOptions.responsive"
+          ></apx-chart>
+        </div>
 
+        <!-- Add Client -->
+        <div class="add-client">
+          <form [formGroup]="addClientForm" (ngSubmit)="addClient()">
+            <h3>Add Client</h3>
+
+            <div class="form-group">
+              <label for="executive_id">Executive ID</label>
+              <input
+                type="number"
+                id="executive_id"
+                name="executive_id"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="client_id">Client ID</label>
+              <input type="number" id="client_id" name="client_id" required />
+            </div>
+
+            <div class="form-group">
+              <label for="company_name">Company Name</label>
+              <input
+                type="text"
+                id="company_name"
+                name="company_name"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input type="text" id="industry" name="industry" required />
+            </div>
+
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" id="location" name="location" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <button type="submit" class="submit-button">Add Client</button>
+          </form>
+        </div>
+
+        <!-- Clients Section -->
+        <div class="table-container">
+          <h2 class="table-title">Client list</h2>
+          <div class="scrollable-table">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Executive ID</th>
+                  <th>Client ID</th>
+                  <th>Company</th>
+                  <th>Industry</th>
+                  <th>Location</th>
+                  <th>Email</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let client of Clients">
+                  <td>{{ client.executive_id }}</td>
+                  <td>{{ client.client_id }}</td>
+                  <td>{{ client.company_name }}</td>
+                  <td>{{ client.industry }}</td>
+                  <td>{{ client.location }}</td>
+                  <td>{{ client.email }}</td>
+                  <td>
+                    <button
+                      (click)="deleteClient(client.client_id)"
+                      class="delete-btn"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
