@@ -210,6 +210,224 @@ def signingsChart():
         return jsonify(chart_data), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+
+# ------------------------------------
+# Count-to-win endpoints
+
+@app.route('/wins-industry/<string:industry_name>', methods=['GET'])
+def get_wins_by_industry(industry_name):
+    """
+    Endpoint to retrieve all wins for a given industry.
+    
+    :param industry_name: Name of the industry to filter wins by.
+    :return: JSON response containing a list of wins related to the specified industry.    
+    """
+    try:
+        # Query the database for all wins where the industry matches the provided name
+        wins = Win.query.filter_by(industry=industry_name).all()
+        
+        # Convert the list of Win objects into a list of dictionaries
+        result = [
+            {
+                "id": win.id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime('%Y-%m-%d'),  # Convert date to string format
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "stage": win.stage,
+                "is_win": win.is_win
+            } 
+            for win in wins
+        ]
+        
+        # Return the JSON response with the wins data
+        return jsonify({"wins_industry": result}), 200
+
+    except Exception as e:
+        # Handle any exceptions and return an error message
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+    
+@app.route('/wins-account-type/<string:account_type>', methods=['GET'])
+def get_wins_by_account_type(account_type):
+    """
+    Endpoint to retrieve all wins for a given account type.
+    
+    :param account_type: Type of the account to filter wins by.
+    :return: JSON response containing a list of wins related to the specified account type.    
+    """
+    try:
+        # Query the database for all wins where the account type matches the provided name
+        wins = Win.query.filter_by(account_type=account_type).all()
+        
+        # Convert the list of Win objects into a list of dictionaries
+        result = [
+            {
+                "id": win.id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime('%Y-%m-%d'),  # Convert date to string format
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "stage": win.stage,
+                "is_win": win.is_win
+            } 
+            for win in wins
+        ]
+        
+        # Return the JSON response with the wins data
+        return jsonify({"wins_account_type": result}), 200
+
+    except Exception as e:
+        # Handle any exceptions and return an error message
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+
+
+@app.route('/wins-account-name/<string:account_name>', methods=['GET'])
+def get_wins_by_account_name(account_name):
+    """
+    Endpoint to retrieve all wins for a given account name.
+    
+    :param account_name: Name of the account to filter wins by.
+    :return: JSON response containing a list of wins related to the specified account name.    
+    """
+    try:
+        wins = Win.query.filter_by(account_name=account_name).all()
+        result = [
+            {
+                "id": win.id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime('%Y-%m-%d'),
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "stage": win.stage,
+                "is_win": win.is_win
+            }
+            for win in wins
+        ]
+        return jsonify({"wins_account_name": result}), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+    
+@app.route('/wins-stage/<string:stage>', methods=['GET'])
+def get_wins_by_stage(stage):
+    """
+    Endpoint to retrieve all wins for a given stage.
+    
+    :param stage: The stage of the win to filter by.
+    :return: JSON response containing a list of wins related to the specified stage.
+    """
+    try:
+        wins = Win.query.filter_by(stage=stage).all()
+        result = [
+            {
+                "id": win.id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime('%Y-%m-%d'),
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "stage": win.stage,
+                "is_win": win.is_win
+            }
+            for win in wins
+        ]
+        return jsonify({"wins_stage": result}), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+    
+@app.route('/wins-deal-range', methods=['GET'])
+def get_wins_deal_range():
+    """
+    Endpoint to retrieve all wins within a specified deal value range.
+    
+    Query Parameters:
+    - lower_bound: Minimum deal value (optional, defaults to 0)
+    - upper_bound: Maximum deal value (optional, defaults to a high number)
+    
+    :return: JSON response containing a list of wins within the specified deal value range.
+    """
+    try:
+        lower_bound = float(request.args.get('lower_bound', 0))
+        upper_bound = float(request.args.get('upper_bound', float('inf')))
+        
+        # Query the database for wins within the deal value range
+        wins = Win.query.filter(Win.deal_value.between(lower_bound, upper_bound)).all()
+        
+        result = [
+            {
+                "id": win.id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime('%Y-%m-%d'),
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "stage": win.stage,
+                "is_win": win.is_win
+            }
+            for win in wins
+        ]
+        
+        return jsonify({"wins_deal_range": result}), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+    
+@app.route('/wins-date-range', methods=['GET'])
+def get_wins_date_range():
+    """
+    Endpoint to retrieve all wins within a specified date range.
+    
+    Query Parameters:
+    - start_date: Start date in YYYY-MM-DD format (optional)
+    - end_date: End date in YYYY-MM-DD format (optional)
+    
+    :return: JSON response containing a list of wins within the specified date range.
+    """
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        date_format = "%Y-%m-%d"
+
+        # Validate and parse dates
+        if start_date:
+            start_date = datetime.strptime(start_date, date_format).date()
+        if end_date:
+            end_date = datetime.strptime(end_date, date_format).date()
+
+        # Query construction
+        query = Win.query
+        if start_date and end_date:
+            query = query.filter(Win.win_date.between(start_date, end_date))
+        elif start_date:
+            query = query.filter(Win.win_date >= start_date)
+        elif end_date:
+            query = query.filter(Win.win_date <= end_date)
+
+        # Execute query
+        wins = query.all()
+
+        result = [
+            {
+                "id": win.id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime('%Y-%m-%d'),
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "stage": win.stage,
+                "is_win": win.is_win
+            }
+            for win in wins
+        ]
+
+        return jsonify({"wins_date_range": result}), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+
+# Count-to-win endpoints    
+# ------------------------------------
 
 
 
