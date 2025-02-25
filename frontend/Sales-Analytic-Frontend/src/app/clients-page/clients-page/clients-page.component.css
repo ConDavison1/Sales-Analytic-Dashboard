@@ -125,6 +125,7 @@
   background-color: #ffffff;
 }
 
+/* Add Client Form */
 .add-client {
   grid-column: 3 / 5; /* Add client form spans 2 columns */
   max-width: 100%;
@@ -134,7 +135,6 @@
   border-radius: 8px;
   background-color: #ffffff;
   display: flex;
-  justify-content: center;
 }
 .form-group {
   display: flex;
