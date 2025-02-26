@@ -1,3 +1,4 @@
+from typing import Counter
 from flask import Flask, render_template, request, jsonify
 from models import db, User, Pipeline, Revenue, Win, Signing, AccountExecutive, Client
 from sqlalchemy.exc import IntegrityError
@@ -5,6 +6,7 @@ from config_module import Config
 import uuid
 import traceback
 from flask_cors import CORS
+from sqlalchemy import func
 
 
 
@@ -13,6 +15,7 @@ app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
 
+#Login post method
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -58,6 +61,7 @@ def chart_data():
         print("Error in /chart-data:", traceback.format_exc())
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+# Get Method for the signings chart being displayed on the landing page
 @app.route('/sign-chart-data', methods=['GET'])
 def sign_chart_data():
     try:
@@ -83,6 +87,8 @@ def get_revenue_clients():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+
+# Get Account Exec Information
 @app.route('/account_executives', methods=['GET'])
 def account_executives():
     try:
@@ -113,6 +119,7 @@ def account_executives():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+# Get Method for the revenue chart being displayed on the landing page
 @app.route('/revenue-chart-data', methods=['GET'])
 def revenue_chart_data():
     try:
@@ -122,6 +129,7 @@ def revenue_chart_data():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Revenue Card get method
 @app.route('/revenue-sum', methods=['GET'])
 def revenue_sum():
     try:
@@ -130,6 +138,7 @@ def revenue_sum():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Pipeline Card get method
 @app.route('/pipeline-count', methods=['GET'])
 def pipeline_count():
     try:
@@ -138,6 +147,7 @@ def pipeline_count():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Signings Card get method
 @app.route('/signings-count', methods=['GET'])
 def signings_count():
     try:
@@ -145,7 +155,8 @@ def signings_count():
         return jsonify({"signings_count": total}), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
-    
+
+#Wins Card get method    
 @app.route('/wins-count', methods=['GET'])
 def wins_count():
     try:
@@ -154,6 +165,7 @@ def wins_count():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Clients table get method
 @app.route('/clients', methods=['GET'])
 def clients():
     try:
@@ -170,6 +182,69 @@ def clients():
         return jsonify(clients), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+#Clients table delete method
+@app.route('/clients/<int:client_id>', methods=['DELETE'])
+def delete_client(client_id):
+    try:
+        client = db.session.get(Client, client_id)
+        db.session.delete(client)
+        db.session.commit()
+        return jsonify({"message": "Client deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+#Clients table post method
+@app.route('/clients', methods=['POST'])
+def add_client():
+    try:
+        data = request.get_json()
+        client = Client(
+            executive_id=data.get('executive_id'),
+            company_name=data.get('company_name'),
+            industry=data.get('industry'),
+            email=data.get('email'),
+            location=data.get('location')
+        )
+        db.session.add(client)
+        db.session.commit()
+        return jsonify({"message": "Client added successfully"}), 200
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({"message": f"Client already exists"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
+#Signings Estimates table get method
+@app.route('/signings-data', methods=['GET'])
+def signingschart():
+    try:
+        signings = []
+        for row in Signing.query.all():
+            signings.append({
+                "account_name": row.account_name,
+                "opportunity_id": row.opportunity_id,
+                "incremental_acv": row.incremental_acv,
+                "forecast_category": row.forecast_category,
+                "signing_date": row.signing_date
+
+            })
+        return jsonify(signings), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
+from sqlalchemy import func
+
+@app.route('/signingsChart', methods=['GET'])
+def signingsChart():
+    try:
+        results = db.session.query(Signing.forecast_category, func.count()).group_by(Signing.forecast_category).all()
+        chart_data = [{"category": row[0], "count": row[1]} for row in results]
+        return jsonify(chart_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
 
 @app.route('/test', methods=['GET'])

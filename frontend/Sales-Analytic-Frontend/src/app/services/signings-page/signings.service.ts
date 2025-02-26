@@ -22,6 +22,9 @@ interface WinsCountResponse {
   providedIn: 'root'
 })
 export class SigningsService {
+  getSignings() {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = 'http://localhost:5000';
 
   constructor(private http: HttpClient) {}
@@ -31,6 +34,9 @@ export class SigningsService {
     return this.http.get<any[]>(`${this.apiUrl}/signings-count`);
   }
   getSigningsChart(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/sign-chart-data`);
+    return this.http.get<any[]>(`${this.apiUrl}/signingsChart`);
+  }
+  getSigningsData(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/signings-data`);
   }
 }
