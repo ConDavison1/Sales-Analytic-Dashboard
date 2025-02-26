@@ -25,8 +25,8 @@ export class PipelineService {
   private apiUrl = 'http://localhost:5000';
   constructor(private http: HttpClient) { }
 
-  getPipelineData(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/pipeline-data`);
+  getPipelineTable(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/pipeline-table-data`);
   }
   getPipelineChart(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/pipeline-chart-data`);

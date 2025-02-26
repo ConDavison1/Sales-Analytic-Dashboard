@@ -79,7 +79,7 @@ export class PipelineDashboardComponent implements OnInit {
   }
 
   fetchPipelineTable(): void {
-    this.pipelineService.getPipelineData().subscribe((data) => {
+    this.pipelineService.getPipelineTable().subscribe((data) => {
       this.pipelineData = data;
     });
   }
