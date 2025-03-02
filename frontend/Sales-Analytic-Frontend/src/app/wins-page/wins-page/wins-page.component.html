@@ -1,0 +1,16 @@
+<div class="container">
+  <app-sidebar></app-sidebar>
+  <div class="main-content">
+    <div class="wins-page">
+      <app-header></app-header>
+      <!-- Cards Section -->
+      <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.value }}</p>
+          <span>{{ card.percentage }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
