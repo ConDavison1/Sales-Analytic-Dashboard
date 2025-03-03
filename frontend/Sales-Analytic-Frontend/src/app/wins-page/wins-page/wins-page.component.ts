@@ -12,6 +12,7 @@ import { DashboardService } from '../../services/dashboard-services/dashboard.se
   styleUrl: './wins-page.component.css',
 })
 export class WinsPageComponent implements OnInit {
+  winsService: any;
   constructor(private dashboardService: DashboardService) {}
 
   wins: any[] = [];
@@ -24,14 +25,14 @@ export class WinsPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchCardData();
-    // this.fetchWins();
+    this.fetchWins();
   }
 
-  // fetchWins(): void {
-  //   this.winsService.getWins().subscribe((response) => {
-  //     this.wins = response;
-  //   });
-  // }
+  fetchWins(): void {
+    this.winsService.getWins().subscribe((response: any[]) => {
+      this.wins = response;
+    });
+  }
 
   fetchCardData(): void {
     this.dashboardService.getPipelineCount().subscribe((response) => {
