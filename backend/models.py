@@ -8,6 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(50), nullable=False)
 
 class Pipeline(db.Model):
     __tablename__ = 'pipeline'
@@ -25,13 +26,13 @@ class Revenue(db.Model):
 
 class Win(db.Model):
     __tablename__ = 'wins'
-    id = db.Column(db.Integer, primary_key=True)  
+    opportunity_id = db.Column(db.String, primary_key=True)  
     account_name = db.Column(db.String(255), nullable=False)
     win_date = db.Column(db.Date, nullable=False)
     industry = db.Column(db.String(100), nullable=False)
     account_type = db.Column(db.String(50), nullable=False)
     deal_value = db.Column(db.Float, nullable=False)
-    stage = db.Column(db.String(50), nullable=False)  
+    forecast_category = db.Column(db.String(50), nullable=False)  
     is_win = db.Column(db.Boolean, nullable=False)  
 
 

@@ -48,7 +48,7 @@ def chart_data():
     try:
         pipeline_data = [p.opportunity_value for p in Pipeline.query.all()]
         revenue_data = [r.total_revenue for r in Revenue.query.all()]
-        wins_data = [w.id for w in Win.query.filter_by(is_win=True).all()]
+        wins_data = [w.opportunity_id for w in Win.query.filter_by(is_win=True).all()]
         signings_data = [s.incremental_acv for s in Signing.query.all()]
 
         return jsonify({
@@ -160,7 +160,7 @@ def signings_count():
 @app.route('/wins-count', methods=['GET'])
 def wins_count():
     try:
-        total = db.session.query(db.func.count(Win.id)).filter(Win.is_win == True).scalar()
+        total = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
         return jsonify({"wins_count": total}), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
