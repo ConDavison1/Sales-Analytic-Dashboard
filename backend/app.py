@@ -7,6 +7,7 @@ import uuid
 import traceback
 from flask_cors import CORS
 from sqlalchemy import func
+from datetime import datetime
 
 
 
@@ -48,7 +49,7 @@ def chart_data():
     try:
         pipeline_data = [p.opportunity_value for p in Pipeline.query.all()]
         revenue_data = [r.total_revenue for r in Revenue.query.all()]
-        wins_data = [w.id for w in Win.query.filter_by(is_win=True).all()]
+        wins_data = [w.opportunity_id for w in Win.query.filter_by(is_win=True).all()]
         signings_data = [s.incremental_acv for s in Signing.query.all()]
 
         return jsonify({
@@ -160,11 +161,12 @@ def signings_count():
 @app.route('/wins-count', methods=['GET'])
 def wins_count():
     try:
-        total = db.session.query(db.func.count(Win.id)).filter(Win.is_win == True).scalar()
+        total = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
         return jsonify({"wins_count": total}), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+#Clients table get method
 #Clients table get method
 @app.route('/clients', methods=['GET'])
 def clients():
@@ -183,22 +185,45 @@ def clients():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
     
-#Clients table delete method
 @app.route('/clients/<int:client_id>', methods=['DELETE'])
 def delete_client(client_id):
     try:
         client = db.session.get(Client, client_id)
+        if not client:
+            return jsonify({"message": "Client not found"}), 404
+
+        executive_id = client.executive_id
+
+        executive = db.session.get(AccountExecutive, executive_id)
+        if executive and executive.assigned_accounts:
+            if client_id in executive.assigned_accounts:
+                executive.assigned_accounts.remove(client_id)
+
+                db.session.execute(
+                    AccountExecutive.__table__.update().
+                    where(AccountExecutive.executive_id == executive.executive_id).
+                    values(assigned_accounts=executive.assigned_accounts)
+                )
+                db.session.commit()
+
         db.session.delete(client)
         db.session.commit()
+
         return jsonify({"message": "Client deleted successfully"}), 200
+
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
     
-#Clients table post method
 @app.route('/clients', methods=['POST'])
 def add_client():
     try:
         data = request.get_json()
+
+        if not data:
+            return jsonify({"message": "Invalid JSON payload"}), 400
+
         client = Client(
             executive_id=data.get('executive_id'),
             company_name=data.get('company_name'),
@@ -206,12 +231,35 @@ def add_client():
             email=data.get('email'),
             location=data.get('location')
         )
+
+       
         db.session.add(client)
-        db.session.commit()
-        return jsonify({"message": "Client added successfully"}), 200
-    except IntegrityError as e:
+        db.session.commit() 
+
+        executive = db.session.get(AccountExecutive, client.executive_id)
+        if executive:
+            print(f"Before update (executive {executive.executive_id}): {executive.assigned_accounts}") 
+
+            if not executive.assigned_accounts:
+                executive.assigned_accounts = [] 
+
+            executive.assigned_accounts.append(client.client_id)
+            
+            print(f"After update (executive {executive.executive_id}): {executive.assigned_accounts}")  
+
+            db.session.execute(
+                AccountExecutive.__table__.update().
+                where(AccountExecutive.executive_id == executive.executive_id).
+                values(assigned_accounts=executive.assigned_accounts)
+            )
+
+            db.session.commit()
+
+        return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
+
+    except IntegrityError:
         db.session.rollback()
-        return jsonify({"message": f"Client already exists"}), 400
+        return jsonify({"message": "Client already exists"}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
@@ -234,7 +282,7 @@ def signingschart():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
-from sqlalchemy import func
+
 
 @app.route('/signingsChart', methods=['GET'])
 def signingsChart():
@@ -246,10 +294,281 @@ def signingsChart():
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
 
+# -----------------------------
+# Count-to-wins API endpoints
 
-@app.route('/test', methods=['GET'])
-def test():
-    return "Flask is running!"
+@app.route('/wins-rows', methods=['GET'])
+def get_wins():
+    try:
+        # Retrieve query parameters
+        account_name = request.args.get('account_name', type=str)
+        win_status = request.args.get('win_status', type=str)  # "true", "false", or "all"
+        start_date = request.args.get('start_date', type=str)  # Format: YYYY-MM-DD
+        end_date = request.args.get('end_date', type=str)  # Format: YYYY-MM-DD
+        industry = request.args.get('industry', type=str)
+        account_type = request.args.get('account_type', type=str)
+        lower_bound = request.args.get('lower_bound', type=float)  # Deal value lower limit
+        upper_bound = request.args.get('upper_bound', type=float)  # Deal value upper limit
+        forecast_category = request.args.get('forecast_category', type=str)
+        account_executive = request.args.get('account_executive', type=int)
+
+        # Start query
+        query = Win.query
+
+        # Apply filters (only if provided)
+        if account_name:
+            query = query.filter(Win.account_name.ilike(f"%{account_name}%"))  # Case-insensitive search
+
+        if win_status and win_status.lower() in ["true", "false"]:
+            query = query.filter(Win.is_win == (win_status.lower() == "true"))  # Convert to boolean
+
+        if start_date:
+            try:
+                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+                query = query.filter(Win.win_date >= start_date_obj)
+            except ValueError:
+                return jsonify({"error": "Invalid start_date format. Use YYYY-MM-DD"}), 400
+
+        if end_date:
+            try:
+                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+                query = query.filter(Win.win_date <= end_date_obj)
+            except ValueError:
+                return jsonify({"error": "Invalid end_date format. Use YYYY-MM-DD"}), 400
+
+        if industry:
+            query = query.filter(Win.industry.ilike(f"%{industry}%"))
+
+        if account_type:
+            query = query.filter(Win.account_type.ilike(f"%{account_type}%"))
+
+        if lower_bound is not None:
+            query = query.filter(Win.deal_value >= lower_bound)
+
+        if upper_bound is not None:
+            query = query.filter(Win.deal_value <= upper_bound)
+
+        if forecast_category:
+            query = query.filter(Win.forecast_category.ilike(f"%{forecast_category}%"))
+
+        # if account_executive:
+        #     query = query.filter(Win.account_executive == account_executive)
+
+        # Execute the query
+        wins = query.all()
+
+        # Convert result to JSON format
+        win_list = [
+            {
+                "opportunity_id": win.opportunity_id,
+                "account_name": win.account_name,
+                "win_date": win.win_date.strftime("%Y-%m-%d"),  # Convert date to string
+                "industry": win.industry,
+                "account_type": win.account_type,
+                "deal_value": win.deal_value,
+                "forecast_category": win.forecast_category,
+                "is_win": win.is_win
+                # "account_executive": win.account_executive
+            } for win in wins
+        ]
+        
+        return jsonify(win_list), 200  # Return data with HTTP 200 (OK)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+
+@app.route('/wins-average-deal-size', methods=['GET'])
+def get_average_deal_size():
+    try:
+        # Query to sum the deal values where is_win is True
+        total_deal_value = db.session.query(db.func.sum(Win.deal_value)).filter(Win.is_win == True).scalar()
+
+        # Query to count the number of wins (where is_win is True)
+        total_wins = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
+
+        # Calculate Average Deal Size (avoid division by zero)
+        average_deal_size = total_deal_value / total_wins if total_wins > 0 else 0
+
+        # Return the result
+        return jsonify({
+            "average_deal_size": round(average_deal_size, 2),  # Round to 2 decimal places
+            "total_deal_value": total_deal_value,
+            "total_wins": total_wins
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+    
+@app.route('/wins-win-rate', methods=['GET'])
+def get_win_rate():
+    try:
+        # Query to count the total number of wins (where is_win is True)
+        total_wins = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
+
+        # Query to count the total number of opportunities (all rows in the wins table)
+        total_opportunities = db.session.query(db.func.count(Win.opportunity_id)).scalar()
+
+        # Calculate Win Rate (avoid division by zero)
+        win_rate = (total_wins / total_opportunities) * 100 if total_opportunities > 0 else 0
+
+        # Return the result
+        return jsonify({
+            "win_rate": round(win_rate, 2),  # Percentage rounded to 2 decimal places
+            "total_wins": total_wins,
+            "total_opportunities": total_opportunities
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+
+@app.route('/wins-open-opportunities', methods=['GET'])
+def get_open_opportunities():
+    try:
+        # Query to count the total number of open opportunities (where is_win is False)
+        total_open_opportunities = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == False).scalar()
+
+        # Return the result
+        return jsonify({
+            "open_opportunities": total_open_opportunities
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+
+
+@app.route('/wins-opportunities-by-industry', methods=['GET'])
+def get_wins_opportunities_by_industry():
+    try:
+        # Query to count wins (is_win == True) grouped by industry
+        wins_by_industry = (
+            db.session.query(Win.industry, db.func.count().label("win_count"))
+            .filter(Win.is_win == True)
+            .group_by(Win.industry)
+            .all()
+        )
+
+        # Query to count open opportunities (is_win == False) grouped by industry
+        opportunities_by_industry = (
+            db.session.query(Win.industry, db.func.count().label("opportunity_count"))
+            .filter(Win.is_win == False)
+            .group_by(Win.industry)
+            .all()
+        )
+
+        # Convert query results to dictionaries
+        wins_dict = {industry: count for industry, count in wins_by_industry}
+        opportunities_dict = {industry: count for industry, count in opportunities_by_industry}
+
+        # Get all industries from both queries
+        all_industries = set(wins_dict.keys()).union(set(opportunities_dict.keys()))
+
+        # Construct the response
+        industry_data = [
+            {
+                "industry": industry,
+                "wins": wins_dict.get(industry, 0),  # Default to 0 if no wins
+                "opportunities": opportunities_dict.get(industry, 0)  # Default to 0 if no opportunities
+            }
+            for industry in all_industries
+        ]
+
+        return jsonify(industry_data), 200  # Return JSON data
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+
+@app.route('/wins-over-time', methods=['GET'])
+def get_wins_over_time():
+    try:
+        # Get the year parameter from the request (default to the current year if not provided)
+        year = request.args.get('year', type=int, default=datetime.now().year)
+
+        # Query to count confirmed wins (is_win == True) grouped by month
+        confirmed_wins = (
+            db.session.query(
+                db.func.extract('month', Win.win_date).label("month"),
+                db.func.count().label("confirmed_wins")
+            )
+            .filter(db.func.extract('year', Win.win_date) == year, Win.is_win == True)
+            .group_by(db.func.extract('month', Win.win_date))
+            .all()
+        )
+
+        # Query to count potential wins (is_win == False) grouped by month
+        potential_wins = (
+            db.session.query(
+                db.func.extract('month', Win.win_date).label("month"),
+                db.func.count().label("potential_wins")
+            )
+            .filter(db.func.extract('year', Win.win_date) == year, Win.is_win == False)
+            .group_by(db.func.extract('month', Win.win_date))
+            .all()
+        )
+
+        # Convert query results to dictionaries
+        confirmed_wins_dict = {int(month): count for month, count in confirmed_wins}
+        potential_wins_dict = {int(month): count for month, count in potential_wins}
+
+        # Ensure all months (1-12) are included, even if no data exists
+        monthly_data = [
+            {
+                "month": month,
+                "confirmed_wins": confirmed_wins_dict.get(month, 0),  # Default to 0 if no wins
+                "potential_wins": potential_wins_dict.get(month, 0)  # Default to 0 if no opportunities
+            }
+            for month in range(1, 13)  # Ensure all months from January (1) to December (12) are present
+        ]
+
+        return jsonify(monthly_data), 200  # Return JSON data
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+
+
+@app.route('/wins-distribution-by-forecast-category', methods=['GET'])
+def get_wins_distribution_by_forecast_category():
+    try:
+        # Get the year parameter from the request (default to the current year if not provided)
+        year = request.args.get('year', type=int, default=datetime.now().year)
+
+        # Ensure all forecast categories (commit, omit, upside, pipeline) are included
+        valid_categories = ["Commit", "Omit", "Upside", "Pipeline"]
+
+        # Query to count wins grouped by forecast category for the given year
+        wins_by_forecast_category = (
+            db.session.query(
+                db.func.coalesce(Win.forecast_category, 'Unknown').label("forecast_category"),
+                db.func.count().label("win_count")
+            )
+            .filter(
+                db.func.extract('year', Win.win_date) == year,
+                Win.is_win == True,
+                Win.forecast_category.in_(valid_categories)  # Ensure only valid categories are included
+            )
+            .group_by(Win.forecast_category)
+            .all()
+        )
+
+        # Convert query results to a dictionary
+        forecast_category_dict = {category: 0 for category in valid_categories}  # Initialize all categories with 0
+
+        for forecast_category, count in wins_by_forecast_category:
+            forecast_category_dict[forecast_category] = count  # Assign counted values
+
+        # Convert to list format for JSON response
+        forecast_category_data = [
+            {
+                "forecast_category": category,
+                "win_count": forecast_category_dict[category]
+            }
+            for category in valid_categories
+        ]
+
+        return jsonify(forecast_category_data), 200  # Return JSON data
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Handle errors
+# -----------------------------
 
 
 if __name__ == '__main__':
