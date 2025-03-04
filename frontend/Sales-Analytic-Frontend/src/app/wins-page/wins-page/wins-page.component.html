@@ -28,12 +28,12 @@
             </thead>
             <tbody>
               <tr *ngFor="let win of wins">
-                <td>{{ win.id }}</td>
-                <td>{{ win.name }}</td>
+                <td>{{ win.opportunity_id }}</td>
+                <td>{{ win.account_name }}</td>
                 <td>{{ win.industry }}</td>
-                <td>{{ win.value }}</td>
-                <td>{{ win.forecast }}</td>
-                <td>{{ win.date_of_win }}</td>
+                <td>{{ win.deal_value }}</td>
+                <td>{{ win.forecast_category }}</td>
+                <td>{{ win.win_date }}</td>
               </tr>
             </tbody>
           </table>

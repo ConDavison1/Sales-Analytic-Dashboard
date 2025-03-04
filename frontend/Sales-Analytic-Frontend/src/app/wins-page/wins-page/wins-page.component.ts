@@ -3,6 +3,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
+import { WinsService } from '../../services/wins-services/wins.service';
 
 @Component({
   selector: 'app-wins-page',
@@ -12,8 +13,10 @@ import { DashboardService } from '../../services/dashboard-services/dashboard.se
   styleUrl: './wins-page.component.css',
 })
 export class WinsPageComponent implements OnInit {
-  winsService: any;
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private winsService: WinsService,
+    private dashboardService: DashboardService
+  ) {}
 
   wins: any[] = [];
   isLoadingWins: boolean = true;
