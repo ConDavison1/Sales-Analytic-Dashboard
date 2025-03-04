@@ -39,6 +39,14 @@
           </table>
         </div>
       </div>
+      <!-- KPI Card Section -->
+      <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.value }}</p>
+          <span>{{ card.percentage }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
