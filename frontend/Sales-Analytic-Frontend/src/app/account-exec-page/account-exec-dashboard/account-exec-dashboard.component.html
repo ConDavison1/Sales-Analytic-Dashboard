@@ -1,0 +1,34 @@
+<div class="executives">
+
+    <!--Cards Section-->
+    <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.value }}</p>
+            <span>{{ card.percentage }}</span>
+        </div>
+    </div>
+
+    <!--Account Executives Table-->
+    <div class="table-container">
+        <h2 class="table-header">Account Executives</h2>
+        <table class="scrollable-table">
+            <thead>
+                <tr>
+                    <th>Executive ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of accountExecData">
+                    <td>{{ row.executive_id }}</td>
+                    <td>{{ row.first_name }}</td>
+                    <td>{{ row.last_name }}</td>
+                    <td>{{ row.email }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
