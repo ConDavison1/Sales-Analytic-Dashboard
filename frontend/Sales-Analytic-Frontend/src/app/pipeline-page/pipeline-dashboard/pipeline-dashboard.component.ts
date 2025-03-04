@@ -26,38 +26,24 @@ export type ChartOptions = {
   encapsulation: ViewEncapsulation.Emulated
 })
 export class PipelineDashboardComponent implements OnInit {
-  
+
   pipelineCount: number = 0;
   revenueCount: number = 0;
   signingsCount: number = 0;
   winsCount: number = 0;
 
   pipelineData: any[] = [];
+
   pipelineChartData: any[] = [];
   isDataLoaded: boolean = false;
 
-  constructor(private dashboardService: DashboardService, private pipelineService: PipelineService) {}
+  constructor(private dashboardService: DashboardService, private pipelineService: PipelineService) { }
 
   ngOnInit() {
     this.fetchDashboardData();
+    this.fetchPipelineTable();
+    this.fetchPipelineChart();
 
-    // Static mock data for table
-    this.pipelineData = [
-      {
-        account_name: 'Acme Corp',
-        opportunity_id: 'OPP12345',
-        stage: 'Negotiation',
-        forecast_category: 'Commit',
-        probability: '80%',
-        value: '$120,000',
-        time_period: 'Q1 2025'
-      }
-    ]
-    // Static mock data for chart
-    this.barChart.series = [
-      { name: 'Probability', data: [15, 30, 26, 47] }
-    ];
-    this.barChart.xaxis.categories = ['0%', '33%', '66%', '90%'];
   }
 
   fetchDashboardData(): void {
@@ -84,6 +70,8 @@ export class PipelineDashboardComponent implements OnInit {
     });
   }
 
+
+
   fetchPipelineChart(): void {
     this.pipelineService.getPipelineChart().subscribe((data) => {
       this.pipelineChartData = data;
@@ -94,11 +82,22 @@ export class PipelineDashboardComponent implements OnInit {
 
   updateBarChartData(): void {
     this.pipelineService.getPipelineChart().subscribe((data) => {
-      this.pipelineChartData = data;
-      this.isDataLoaded = true;
-      this.updateBarChartData();
-    })
+      console.log('Fetched data:', data);
+      data.sort((a: any, b: any) => a.probability - b.probability);
+      this.barChart.series = [{
+        name: 'Accounts',
+        data: data.map((item: any) => item.count)
+      }];
+      this.barChart.xaxis.categories = data.map((item: any) => item.probability.toString());
+    });
   }
+
+
+
+
+
+
+
 
   get cards() {
     return [
@@ -112,7 +111,14 @@ export class PipelineDashboardComponent implements OnInit {
   barChart = {
     chart: { type: 'bar' as ApexChart['type'], height: 350 },
     series: [{ name: 'Clients', data: [] as number[] }],
-    xaxis: { categories: [] as string[] },
+    xaxis: { categories: ['10%', '33%', '66%', '95%'] as string[] },
+    yaxis: {
+      title: {
+        text: 'Accounts #', style: {
+          fontFamily: 'Arial, Helvetica, sans-serif',
+        }
+      }
+    },
     plotOptions: {
       bar: { horizontal: false, columnWidth: '50%', distributed: true }
     },

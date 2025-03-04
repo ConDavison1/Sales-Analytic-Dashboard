@@ -12,9 +12,13 @@ class User(db.Model):
 
 class Pipeline(db.Model):
     __tablename__ = 'pipeline'
+    account_name = db.Column(db.String(255), nullable=False)
     opportunity_id = db.Column(db.Integer, primary_key=True)
     forecast_category = db.Column(db.String(50), nullable=False)
     opportunity_value = db.Column(db.Float, nullable=False)
+    expected_close_date = db.Column(db.Date, nullable=False)
+    stage = db.Column(db.String(50), nullable=False)
+    probability = db.Column(db.Float, nullable=False)
 
 class Revenue(db.Model):
     __tablename__ = 'revenue'
