@@ -22,12 +22,26 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let row of accountExecData">
+                <ng-container *ngFor="let row of accountExecData">
+                <tr (click)="toggleExecutive(row)" class="clickable-row">
                     <td>{{ row.executive_id }}</td>
                     <td>{{ row.first_name }}</td>
                     <td>{{ row.last_name }}</td>
                     <td>{{ row.email }}</td>
                 </tr>
+                <tr *ngIf="selectedExecutive === row" class="expanded-row">
+                    <td colspan="4">
+                        <div class="executive-details">
+                            <h3>Executive Details</h3>
+                            <p>ID: {{selectedExecutive.executive_id }}</p>
+                            <p>Name: {{ selectedExecutive.first_name }} {{ selectedExecutive.last_name }}</p>
+                            <p>Email: {{ selectedExecutive.email }}</p>
+                            <p>Status: {{ selectedExecutive.status }}</p>
+                            <p>Assigned Accounts: {{ selectedExecutive.assigned_accounts }}</p>
+                        </div>
+                    </td>
+                </tr>
+                </ng-container>
             </tbody>
         </table>
     </div>

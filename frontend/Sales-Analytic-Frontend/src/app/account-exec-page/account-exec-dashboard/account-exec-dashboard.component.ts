@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { AccountExecService } from '../../services/account-exec-services/account-exec.service';
 import { first } from 'rxjs';
+import { exec } from 'apexcharts';
 
 @Component({
   selector: 'app-account-exec-dashboard',
@@ -20,6 +21,7 @@ export class AccountExecDashboardComponent {
   winsCount: number = 0;
 
   accountExecData: any[] = [];
+  selectedExecutive: any = null;
 
   isDataLoaded: boolean = false;
 
@@ -38,6 +40,14 @@ export class AccountExecDashboardComponent {
         first_name: 'John',
         last_name: 'Doe',
         email: 'john.doe@example.com'
+      },
+      {
+        executive_id: 2,
+        first_name: 'Jane',
+        last_name: 'Doe',
+        email: 'jane.doe@example.com',
+        status: 'Active',
+        assigned_accounts: [1, 2, 17, 67, 68, 71]
       }
     ]
   }
@@ -71,6 +81,15 @@ export class AccountExecDashboardComponent {
   fetchAccountExecData(): void {
     this.accountExecService
       .getAccountExecData()
+      .pipe(first())
+      .subscribe((data: any[]) => {
+        this.accountExecData = data;
+        this.isDataLoaded = true;
+      })
+  }
+
+  toggleExecutive(executive: any): void {
+    this.selectedExecutive = this.selectedExecutive === executive ? null : executive;
   }
 
   get cards() {
