@@ -18,12 +18,66 @@
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Wins ID</th>
-                <th>Name</th>
-                <th>Industry</th>
-                <th>Value</th>
-                <th>Forecast</th>
-                <th>Date of Win</th>
+                <th>
+                  Wins ID
+                  <button
+                    class="sort-btn"
+                    (click)="sortTable('opportunity_id')"
+                  >
+                    <span *ngIf="sortColumn === 'opportunity_id'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'opportunity_id'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Name
+                  <button class="sort-btn" (click)="sortTable('account_name')">
+                    <span *ngIf="sortColumn === 'account_name'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'account_name'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Industry
+                  <button class="sort-btn" (click)="sortTable('industry')">
+                    <span *ngIf="sortColumn === 'industry'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'industry'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Value
+                  <button class="sort-btn" (click)="sortTable('deal_value')">
+                    <span *ngIf="sortColumn === 'deal_value'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'deal_value'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Forecast
+                  <button
+                    class="sort-btn"
+                    (click)="sortTable('forecast_category')"
+                  >
+                    <span *ngIf="sortColumn === 'forecast_category'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'forecast_category'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Date of Win
+                  <button class="sort-btn" (click)="sortTable('win_date')">
+                    <span *ngIf="sortColumn === 'win_date'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'win_date'">⬍</span>
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -37,14 +91,6 @@
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-      <!-- KPI Card Section -->
-      <div class="cards">
-        <div *ngFor="let card of cards" class="card">
-          <h3>{{ card.title }}</h3>
-          <p>{{ card.value }}</p>
-          <span>{{ card.percentage }}</span>
         </div>
       </div>
     </div>

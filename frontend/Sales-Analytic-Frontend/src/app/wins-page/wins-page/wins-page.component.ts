@@ -21,6 +21,9 @@ export class WinsPageComponent implements OnInit {
   wins: any[] = [];
   isLoadingWins: boolean = true;
 
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   pipelineCount: number = 0;
   revenueCount: number = 0;
   signingsCount: number = 0;
@@ -36,6 +39,31 @@ export class WinsPageComponent implements OnInit {
       this.wins = response;
     });
   }
+
+  sortTable(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+  
+
+  this.wins.sort((a, b) => {
+    const valueA = a[column];
+    const valueB = b[column];
+
+    if (typeof valueA === 'number' && typeof valueB === 'number') {
+      return this.sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
+    } else {
+      return this.sortDirection === 'asc'
+        ? valueA.toString().localeCompare(valueB.toString())
+        : valueB.toString().localeCompare(valueA.toString());
+    }
+  });
+}
+
+
 
   fetchCardData(): void {
     this.dashboardService.getPipelineCount().subscribe((response) => {
