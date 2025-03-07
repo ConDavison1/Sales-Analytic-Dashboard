@@ -5,6 +5,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { ClientsPageComponent } from './clients-page/clients-page/clients-page.component';
 import { SigningsPageComponent } from './signings-page/signings-page/signings-page.component';
+import { PipelinePageComponent } from './pipeline-page/pipeline-page/pipeline-page.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -13,6 +14,7 @@ export const appRoutes: Routes = [
   { path: 'revenue-page', component: RevenuePageFullComponent },
   { path: 'dashboard', component: DashboardComponent }, // Add the dashboard route
   { path: 'clients-page', component: ClientsPageComponent},
-  { path: 'signings', component: SigningsPageComponent }
+  { path: 'signings', component: SigningsPageComponent },
+  { path: 'pipeline', component: PipelinePageComponent }
   
 ];
