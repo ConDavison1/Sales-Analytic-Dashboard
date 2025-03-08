@@ -291,8 +291,34 @@ def signingsChart():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+@app.route('/pipeline-table-data', methods=['GET'])
+def pipeline_table_data():
+    try:
+        pipeline_data = []
+        for row in Pipeline.query.all():
+            pipeline_data.append({
+                "opportunity_id": row.opportunity_id,
+                "account_name": row.account_name,
+                "opportunity_value": row.opportunity_value,
+                "forecast_category": row.forecast_category,
+                "probability": row.probability,
+                "close_date": row.expected_close_date,
+                "stage": row.stage
+            })
+        return jsonify(pipeline_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+@app.route('/pipeline-chart-data', methods=['GET'])
+def pipeline_chart_data():
+    try:
+        results = db.session.query(Pipeline.probability, func.count()).group_by(Pipeline.probability).all()
+        chart_data = [{"probability": row[0], "count": row[1]} for row in results]
+        return jsonify(chart_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
 
-
+    
 @app.route('/test', methods=['GET'])
 def test():
     return "Flask is running!"
