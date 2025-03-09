@@ -63,32 +63,38 @@
 }
 
 /* Account Executives Section */
-.account-executives {
-  grid-column: 1 / -1; /* Span all columns */
-}
-
-.custom-card {
-  border-radius: 8px;
+.table-container {
+  grid-column: 1 / -1; /* Clients span all columns */
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   background-color: #ffffff;
 }
 
-.card-body {
-  padding: 16px;
-}
-
-.table-responsive {
-  overflow-x: auto;
+.table-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
 .scrollable-table {
   max-height: 400px;
   overflow-y: auto;
+  position: relative;
 }
 
 .custom-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.custom-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 10;
 }
 
 .custom-table th,
