@@ -48,7 +48,7 @@ def chart_data():
     try:
         pipeline_data = [p.opportunity_value for p in Pipeline.query.all()]
         revenue_data = [r.total_revenue for r in Revenue.query.all()]
-        wins_data = [w.id for w in Win.query.filter_by(is_win=True).all()]
+        wins_data = [w.opportunity_id for w in Win.query.filter_by(is_win=True).all()]
         signings_data = [s.incremental_acv for s in Signing.query.all()]
 
         return jsonify({
@@ -161,7 +161,7 @@ def signings_count():
 @app.route('/wins-count', methods=['GET'])
 def wins_count():
     try:
-        total = db.session.query(db.func.count(Win.id)).filter(Win.is_win == True).scalar()
+        total = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
         return jsonify({"wins_count": total}), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
@@ -184,22 +184,45 @@ def clients():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
     
-#Clients table delete method
 @app.route('/clients/<int:client_id>', methods=['DELETE'])
 def delete_client(client_id):
     try:
         client = db.session.get(Client, client_id)
+        if not client:
+            return jsonify({"message": "Client not found"}), 404
+
+        executive_id = client.executive_id
+
+        executive = db.session.get(AccountExecutive, executive_id)
+        if executive and executive.assigned_accounts:
+            if client_id in executive.assigned_accounts:
+                executive.assigned_accounts.remove(client_id)
+
+                db.session.execute(
+                    AccountExecutive.__table__.update().
+                    where(AccountExecutive.executive_id == executive.executive_id).
+                    values(assigned_accounts=executive.assigned_accounts)
+                )
+                db.session.commit()
+
         db.session.delete(client)
         db.session.commit()
+
         return jsonify({"message": "Client deleted successfully"}), 200
+
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
     
-#Clients table post method
 @app.route('/clients', methods=['POST'])
 def add_client():
     try:
         data = request.get_json()
+
+        if not data:
+            return jsonify({"message": "Invalid JSON payload"}), 400
+
         client = Client(
             executive_id=data.get('executive_id'),
             company_name=data.get('company_name'),
@@ -207,12 +230,35 @@ def add_client():
             email=data.get('email'),
             location=data.get('location')
         )
+
+       
         db.session.add(client)
-        db.session.commit()
-        return jsonify({"message": "Client added successfully"}), 200
-    except IntegrityError as e:
+        db.session.commit() 
+
+        executive = db.session.get(AccountExecutive, client.executive_id)
+        if executive:
+            print(f"Before update (executive {executive.executive_id}): {executive.assigned_accounts}") 
+
+            if not executive.assigned_accounts:
+                executive.assigned_accounts = [] 
+
+            executive.assigned_accounts.append(client.client_id)
+            
+            print(f"After update (executive {executive.executive_id}): {executive.assigned_accounts}")  
+
+            db.session.execute(
+                AccountExecutive.__table__.update().
+                where(AccountExecutive.executive_id == executive.executive_id).
+                values(assigned_accounts=executive.assigned_accounts)
+            )
+
+            db.session.commit()
+
+        return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
+
+    except IntegrityError:
         db.session.rollback()
-        return jsonify({"message": f"Client already exists"}), 400
+        return jsonify({"message": "Client already exists"}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
@@ -235,7 +281,7 @@ def signingschart():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
-from sqlalchemy import func
+
 
 @app.route('/signingsChart', methods=['GET'])
 def signingsChart():
@@ -246,8 +292,34 @@ def signingsChart():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+@app.route('/pipeline-table-data', methods=['GET'])
+def pipeline_table_data():
+    try:
+        pipeline_data = []
+        for row in Pipeline.query.all():
+            pipeline_data.append({
+                "opportunity_id": row.opportunity_id,
+                "account_name": row.account_name,
+                "opportunity_value": row.opportunity_value,
+                "forecast_category": row.forecast_category,
+                "probability": row.probability,
+                "close_date": row.expected_close_date,
+                "stage": row.stage
+            })
+        return jsonify(pipeline_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+@app.route('/pipeline-chart-data', methods=['GET'])
+def pipeline_chart_data():
+    try:
+        results = db.session.query(Pipeline.probability, func.count()).group_by(Pipeline.probability).all()
+        chart_data = [{"probability": row[0], "count": row[1]} for row in results]
+        return jsonify(chart_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
 
-
+    
 @app.route('/test', methods=['GET'])
 def test():
     return "Flask is running!"

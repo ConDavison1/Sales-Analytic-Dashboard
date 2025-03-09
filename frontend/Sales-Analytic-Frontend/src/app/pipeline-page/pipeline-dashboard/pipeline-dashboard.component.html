@@ -1,0 +1,53 @@
+<div class="pipeline">
+    <!--Cards Section-->
+    <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.value }}</p>
+            <span>{{ card.percentage }}</span>
+        </div>
+    </div>
+
+    <!--Pipeline Table-->
+    <div class="table-container">
+        <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
+        <table class="scrollable-table">
+            <thead>
+                <tr>
+                    <th>Account Name</th>
+                    <th>Opportunity ID</th>
+                    <th>Stage</th>
+                    <th>Forecast Category</th>
+                    <th>Probability</th>
+                    <th>Value</th>
+                    <th>Time Period</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of pipelineData">
+                    <td>{{ row.account_name }}</td>
+                    <td>{{ row.opportunity_id }}</td>
+                    <td>{{ row.stage }}</td>
+                    <td>{{ row.forecast_category }}</td>
+                    <td>{{ row.probability }}</td>
+                    <td>{{ row.opportunity_value }}</td>
+                    <td>{{ row.time_period }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!--Charts Section-->
+    <div class="chart-container">
+        <apx-chart [series]="barChart.series" [chart]="barChart.chart" [xaxis]="barChart.xaxis" [yaxis]="barChart.yaxis"
+            [plotOptions]="barChart.plotOptions" [dataLabels]="barChart.dataLabels" [colors]="barChart.colors">
+        </apx-chart>
+    </div>
+
+    <!--Pipeline Target Gauge-->
+    <div class="chart-container relative">
+        <apx-chart [series]="gaugeChart.series" [chart]="gaugeChart.chart" [plotOptions]="gaugeChart.plotOptions"
+            [fill]="gaugeChart.fill">
+        </apx-chart>
+    </div>
+</div>
