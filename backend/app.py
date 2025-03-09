@@ -94,7 +94,7 @@ def get_revenue_clients():
 def account_executives():
     try:
         executives = []
-        for row in AccountExecutive.query.all():
+        for row in AccountExecutive.query.order_by(AccountExecutive.executive_id).all():
             assigned_accounts = eval(row.assigned_accounts) if isinstance(row.assigned_accounts, str) else row.assigned_accounts
             performance_metrics = eval(row.performance_metrics) if isinstance(row.performance_metrics, str) else row.performance_metrics
             number_of_clients = len(assigned_accounts)
@@ -104,6 +104,7 @@ def account_executives():
 
             executives.append({
                 "name": f"{row.first_name} {row.last_name}",
+                "executive_id": row.executive_id,
                 "clients": number_of_clients,
                 "performance": {
                     "value": f"${sales}",
@@ -162,6 +163,7 @@ def signings_count():
 def wins_count():
     try:
         total = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
+        total = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
         return jsonify({"wins_count": total}), 200
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
@@ -206,20 +208,45 @@ def delete_client(client_id):
                 )
                 db.session.commit()
 
+        if not client:
+            return jsonify({"message": "Client not found"}), 404
+
+        executive_id = client.executive_id
+
+        executive = db.session.get(AccountExecutive, executive_id)
+        if executive and executive.assigned_accounts:
+            if client_id in executive.assigned_accounts:
+                executive.assigned_accounts.remove(client_id)
+
+                db.session.execute(
+                    AccountExecutive.__table__.update().
+                    where(AccountExecutive.executive_id == executive.executive_id).
+                    values(assigned_accounts=executive.assigned_accounts)
+                )
+                db.session.commit()
+
         db.session.delete(client)
         db.session.commit()
 
+
         return jsonify({"message": "Client deleted successfully"}), 200
+
 
     except Exception as e:
         db.session.rollback()
+        db.session.rollback()
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
     
 @app.route('/clients', methods=['POST'])
 def add_client():
     try:
         data = request.get_json()
+
+        if not data:
+            return jsonify({"message": "Invalid JSON payload"}), 400
+
 
         if not data:
             return jsonify({"message": "Invalid JSON payload"}), 400
@@ -231,6 +258,8 @@ def add_client():
             email=data.get('email'),
             location=data.get('location')
         )
+
+       
 
        
         db.session.add(client)
@@ -258,7 +287,32 @@ def add_client():
         return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
 
     except IntegrityError:
+        db.session.commit() 
+
+        executive = db.session.get(AccountExecutive, client.executive_id)
+        if executive:
+            print(f"Before update (executive {executive.executive_id}): {executive.assigned_accounts}") 
+
+            if not executive.assigned_accounts:
+                executive.assigned_accounts = [] 
+
+            executive.assigned_accounts.append(client.client_id)
+            
+            print(f"After update (executive {executive.executive_id}): {executive.assigned_accounts}")  
+
+            db.session.execute(
+                AccountExecutive.__table__.update().
+                where(AccountExecutive.executive_id == executive.executive_id).
+                values(assigned_accounts=executive.assigned_accounts)
+            )
+
+            db.session.commit()
+
+        return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
+
+    except IntegrityError:
         db.session.rollback()
+        return jsonify({"message": "Client already exists"}), 400
         return jsonify({"message": "Client already exists"}), 400
     except Exception as e:
         db.session.rollback()
@@ -284,6 +338,7 @@ def signingschart():
 
 
 
+
 @app.route('/signingsChart', methods=['GET'])
 def signingsChart():
     try:
@@ -293,6 +348,32 @@ def signingsChart():
     except Exception as e:
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
+@app.route('/pipeline-table-data', methods=['GET'])
+def pipeline_table_data():
+    try:
+        pipeline_data = []
+        for row in Pipeline.query.all():
+            pipeline_data.append({
+                "opportunity_id": row.opportunity_id,
+                "account_name": row.account_name,
+                "opportunity_value": row.opportunity_value,
+                "forecast_category": row.forecast_category,
+                "probability": row.probability,
+                "close_date": row.expected_close_date,
+                "stage": row.stage
+            })
+        return jsonify(pipeline_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+@app.route('/pipeline-chart-data', methods=['GET'])
+def pipeline_chart_data():
+    try:
+        results = db.session.query(Pipeline.probability, func.count()).group_by(Pipeline.probability).all()
+        chart_data = [{"probability": row[0], "count": row[1]} for row in results]
+        return jsonify(chart_data), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
 
 # -----------------------------
 # Count-to-wins API endpoints

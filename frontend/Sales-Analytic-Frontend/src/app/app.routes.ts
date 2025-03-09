@@ -5,6 +5,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { ClientsPageComponent } from './clients-page/clients-page/clients-page.component';
 import { SigningsPageComponent } from './signings-page/signings-page/signings-page.component';
+import { PipelinePageComponent } from './pipeline-page/pipeline-page/pipeline-page.component';
 import { WinsPageComponent } from './wins-page/wins-page/wins-page.component';
 
 export const appRoutes: Routes = [
@@ -15,5 +16,6 @@ export const appRoutes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'clients-page', component: ClientsPageComponent },
   { path: 'signings', component: SigningsPageComponent },
+  { path: 'pipeline', component: PipelinePageComponent },
   { path: 'count-to-wins', component: WinsPageComponent },
 ];
