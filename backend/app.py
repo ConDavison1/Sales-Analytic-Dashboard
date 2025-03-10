@@ -1,5 +1,4 @@
 from datetime import timedelta
-from flask import Flask, render_template, request, jsonify
 from models import db, User, Client, Pipeline, Signing, Revenue, Win, AccountExecutive
 from sqlalchemy.exc import IntegrityError
 from config_module import Config
@@ -7,7 +6,9 @@ import traceback
 from flask_cors import CORS
 from sqlalchemy import func
 from werkzeug.security import check_password_hash
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import Flask, jsonify, request
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
+
 import os
 from dotenv import load_dotenv
 
@@ -32,7 +33,7 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
-            token = create_access_token(identity={"id": user.id, "role": user.role}, expires_delta=timedelta(hours=1))
+            access_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
 
             clients_data = []
             if user.role == 'Account Executive':
@@ -43,11 +44,11 @@ def login():
                 clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
 
             print(f"User Role: {user.role}")
-            print(f"Generated Token: {token}")
+            print(f"Generated Token: {access_token}")  
 
             return jsonify({
                 "message": "Login successful!",
-                "token": token,
+                "token": access_token,
                 "role": user.role,
                 "clients": clients_data
             }), 200
@@ -56,6 +57,7 @@ def login():
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
 
 @app.route('/protected', methods=['GET'])
@@ -193,100 +195,126 @@ def wins_count():
 
 #Clients table get method
 @app.route('/clients', methods=['GET'])
+@jwt_required()
 def clients():
     try:
-        clients = []
-        for row in Client.query.all():
-            clients.append({
-                "client_id": row.client_id,
-                "executive_id": row.executive_id,
-                "company_name": row.company_name,
-                "industry": row.industry,
-                "email": row.email,
-                "location": row.location
-            })
-        return jsonify(clients), 200
-    except Exception as e:
-        return jsonify({"message": f"An error occurred: {e}"}), 500
-    
-@app.route('/clients/<int:client_id>', methods=['DELETE'])
-def delete_client(client_id):
-    try:
-        client = db.session.get(Client, client_id)
-        if not client:
-            return jsonify({"message": "Client not found"}), 404
+        print("Incoming request headers:")
+        for key, value in request.headers.items():
+            print(f"{key}: {value}")
 
-        executive_id = client.executive_id
+        user_id = get_jwt_identity()  
+        claims = get_jwt() 
+        user_role = claims.get("role") 
 
-        executive = db.session.get(AccountExecutive, executive_id)
-        if executive and executive.assigned_accounts:
-            if client_id in executive.assigned_accounts:
-                executive.assigned_accounts.remove(client_id)
+        print(f"Authenticated User: ID={user_id}, Role={user_role}")
 
-                db.session.execute(
-                    AccountExecutive.__table__.update().
-                    where(AccountExecutive.executive_id == executive.executive_id).
-                    values(assigned_accounts=executive.assigned_accounts)
-                )
-                db.session.commit()
+        if not user_role:
+            return jsonify({"message": "Invalid user role"}), 400
 
-        db.session.delete(client)
-        db.session.commit()
+        if user_role == "Director":
+            clients = Client.query.all()
+        elif user_role == "Account Executive":
+            clients = Client.query.filter_by(executive_id=int(user_id)).all()
+        else:
+            return jsonify({"message": "Access denied"}), 403
 
-        return jsonify({"message": "Client deleted successfully"}), 200
+        clients_data = [
+            {
+                "client_id": client.client_id,
+                "executive_id": client.executive_id,
+                "company_name": client.company_name,
+                "industry": client.industry,
+                "email": client.email,
+                "location": client.location
+            }
+            for client in clients
+        ]
+
+        print("Sending clients data:", clients_data)
+        return jsonify(clients_data), 200
 
     except Exception as e:
-        db.session.rollback()
+        print(f"Error in /clients endpoint: {e}")
         return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+# @app.route('/clients/<int:client_id>', methods=['DELETE'])
+# def delete_client(client_id):
+#     try:
+#         client = db.session.get(Client, client_id)
+#         if not client:
+#             return jsonify({"message": "Client not found"}), 404
+
+#         executive_id = client.executive_id
+
+#         executive = db.session.get(AccountExecutive, executive_id)
+#         if executive and executive.assigned_accounts:
+#             if client_id in executive.assigned_accounts:
+#                 executive.assigned_accounts.remove(client_id)
+
+#                 db.session.execute(
+#                     AccountExecutive.__table__.update().
+#                     where(AccountExecutive.executive_id == executive.executive_id).
+#                     values(assigned_accounts=executive.assigned_accounts)
+#                 )
+#                 db.session.commit()
+
+#         db.session.delete(client)
+#         db.session.commit()
+
+#         return jsonify({"message": "Client deleted successfully"}), 200
+
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"message": f"An error occurred: {e}"}), 500
 
     
-@app.route('/clients', methods=['POST'])
-def add_client():
-    try:
-        data = request.get_json()
+# @app.route('/clients', methods=['POST'])
+# def add_client():
+#     try:
+#         data = request.get_json()
 
-        if not data:
-            return jsonify({"message": "Invalid JSON payload"}), 400
+#         if not data:
+#             return jsonify({"message": "Invalid JSON payload"}), 400
 
-        client = Client(
-            executive_id=data.get('executive_id'),
-            company_name=data.get('company_name'),
-            industry=data.get('industry'),
-            email=data.get('email'),
-            location=data.get('location')
-        )
+#         client = Client(
+#             executive_id=data.get('executive_id'),
+#             company_name=data.get('company_name'),
+#             industry=data.get('industry'),
+#             email=data.get('email'),
+#             location=data.get('location')
+#         )
 
        
-        db.session.add(client)
-        db.session.commit() 
+#         db.session.add(client)
+#         db.session.commit() 
 
-        executive = db.session.get(AccountExecutive, client.executive_id)
-        if executive:
-            print(f"Before update (executive {executive.executive_id}): {executive.assigned_accounts}") 
+#         executive = db.session.get(AccountExecutive, client.executive_id)
+#         if executive:
+#             print(f"Before update (executive {executive.executive_id}): {executive.assigned_accounts}") 
 
-            if not executive.assigned_accounts:
-                executive.assigned_accounts = [] 
+#             if not executive.assigned_accounts:
+#                 executive.assigned_accounts = [] 
 
-            executive.assigned_accounts.append(client.client_id)
+#             executive.assigned_accounts.append(client.client_id)
             
-            print(f"After update (executive {executive.executive_id}): {executive.assigned_accounts}")  
+#             print(f"After update (executive {executive.executive_id}): {executive.assigned_accounts}")  
 
-            db.session.execute(
-                AccountExecutive.__table__.update().
-                where(AccountExecutive.executive_id == executive.executive_id).
-                values(assigned_accounts=executive.assigned_accounts)
-            )
+#             db.session.execute(
+#                 AccountExecutive.__table__.update().
+#                 where(AccountExecutive.executive_id == executive.executive_id).
+#                 values(assigned_accounts=executive.assigned_accounts)
+#             )
 
-            db.session.commit()
+#             db.session.commit()
 
-        return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
+#         return jsonify({"message": "Client added successfully", "client_id": client.client_id}), 201
 
-    except IntegrityError:
-        db.session.rollback()
-        return jsonify({"message": "Client already exists"}), 400
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"message": f"An error occurred: {e}"}), 500
+#     except IntegrityError:
+#         db.session.rollback()
+#         return jsonify({"message": "Client already exists"}), 400
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"message": f"An error occurred: {e}"}), 500
 
 #Signings Estimates table get method
 @app.route('/signings-data', methods=['GET'])
