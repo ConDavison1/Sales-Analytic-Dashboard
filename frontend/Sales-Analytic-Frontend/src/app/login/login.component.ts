@@ -43,23 +43,33 @@ export class LoginComponent {
   onLogin() {
     const payload = { username: this.username, password: this.password };
   
-    this.http.post('http://localhost:5000/login', payload).subscribe(
-      (response: any) => {
-        localStorage.setItem('token', response.token);
+    this.http.post('http://localhost:5000/login', payload).subscribe({
+      next: (response: any) => {
+        if (!response.token) {
+          this.message = "Login failed: No token received!";
+          return;
+        }
   
-        console.log('JWT Token:', response.token);
+        const token = `Bearer ${response.token}`;
+        localStorage.setItem('token', token);
+        
+        console.log('JWT Token:', token);
   
-        const token = response.token;
-        const payload = token.split('.')[1];  
-        const decodedPayload = JSON.parse(atob(payload));  
-        console.log('Decoded JWT Payload:', decodedPayload);
+        try {
+          const payloadBase64 = token.split('.')[1];  
+          const decodedPayload = JSON.parse(atob(payloadBase64));
+          console.log('Decoded JWT Payload:', decodedPayload);
+        } catch (error) {
+          console.error("Failed to decode JWT token:", error);
+        }
   
         this.router.navigate(['/landing-page']);
       },
-      (error) => {
+      error: (error) => {
+        console.error("Login Error:", error);
         this.message = error.error.message || 'Login failed!';
       }
-    );
+    });
   }
   
 }
