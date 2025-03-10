@@ -5,6 +5,7 @@ import { AccountExecService } from '../../services/account-exec-services/account
 import { first } from 'rxjs';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApexChart } from 'ng-apexcharts';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 
 export type ChartOptions = {
   series: any[];
@@ -24,7 +25,7 @@ interface ChartData {
 }
 @Component({
   selector: 'app-account-exec-dashboard',
-  imports: [CommonModule, NgApexchartsModule],
+  imports: [CommonModule, NgApexchartsModule, ReactiveFormsModule],
   standalone: true,
   templateUrl: './account-exec-dashboard.component.html',
   styleUrl: './account-exec-dashboard.component.css',
@@ -36,6 +37,7 @@ export class AccountExecDashboardComponent {
   revenueCount: number = 0;
   signingsCount: number = 0;
   winsCount: number = 0;
+  addExecutiveForm: FormGroup;
 
   accountExecData: any[] = [];
   selectedExecutive: any = null;
@@ -43,10 +45,21 @@ export class AccountExecDashboardComponent {
 
   isDataLoaded: boolean = false;
 
+  accountExecutives: any[] = [];
+  isLoadingAccountExecutives: boolean = true;
+  
+
   constructor(
     private dashboardService: DashboardService,
-    private accountExecService: AccountExecService
-  ) {}
+    private accountExecService: AccountExecService,
+    private fb: FormBuilder
+  ) {
+    this.addExecutiveForm = this.fb.group({
+      first_name: ['', Validators.required],
+      last_name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+    });
+  }
 
   ngOnInit(): void {
     this.fetchDashboardData();
@@ -207,4 +220,22 @@ export class AccountExecDashboardComponent {
       categories: [] as string[],
     },
   };
+
+  addExecutive(): void {
+    if (this.addExecutiveForm.valid) {
+      this.accountExecService.addExecutive(this.addExecutiveForm.value).subscribe({
+        next: (response) => {
+          alert('New Executive Added');
+          this.accountExecutives.push(response);
+          this.addExecutiveForm.reset();
+        },
+        error: (error) => {
+          console.error('Error Adding new Executive:', error);
+          alert('Failed to Add New Executive. Please check your input.');
+        }
+      })
+    } else {
+      alert('Please fill in all required fields');
+    }
+  }
 }

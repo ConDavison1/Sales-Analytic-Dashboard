@@ -110,3 +110,47 @@
     border-radius: 8px;
     background-color: #ffffff;
 }
+
+.add-executive {
+    grid-column: span 2; /* Add client form spans 2 columns */
+    max-width: 100%;
+    margin: 20px 0; /* Add space around the form */
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Adds space between form elements */
+    margin-top: 12px;
+}
+
+.form-group input {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.submit-button {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+  
+.submit-button:hover {
+    background-color: #0056b3;
+}

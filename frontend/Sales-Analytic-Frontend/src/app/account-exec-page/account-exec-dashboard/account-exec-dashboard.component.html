@@ -58,4 +58,28 @@
           [colors]="barChart.colors">
         </apx-chart>
     </div>
+
+    <!--Add New Executive-->
+    <div class="add-executive">
+        <form [formGroup]="addExecutiveForm" (ngSubmit)="addExecutive()">
+            <h2>Add Executive</h2>
+
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name"  formControlName="first_name" required />
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" formControlName="last_name" required />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" formControlName="email" required />
+            </div>
+
+            <button type="submit" class="submit-button">Add Executive</button>
+        </form>
+    </div>
 </div>

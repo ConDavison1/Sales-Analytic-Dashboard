@@ -17,6 +17,12 @@ interface SigningsCountResponse {
 interface WinsCountResponse {
   wins_count: number;
 }
+interface Account_Executives {
+  executive_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -31,5 +37,8 @@ export class AccountExecService {
   }
   getTopExecutivesChart(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/topExecutivesChart`);
+  }
+  addExecutive(account_executives: Account_Executives): Observable<Account_Executives> {
+    return this.http.post<Account_Executives>(`${this.apiUrl}/account-exec-table`, account_executives);
   }
 }
