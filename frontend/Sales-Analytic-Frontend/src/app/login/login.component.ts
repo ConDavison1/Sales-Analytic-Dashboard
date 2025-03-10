@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,13 +16,13 @@ import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-pa
   standalone: true,
   imports: [
     CommonModule, 
-    FormsModule, 
+    FormsModule,
     HttpClientModule,
     MatDialogModule,
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
-    FormsModule,
+    NgIf,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
@@ -42,17 +42,24 @@ export class LoginComponent {
 
   onLogin() {
     const payload = { username: this.username, password: this.password };
-
+  
     this.http.post('http://localhost:5000/login', payload).subscribe(
       (response: any) => {
-        
         localStorage.setItem('token', response.token);
+  
+        console.log('JWT Token:', response.token);
+  
+        const token = response.token;
+        const payload = token.split('.')[1];  
+        const decodedPayload = JSON.parse(atob(payload));  
+        console.log('Decoded JWT Payload:', decodedPayload);
+  
         this.router.navigate(['/landing-page']);
       },
       (error) => {
-        
         this.message = error.error.message || 'Login failed!';
       }
     );
   }
+  
 }
