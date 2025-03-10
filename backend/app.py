@@ -7,15 +7,17 @@ import uuid
 import traceback
 from flask_cors import CORS
 from sqlalchemy import func
-
+from werkzeug.security import check_password_hash
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
+CORS(app, supports_credentials=True)
 
-#Login post method
+
+
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -29,13 +31,35 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user:
-            print(f"User from DB: {user.username}, Stored Password: {user.password}")
+            print(f"User from DB: {user.username}, Stored Password Hash: {user.password}")
         else:
             print("User not found.")
 
-        if user and user.password == password:
-            token = str(uuid.uuid4())
-            return jsonify({"message": "Login successful!", "token": token}), 200
+        if user and check_password_hash(user.password, password):
+            token = str(uuid.uuid4()) 
+            
+            if user.role == 'Account Executive':
+                clients = Client.query.filter_by(executive_id=user.id).all()
+                clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
+                
+                return jsonify({
+                    "message": "Login successful!",
+                    "token": token,
+                    "role": user.role,
+                    "clients": clients_data
+                }), 200
+            elif user.role == 'Director':
+                clients = Client.query.all()
+                clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
+                
+                return jsonify({
+                    "message": "Login successful!",
+                    "token": token,
+                    "role": user.role,
+                    "clients": clients_data
+                }), 200
+            else:
+                return jsonify({"message": "Invalid role"}), 401
         else:
             return jsonify({"message": "Invalid credentials"}), 401
     except Exception as e:
@@ -43,23 +67,26 @@ def login():
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
 
+
 @app.route('/chart-data', methods=['GET'])
 def chart_data():
     try:
         pipeline_data = [p.opportunity_value for p in Pipeline.query.all()]
         revenue_data = [r.total_revenue for r in Revenue.query.all()]
-        wins_data = [w.opportunity_id for w in Win.query.filter_by(is_win=True).all()]
+        wins_count = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
+
         signings_data = [s.incremental_acv for s in Signing.query.all()]
 
         return jsonify({
             "pipeline": pipeline_data,
             "revenue": revenue_data,
-            "wins": wins_data,
+            "wins": [wins_count],  
             "signings": signings_data
         }), 200
     except Exception as e:
         print("Error in /chart-data:", traceback.format_exc())
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
 # Get Method for the signings chart being displayed on the landing page
 @app.route('/sign-chart-data', methods=['GET'])
