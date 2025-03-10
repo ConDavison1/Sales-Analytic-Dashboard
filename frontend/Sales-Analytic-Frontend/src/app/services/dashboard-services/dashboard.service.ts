@@ -25,6 +25,7 @@ interface AccountExecutive {
 }
 
 interface ChartDataResponse {
+  wins_count: any;
   pipeline: number[];
   revenue: number[];
   wins: number[];

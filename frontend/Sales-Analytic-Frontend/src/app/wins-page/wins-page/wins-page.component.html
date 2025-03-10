@@ -1,0 +1,136 @@
+<div class="container">
+  <app-sidebar></app-sidebar>
+  <div class="main-content">
+    <div class="wins-page">
+      <app-header></app-header>
+      <!-- Cards Section -->
+      <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.value }}</p>
+          <span>{{ card.percentage }}</span>
+        </div>
+      </div>
+      <!-- Clients Section -->
+      <div class="table-container">
+        <h2 class="table-title">Wins List</h2>
+        <div class="scrollable-table">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>
+                  Wins ID
+                  <button
+                    class="sort-btn"
+                    (click)="sortTable('opportunity_id')"
+                  >
+                    <span *ngIf="sortColumn === 'opportunity_id'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'opportunity_id'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Name
+                  <button class="sort-btn" (click)="sortTable('account_name')">
+                    <span *ngIf="sortColumn === 'account_name'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'account_name'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Industry
+                  <button class="sort-btn" (click)="sortTable('industry')">
+                    <span *ngIf="sortColumn === 'industry'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'industry'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Value
+                  <button class="sort-btn" (click)="sortTable('deal_value')">
+                    <span *ngIf="sortColumn === 'deal_value'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'deal_value'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Forecast
+                  <button
+                    class="sort-btn"
+                    (click)="sortTable('forecast_category')"
+                  >
+                    <span *ngIf="sortColumn === 'forecast_category'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'forecast_category'">⬍</span>
+                  </button>
+                </th>
+                <th>
+                  Date of Win
+                  <button class="sort-btn" (click)="sortTable('win_date')">
+                    <span *ngIf="sortColumn === 'win_date'">{{
+                      sortDirection === "asc" ? "🔼" : "🔽"
+                    }}</span>
+                    <span *ngIf="sortColumn !== 'win_date'">⬍</span>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let win of wins">
+                <td>{{ win.opportunity_id }}</td>
+                <td>{{ win.account_name }}</td>
+                <td>{{ win.industry }}</td>
+                <td>{{ win.deal_value }}</td>
+                <td>{{ win.forecast_category }}</td>
+                <td>{{ win.win_date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="chart-container">
+        <div *ngIf="!isWinsDataLoaded" class="loading">
+          Loading chart data...
+        </div>
+        <apx-chart
+          *ngIf="isWinsDataLoaded"
+          [series]="chartOptionsOne.series || []"
+          [chart]="chartOptionsOne.chart"
+          [xaxis]="chartOptionsOne.xaxis"
+          [yaxis]="chartOptionsOne.yaxis"
+          [plotOptions]="chartOptionsOne.plotOptions"
+          [dataLabels]="chartOptionsOne.dataLabels"
+          [stroke]="chartOptionsOne.stroke"
+          [fill]="chartOptionsOne.fill"
+          [tooltip]="chartOptionsOne.tooltip"
+          [legend]="chartOptionsOne.legend"
+        ></apx-chart>
+      </div>
+      <div class="chart-container">
+        <div *ngIf="!isWinsDataLoaded" class="loading">
+          Loading chart data...
+        </div>
+        <apx-chart
+          [series]="chartOptionsTwo.series || []"
+          [chart]="chartOptionsTwo.chart"
+          [xaxis]="chartOptionsTwo.xaxis"
+          [stroke]="chartOptionsTwo.stroke"
+          [tooltip]="chartOptionsTwo.tooltip"
+          [dataLabels]="chartOptionsTwo.dataLabels"
+          [legend]="chartOptionsTwo.legend"
+          [markers]="chartOptionsTwo.markers"
+          [grid]="chartOptionsTwo.grid"
+          [yaxis]="chartOptionsTwo.yaxis"
+          [title]="chartOptionsTwo.title"
+        ></apx-chart>
+      </div>
+    </div>
+  </div>
+</div>
