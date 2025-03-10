@@ -113,6 +113,24 @@
           [legend]="chartOptionsOne.legend"
         ></apx-chart>
       </div>
+      <div class="chart-container">
+        <div *ngIf="!isWinsDataLoaded" class="loading">
+          Loading chart data...
+        </div>
+        <apx-chart
+          [series]="chartOptionsTwo.series || []"
+          [chart]="chartOptionsTwo.chart"
+          [xaxis]="chartOptionsTwo.xaxis"
+          [stroke]="chartOptionsTwo.stroke"
+          [tooltip]="chartOptionsTwo.tooltip"
+          [dataLabels]="chartOptionsTwo.dataLabels"
+          [legend]="chartOptionsTwo.legend"
+          [markers]="chartOptionsTwo.markers"
+          [grid]="chartOptionsTwo.grid"
+          [yaxis]="chartOptionsTwo.yaxis"
+          [title]="chartOptionsTwo.title"
+        ></apx-chart>
+      </div>
     </div>
   </div>
 </div>

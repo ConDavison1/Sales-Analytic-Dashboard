@@ -1,22 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { WinsService } from '../../services/wins-services/wins.service';
-import { NgApexchartsModule, ApexChart } from 'ng-apexcharts';
+import { NgApexchartsModule, ApexAxisChartSeries } from 'ng-apexcharts';
 
 export type ChartOptions = {
-  series: any[];
+  series: ApexAxisChartSeries;
   chart: any;
-  plotOptions: any;
-  dataLabels: any;
-  stroke: any;
   xaxis: any;
+  stroke: any;
+  dataLabels: any;
+  markers: any;
+  plotOptions: any;
   yaxis: any;
   fill: any;
   tooltip: any;
   legend: any;
+  grid: any;
+  title: any;
 };
 
 @Component({
@@ -42,6 +45,10 @@ export class WinsPageComponent implements OnInit {
       { name: 'Wins', data: [] },
       { name: 'Opportunities', data: [] },
     ],
+  };
+
+  chartOptionsTwo: Partial<ChartOptions> = {
+    series: [],
   };
 
   sortColumn: string = '';
@@ -104,6 +111,113 @@ export class WinsPageComponent implements OnInit {
       },
       legend: {
         show: true,
+      },
+    };
+
+    this.chartOptionsTwo = {
+      series: [
+        {
+          name: 'Confirmed Wins',
+          data: [22, 12, 21, 9, 15, 3, 8, 16, 9, 18, 15, 20],
+        },
+        {
+          name: 'Potential Wins',
+          data: [9, 6, 12, 3, 21, 5, 13, 3, 18, 3, 12, 8],
+        },
+      ],
+      chart: {
+        height: 350,
+        type: 'line',
+        zoom: {
+          enabled: false,
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 5,
+        curve: 'straight',
+        dashArray: [0, 8, 5],
+      },
+      title: {
+        text: 'Wins Over Time',
+        align: 'left',
+      },
+      legend: {
+        tooltipHoverFormatter: function (
+          val: string,
+          opts: {
+            w: {
+              globals: { series: { [x: string]: { [x: string]: string } } };
+            };
+            seriesIndex: string | number;
+            dataPointIndex: string | number;
+          }
+        ) {
+          return (
+            val +
+            ' - <strong>' +
+            opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] +
+            '</strong>'
+          );
+        },
+      },
+      markers: {
+        size: 0,
+        hover: {
+          sizeOffset: 6,
+        },
+      },
+      xaxis: {
+        title: {
+          text: 'Month',
+        },
+        labels: {
+          trim: false,
+        },
+        categories: [
+          'J',
+          'F',
+          'M',
+          'A',
+          'M',
+          'J',
+          'J',
+          'A',
+          'S',
+          'O',
+          'N',
+          'D',
+        ],
+      },
+      tooltip: {
+        y: [
+          {
+            title: {
+              formatter: function (val: string) {
+                return val;
+              },
+            },
+          },
+          {
+            title: {
+              formatter: function (val: string) {
+                return val;
+              },
+            },
+          },
+          {
+            title: {
+              formatter: function (val: any) {
+                return val;
+              },
+            },
+          },
+        ],
+      },
+      grid: {
+        borderColor: '#f1f1f1',
       },
     };
   }
