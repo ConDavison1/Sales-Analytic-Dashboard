@@ -118,11 +118,11 @@ export class WinsPageComponent implements OnInit {
       series: [
         {
           name: 'Confirmed Wins',
-          data: [22, 12, 21, 9, 15, 3, 8, 16, 9, 18, 15, 20],
+          data: [],
         },
         {
           name: 'Potential Wins',
-          data: [9, 6, 12, 3, 21, 5, 13, 3, 18, 3, 12, 8],
+          data: [],
         },
       ],
       chart: {
@@ -226,6 +226,28 @@ export class WinsPageComponent implements OnInit {
     this.fetchCardData();
     this.fetchWins();
     this.fetchBarChart();
+    this.fetchLineChart();
+  }
+
+  fetchLineChart(): void {
+    this.winsService.getWinsLineChart().subscribe(
+      (response) => {
+        console.log('Line chart data received:', response);
+        this.chartOptionsTwo.series = [
+          {
+            name: 'Confirmed Wins',
+            data: response.map((item: any) => item.confirmed_wins),
+          },
+          {
+            name: 'Potential Wins',
+            data: response.map((item: any) => item.potential_wins),
+          },
+        ];
+      },
+      (error) => {
+        console.error('Error loading line chart data:', error);
+      }
+    );
   }
 
   fetchBarChart(): void {

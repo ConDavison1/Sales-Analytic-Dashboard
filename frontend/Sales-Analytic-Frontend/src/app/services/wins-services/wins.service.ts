@@ -25,4 +25,7 @@ export class WinsService {
   getWinsBarChart(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/wins-opportunities-by-industry`);
   }
+  getWinsLineChart(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/wins-over-time`);
+  }
 }
