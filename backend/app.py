@@ -1,22 +1,26 @@
-from typing import Counter
+from datetime import timedelta
 from flask import Flask, render_template, request, jsonify
-from models import db, User, Pipeline, Revenue, Win, Signing, AccountExecutive, Client
+from models import db, User, Client, Pipeline, Signing, Revenue, Win, AccountExecutive
 from sqlalchemy.exc import IntegrityError
 from config_module import Config
-import uuid
 import traceback
 from flask_cors import CORS
 from sqlalchemy import func
 from werkzeug.security import check_password_hash
-
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.config.from_object(Config)
-CORS(app)
-db.init_app(app)
+app.config.from_object(Config) 
+jwt = JWTManager(app)
 CORS(app, supports_credentials=True)
+db.init_app(app)
 
 
+load_dotenv()
+
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -25,46 +29,40 @@ def login():
         username = data.get('username')
         password = data.get('password')
 
-        print(f"Username from request: {username}")
-        print(f"Password from request: {password}")
-
         user = User.query.filter_by(username=username).first()
 
-        if user:
-            print(f"User from DB: {user.username}, Stored Password Hash: {user.password}")
-        else:
-            print("User not found.")
-
         if user and check_password_hash(user.password, password):
-            token = str(uuid.uuid4()) 
-            
+            token = create_access_token(identity={"id": user.id, "role": user.role}, expires_delta=timedelta(hours=1))
+
+            clients_data = []
             if user.role == 'Account Executive':
                 clients = Client.query.filter_by(executive_id=user.id).all()
                 clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
-                
-                return jsonify({
-                    "message": "Login successful!",
-                    "token": token,
-                    "role": user.role,
-                    "clients": clients_data
-                }), 200
             elif user.role == 'Director':
                 clients = Client.query.all()
                 clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
-                
-                return jsonify({
-                    "message": "Login successful!",
-                    "token": token,
-                    "role": user.role,
-                    "clients": clients_data
-                }), 200
-            else:
-                return jsonify({"message": "Invalid role"}), 401
+
+            print(f"User Role: {user.role}")
+            print(f"Generated Token: {token}")
+
+            return jsonify({
+                "message": "Login successful!",
+                "token": token,
+                "role": user.role,
+                "clients": clients_data
+            }), 200
         else:
             return jsonify({"message": "Invalid credentials"}), 401
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(message="Access granted", user=current_user), 200
 
 
 
