@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
-import { NgApexchartsModule } from 'ng-apexcharts';
+import { NgApexchartsModule, ApexResponsive } from 'ng-apexcharts';
 
 export type ChartOptions = {
   series: any[];
@@ -15,6 +15,7 @@ export type ChartOptions = {
   tooltip: any;
   legend: any;
   colors: any;
+  ApexResponsive: ApexResponsive[];
 };
 
 @Component({
@@ -43,17 +44,23 @@ export class DashboardComponent implements OnInit {
     this.chartOptionsOne = {
       series: [{ name: 'Pipeline', data: [] }],
       chart: { type: 'bar', height: 350 },
-      colors: ['#1E88E5'], // Blue
+      colors: ['#1E88E5'],
       plotOptions: {
         bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
       },
       fill: {
         opacity: 1,
-        colors: ['#1E88E5'], // Blue, added explicitly in fill
+        colors: ['#1E88E5'],
       },
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
       xaxis: {
+        title: {
+          text: 'Pipeline',
+          style: {
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
         categories: [
           'J',
           'F',
@@ -73,7 +80,6 @@ export class DashboardComponent implements OnInit {
         title: {
           text: 'Amount ($)',
           style: {
-            color: '#5f6368',
             fontFamily: 'Arial, Helvetica, sans-serif',
           },
         },
@@ -85,10 +91,10 @@ export class DashboardComponent implements OnInit {
     this.chartOptionsTwo = {
       series: [{ name: 'Revenue', data: [] }],
       chart: { type: 'bar', height: 350 },
-      colors: ['#F4511E'], // Red
+      colors: ['#F4511E'],
       fill: {
         opacity: 1,
-        colors: ['#F4511E'], // Red, added explicitly in fill
+        colors: ['#F4511E'],
       },
       plotOptions: {
         bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
@@ -96,6 +102,12 @@ export class DashboardComponent implements OnInit {
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
       xaxis: {
+        title: {
+          text: 'Revenue',
+          style: {
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
         categories: [
           'J',
           'F',
@@ -115,7 +127,6 @@ export class DashboardComponent implements OnInit {
         title: {
           text: 'Amount ($)',
           style: {
-            color: '#5f6368',
             fontFamily: 'Arial, Helvetica, sans-serif',
           },
         },
@@ -127,10 +138,10 @@ export class DashboardComponent implements OnInit {
     this.chartOptionsThree = {
       series: [{ name: 'Signings', data: [] }],
       chart: { type: 'bar', height: 350 },
-      colors: ['#43A047'], // Green
+      colors: ['#43A047'],
       fill: {
         opacity: 1,
-        colors: ['#43A047'], // Green, added explicitly in fill
+        colors: ['#43A047'],
       },
       plotOptions: {
         bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
@@ -138,6 +149,12 @@ export class DashboardComponent implements OnInit {
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
       xaxis: {
+        title: {
+          text: 'Signings',
+          style: {
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
         categories: [
           'J',
           'F',
@@ -157,7 +174,6 @@ export class DashboardComponent implements OnInit {
         title: {
           text: 'Amount ($)',
           style: {
-            color: '#5f6368',
             fontFamily: 'Arial, Helvetica, sans-serif',
           },
         },
@@ -169,10 +185,10 @@ export class DashboardComponent implements OnInit {
     this.chartOptionsFour = {
       series: [{ name: 'Wins', data: [] }],
       chart: { type: 'bar', height: 350 },
-      colors: ['#FDD835'], // Yellow
+      colors: ['#FDD835'],
       fill: {
         opacity: 1,
-        colors: ['#FDD835'], // Yellow, added explicitly in fill
+        colors: ['#FDD835'],
       },
       plotOptions: {
         bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
@@ -180,6 +196,12 @@ export class DashboardComponent implements OnInit {
       dataLabels: { enabled: false },
       stroke: { show: true, width: 2, colors: ['transparent'] },
       xaxis: {
+        title: {
+          text: 'Count To Wins',
+          style: {
+            fontFamily: 'Arial, Helvetica, sans-serif',
+          },
+        },
         categories: [
           'J',
           'F',
@@ -199,7 +221,6 @@ export class DashboardComponent implements OnInit {
         title: {
           text: 'Amount',
           style: {
-            color: '#5f6368',
             fontFamily: 'Arial, Helvetica, sans-serif',
           },
         },

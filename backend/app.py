@@ -93,7 +93,7 @@ def get_revenue_clients():
 def account_executives():
     try:
         executives = []
-        for row in AccountExecutive.query.all():
+        for row in AccountExecutive.query.order_by(AccountExecutive.executive_id).all():
             assigned_accounts = eval(row.assigned_accounts) if isinstance(row.assigned_accounts, str) else row.assigned_accounts
             performance_metrics = eval(row.performance_metrics) if isinstance(row.performance_metrics, str) else row.performance_metrics
             number_of_clients = len(assigned_accounts)
@@ -103,6 +103,7 @@ def account_executives():
 
             executives.append({
                 "name": f"{row.first_name} {row.last_name}",
+                "executive_id": row.executive_id,
                 "clients": number_of_clients,
                 "performance": {
                     "value": f"${sales}",
