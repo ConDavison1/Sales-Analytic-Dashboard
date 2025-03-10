@@ -93,6 +93,26 @@
           </table>
         </div>
       </div>
+
+      <!-- Charts Section -->
+      <div class="chart-container">
+        <div *ngIf="!isWinsDataLoaded" class="loading">
+          Loading chart data...
+        </div>
+        <apx-chart
+          *ngIf="isWinsDataLoaded"
+          [series]="chartOptionsOne.series || []"
+          [chart]="chartOptionsOne.chart"
+          [xaxis]="chartOptionsOne.xaxis"
+          [yaxis]="chartOptionsOne.yaxis"
+          [plotOptions]="chartOptionsOne.plotOptions"
+          [dataLabels]="chartOptionsOne.dataLabels"
+          [stroke]="chartOptionsOne.stroke"
+          [fill]="chartOptionsOne.fill"
+          [tooltip]="chartOptionsOne.tooltip"
+          [legend]="chartOptionsOne.legend"
+        ></apx-chart>
+      </div>
     </div>
   </div>
 </div>

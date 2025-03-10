@@ -21,4 +21,8 @@ export class WinsService {
   getWins(): Observable<Wins[]> {
     return this.http.get<Wins[]>(`${this.baseUrl}/wins-rows`);
   }
+
+  getWinsBarChart(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/wins-opportunities-by-industry`);
+  }
 }
