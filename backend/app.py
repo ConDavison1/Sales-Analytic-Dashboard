@@ -73,8 +73,6 @@ def chart_data():
     try:
         pipeline_data = [p.opportunity_value for p in Pipeline.query.all()]
         revenue_data = [r.total_revenue for r in Revenue.query.all()]
-        
-        # Count the number of wins where is_win=True
         wins_count = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
 
         signings_data = [s.incremental_acv for s in Signing.query.all()]
@@ -82,7 +80,7 @@ def chart_data():
         return jsonify({
             "pipeline": pipeline_data,
             "revenue": revenue_data,
-            "wins": [wins_count],  # Return the count as a list
+            "wins": [wins_count],  
             "signings": signings_data
         }), 200
     except Exception as e:
