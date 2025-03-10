@@ -36,11 +36,9 @@ def login():
             print("User not found.")
 
         if user and check_password_hash(user.password, password):
-            token = str(uuid.uuid4())  # Generate a unique token for the session
+            token = str(uuid.uuid4()) 
             
-            # Logic to return role-based data
             if user.role == 'Account Executive':
-                # Get only the clients assigned to the account executive
                 clients = Client.query.filter_by(executive_id=user.id).all()
                 clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
                 
@@ -51,7 +49,6 @@ def login():
                     "clients": clients_data
                 }), 200
             elif user.role == 'Director':
-                # Get all clients for the director
                 clients = Client.query.all()
                 clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
                 
@@ -76,18 +73,22 @@ def chart_data():
     try:
         pipeline_data = [p.opportunity_value for p in Pipeline.query.all()]
         revenue_data = [r.total_revenue for r in Revenue.query.all()]
-        wins_data = [w.opportunity_id for w in Win.query.filter_by(is_win=True).all()]
+        
+        # Count the number of wins where is_win=True
+        wins_count = db.session.query(db.func.count(Win.opportunity_id)).filter(Win.is_win == True).scalar()
+
         signings_data = [s.incremental_acv for s in Signing.query.all()]
 
         return jsonify({
             "pipeline": pipeline_data,
             "revenue": revenue_data,
-            "wins": wins_data,
+            "wins": [wins_count],  # Return the count as a list
             "signings": signings_data
         }), 200
     except Exception as e:
         print("Error in /chart-data:", traceback.format_exc())
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
 # Get Method for the signings chart being displayed on the landing page
 @app.route('/sign-chart-data', methods=['GET'])
