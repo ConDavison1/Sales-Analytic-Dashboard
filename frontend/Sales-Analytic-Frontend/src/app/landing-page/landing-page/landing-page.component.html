@@ -1,7 +1,111 @@
 <div class="container">
   <app-sidebar></app-sidebar>
   <div class="main-content">
-    <app-header></app-header>
-    <app-dashboard></app-dashboard>
+    <div class="dashboard">
+      <app-header></app-header>
+      <!-- Cards Section -->
+      <div class="cards">
+        <div *ngFor="let card of cards" class="card">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.value }}</p>
+          <span>{{ card.percentage }}</span>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div id="chartone">
+        <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <apx-chart
+          *ngIf="!isLoadingChartData"
+          [series]="chartOptionsOne.series || []"
+          [chart]="chartOptionsOne.chart"
+          [xaxis]="chartOptionsOne.xaxis"
+          [yaxis]="chartOptionsOne.yaxis"
+          [plotOptions]="chartOptionsOne.plotOptions"
+          [dataLabels]="chartOptionsOne.dataLabels"
+          [stroke]="chartOptionsOne.stroke"
+          [fill]="chartOptionsOne.fill"
+          [tooltip]="chartOptionsOne.tooltip"
+          [legend]="chartOptionsOne.legend"
+        ></apx-chart>
+      </div>
+
+      <div id="charttwo">
+        <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <apx-chart
+          *ngIf="!isLoadingChartData"
+          [series]="chartOptionsTwo.series || []"
+          [chart]="chartOptionsTwo.chart"
+          [xaxis]="chartOptionsTwo.xaxis"
+          [yaxis]="chartOptionsTwo.yaxis"
+          [plotOptions]="chartOptionsTwo.plotOptions"
+          [dataLabels]="chartOptionsTwo.dataLabels"
+          [stroke]="chartOptionsTwo.stroke"
+          [fill]="chartOptionsTwo.fill"
+          [tooltip]="chartOptionsTwo.tooltip"
+          [legend]="chartOptionsTwo.legend"
+        ></apx-chart>
+      </div>
+
+      <div id="chartthree">
+        <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <apx-chart
+          *ngIf="!isLoadingChartData"
+          [series]="chartOptionsThree.series || []"
+          [chart]="chartOptionsThree.chart"
+          [xaxis]="chartOptionsThree.xaxis"
+          [yaxis]="chartOptionsThree.yaxis"
+          [plotOptions]="chartOptionsThree.plotOptions"
+          [dataLabels]="chartOptionsThree.dataLabels"
+          [stroke]="chartOptionsThree.stroke"
+          [fill]="chartOptionsThree.fill"
+          [tooltip]="chartOptionsThree.tooltip"
+          [legend]="chartOptionsThree.legend"
+        ></apx-chart>
+      </div>
+
+      <div id="chartfour">
+        <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <apx-chart
+          *ngIf="!isLoadingChartData"
+          [series]="chartOptionsFour.series || []"
+          [chart]="chartOptionsFour.chart"
+          [xaxis]="chartOptionsFour.xaxis"
+          [yaxis]="chartOptionsFour.yaxis"
+          [plotOptions]="chartOptionsFour.plotOptions"
+          [dataLabels]="chartOptionsFour.dataLabels"
+          [stroke]="chartOptionsFour.stroke"
+          [fill]="chartOptionsFour.fill"
+          [tooltip]="chartOptionsFour.tooltip"
+          [legend]="chartOptionsFour.legend"
+        ></apx-chart>
+      </div>
+      <!-- Account Executives Section -->
+      <div class="table-container">
+        <h2 class="table-title">Account Executives</h2>
+        <div class="scrollable-table">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>ID</th>
+                <th>Clients</th>
+                <th>Performance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let executive of accountExecutives">
+                <td>{{ executive.name }}</td>
+                <td>{{ executive.executive_id }}</td>
+                <td>{{ executive.clients }}</td>
+                <td>{{ executive.performance.value }}</td>
+                <td>{{ executive.status.value }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
