@@ -7,15 +7,17 @@ import uuid
 import traceback
 from flask_cors import CORS
 from sqlalchemy import func
-
+from werkzeug.security import check_password_hash
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
+CORS(app, supports_credentials=True)
 
-#Login post method
+
+
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -29,18 +31,44 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user:
-            print(f"User from DB: {user.username}, Stored Password: {user.password}")
+            print(f"User from DB: {user.username}, Stored Password Hash: {user.password}")
         else:
             print("User not found.")
 
-        if user and user.password == password:
-            token = str(uuid.uuid4())
-            return jsonify({"message": "Login successful!", "token": token}), 200
+        if user and check_password_hash(user.password, password):
+            token = str(uuid.uuid4())  # Generate a unique token for the session
+            
+            # Logic to return role-based data
+            if user.role == 'Account Executive':
+                # Get only the clients assigned to the account executive
+                clients = Client.query.filter_by(executive_id=user.id).all()
+                clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
+                
+                return jsonify({
+                    "message": "Login successful!",
+                    "token": token,
+                    "role": user.role,
+                    "clients": clients_data
+                }), 200
+            elif user.role == 'Director':
+                # Get all clients for the director
+                clients = Client.query.all()
+                clients_data = [{"id": client.client_id, "name": client.company_name} for client in clients]
+                
+                return jsonify({
+                    "message": "Login successful!",
+                    "token": token,
+                    "role": user.role,
+                    "clients": clients_data
+                }), 200
+            else:
+                return jsonify({"message": "Invalid role"}), 401
         else:
             return jsonify({"message": "Invalid credentials"}), 401
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
 
 
 @app.route('/chart-data', methods=['GET'])
