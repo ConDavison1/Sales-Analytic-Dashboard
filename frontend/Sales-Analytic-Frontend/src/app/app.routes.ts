@@ -36,4 +36,9 @@ export const appRoutes: Routes = [
     component: PipelinePageComponent,
     canActivate: [AuthGuard],
   },
+  {
+    path: 'count-to-wins',
+    component: WinsPageComponent,
+    canActivate: [AuthGuard],
+  },
 ];
