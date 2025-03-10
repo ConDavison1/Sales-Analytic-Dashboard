@@ -45,4 +45,17 @@
             </tbody>
         </table>
     </div>
+
+    <!--Top Executives Chart-->
+    <div class="chart-container">
+        <h2>Top Earning Executives</h2>
+        <apx-chart 
+          [series]="barChart.series" 
+          [chart]="barChart.chart" 
+          [xaxis]="barChart.xaxis"
+          [plotOptions]="barChart.plotOptions"
+          [dataLabels]="barChart.dataLabels"
+          [colors]="barChart.colors">
+        </apx-chart>
+    </div>
 </div>

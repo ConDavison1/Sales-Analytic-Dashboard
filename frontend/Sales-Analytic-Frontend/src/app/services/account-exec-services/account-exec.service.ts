@@ -29,4 +29,7 @@ export class AccountExecService {
   getAccountExecData(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/account-exec-table`);
   }
+  getTopExecutivesChart(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/topExecutivesChart`);
+  }
 }

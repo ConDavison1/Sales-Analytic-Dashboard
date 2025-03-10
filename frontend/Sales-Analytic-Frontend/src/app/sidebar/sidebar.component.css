@@ -97,7 +97,7 @@
 
 /* Sidebar Footer */
 .sidebar-footer {
-  margin-top: auto; /* Push to the bottom */
+  margin-top: auto; 
   padding: 10px 0;
   border-top: 1px solid #e0e0e0;
   display: flex;
@@ -108,23 +108,26 @@
 .sidebar-footer a {
   display: flex;
   align-items: center;
-  padding: 10px; /* Reduced padding to prevent overflow */
-  color: #5f6368; /* Gray Google-like text */
+  padding: 10px; 
+  color: #5f6368; 
   text-decoration: none;
   font-size: 14px;
   gap: 10px;
   border-radius: 4px;
   transition: all 0.3s ease;
+  cursor: pointer;  
 }
 
 .sidebar-footer a i {
-  font-size: 24px; /* Increased icon size */
+  font-size: 24px; 
 }
 
 .sidebar-footer a:hover {
-  background-color: #e8f0fe; /* Light blue hover effect */
-  color: #1967d2; /* Google blue */
+  background-color: #e8f0fe; 
+  color: #1967d2; 
 }
+
+
 
 /* Sidebar Toggle Button */
 .sidebar-toggle {

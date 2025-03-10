@@ -82,13 +82,14 @@
       <span *ngIf="!isSidebarCollapsed">Settings</span>
     </a>
     <a
-      [routerLink]="['/login']"
-      [routerLinkActive]="'active'"
-      [class.active]="activeLink === 'logout'"
-    >
-      <i class="material-icons">logout</i>
-      <span *ngIf="!isSidebarCollapsed">Logout</span>
-    </a>
+    (click)="onLogout()"  
+    [routerLinkActive]="'active'"
+    [class.active]="activeLink === 'logout'"
+  >
+    <i class="material-icons">logout</i>
+    <span *ngIf="!isSidebarCollapsed">Logout</span>
+  </a>
+  
   </div>
 </div>
 

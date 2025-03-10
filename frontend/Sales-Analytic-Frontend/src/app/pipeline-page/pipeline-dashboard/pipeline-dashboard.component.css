@@ -1,4 +1,4 @@
-.executives {
+.pipeline {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
@@ -54,19 +54,12 @@
     background-color: #ffffff;
 }
 
-.table-header {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
 .table-container table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.table-container th,
-.table-container td {
+.table-container th, .table-container td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
@@ -88,20 +81,7 @@
     table-layout: fixed;
 }
 
-.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.clickable-row:hover {
-    background-color: #f0f0f0;
-}
-
-.expanded-row {
-    background-color: #f0f0f0;
-}
-
-.chart-container {
+.gauge-container, .chart-container {
     grid-column: span 2;
     max-width: 100%;
     margin: 0;
@@ -110,3 +90,4 @@
     border-radius: 8px;
     background-color: #ffffff;
 }
+
