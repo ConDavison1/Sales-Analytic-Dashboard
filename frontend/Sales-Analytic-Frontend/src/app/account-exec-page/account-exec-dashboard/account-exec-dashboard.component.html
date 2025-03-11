@@ -16,8 +16,9 @@
             <thead>
                 <tr>
                     <th>Executive ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Performance</th>
                     <th>Email</th>
                 </tr>
             </thead>
@@ -25,8 +26,9 @@
                 <ng-container *ngFor="let row of accountExecData">
                 <tr (click)="toggleExecutive(row)" class="clickable-row">
                     <td>{{ row.executive_id }}</td>
-                    <td>{{ row.first_name }}</td>
-                    <td>{{ row.last_name }}</td>
+                    <td>{{ row.first_name }} {{ row.last_name }}</td>
+                    <td>{{ row.location }}</td>
+                    <td>{{ row.performance }}</td>
                     <td>{{ row.email }}</td>
                 </tr>
                 <tr *ngIf="selectedExecutive === row" class="expanded-row">
@@ -36,8 +38,11 @@
                             <p>ID: {{selectedExecutive.executive_id }}</p>
                             <p>Name: {{ selectedExecutive.first_name }} {{ selectedExecutive.last_name }}</p>
                             <p>Email: {{ selectedExecutive.email }}</p>
+                            <p>Location: {{ selectedExecutive.location }}</p>
+                            <p>Performance: {{ selectedExecutive.performance }}</p>
                             <p>Status: {{ selectedExecutive.status }}</p>
                             <p>Assigned Accounts: {{ selectedExecutive.assigned_accounts }}</p>
+                            <button class="remove-executive">Remove Executive</button>
                         </div>
                     </td>
                 </tr>
@@ -48,7 +53,7 @@
 
     <!--Top Executives Chart-->
     <div class="chart-container">
-        <h2>Top Earning Executives</h2>
+        <h2>Top Performing Executives</h2>
         <apx-chart 
           [series]="barChart.series" 
           [chart]="barChart.chart" 
