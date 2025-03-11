@@ -1,5 +1,6 @@
-import { ClientService } from './../../services/client-services/client.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router'; 
+import { ClientService } from './../../services/client-services/client.service';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
@@ -62,22 +63,26 @@ export class ClientsPageComponent implements OnInit {
     responsive: [],
   };
 
-  Clients: any[] = [];
+  clients: any[] = []; 
   isLoadingClients: boolean = true;
 
   pipelineCount: number = 0;
   revenueCount: number = 0;
   signingsCount: number = 0;
   winsCount: number = 0;
-  addClientForm: any;
+  addClientForm: FormGroup;
 
-  constructor(private clientService: ClientService, private fb: FormBuilder) {
+  constructor(
+    private clientService: ClientService, 
+    private fb: FormBuilder,
+    private router: Router 
+  ) {
     this.addClientForm = this.fb.group({
       executive_id: ['', Validators.required],
       company_name: ['', Validators.required],
       industry: ['', Validators.required],
       location: ['', Validators.required],
-      email: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
     });
   }
 
@@ -139,53 +144,55 @@ export class ClientsPageComponent implements OnInit {
 
   get cards() {
     return [
-      {
-        title: 'Pipeline',
-        value: `$${this.pipelineCount}`,
-        percentage: '+55%',
-      },
+      { title: 'Pipeline', value: `$${this.pipelineCount}`, percentage: '+55%' },
       { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
-      {
-        title: 'Signings',
-        value: `$${this.signingsCount}`,
-        percentage: '+89%',
-      },
-      {
-        title: 'Count To Wins',
-        value: `${this.winsCount}`,
-        percentage: '-14%',
-      },
+      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+89%' },
+      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' },
     ];
   }
 
   fetchClients(): void {
-    this.clientService.getClient().subscribe((response) => {
-      this.Clients = response;
+    this.clientService.getClients().subscribe({
+      next: (data) => {
+        this.clients = data; 
+      },
+      error: (err) => {
+        console.error('Error fetching clients:', err);
+        if (err.status === 401) {
+          alert("Unauthorized! Redirecting to login...");
+          this.router.navigate(['/login']);
+        }
+      }
     });
   }
 
   deleteClient(clientId: number): void {
     if (confirm('Are you sure you want to delete this client?')) {
-      this.clientService.deleteClient(clientId).subscribe(() => {
-        this.Clients = this.Clients.filter(
-          (client) => client.client_id !== clientId
-        );
+      this.clientService.deleteClient(clientId).subscribe({
+        next: () => {
+          this.clients = this.clients.filter(client => client.client_id !== clientId); 
+        },
+        error: (err) => {
+          console.error("Error deleting client:", err);
+          alert("Error deleting client. Please try again.");
+        }
       });
     }
   }
 
   addClient(): void {
     if (this.addClientForm.valid) {
-      this.clientService.addClient(this.addClientForm.value).subscribe(
-        (response) => {
+      this.clientService.addClient(this.addClientForm.value).subscribe({
+        next: (response) => {
           alert('Client added successfully');
-          this.Clients.push(response);
+          this.clients.push(response); 
           this.addClientForm.reset();
         },
-        (error) => {
-          console.error('Error adding client', error);
+        error: (err) => {
+          console.error('Error adding client', err);
+          alert("Failed to add client. Please check your input.");
         }
-      );
+      });
     } else {
       alert('Please fill in all required fields');
     }

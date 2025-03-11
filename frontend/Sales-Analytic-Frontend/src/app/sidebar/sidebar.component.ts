@@ -16,11 +16,9 @@ export class SidebarComponent implements OnInit {
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute) { }
 
-  
   ngOnInit(): void {
     this.adjustMainContentMargin(); 
 
-    
     this.router.events.subscribe(() => {
       const currentRoute = this.activatedRoute.snapshot.firstChild?.routeConfig?.path;
       if (currentRoute) {
@@ -29,18 +27,15 @@ export class SidebarComponent implements OnInit {
     });
   }
 
-  
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     this.adjustMainContentMargin(); 
   }
 
-  
   setActive(link: string): void {
     this.activeLink = link;
   }
 
-  
   private adjustMainContentMargin(): void {
     const mainContent = document.querySelector('.main-content') as HTMLElement;
     if (mainContent) {
@@ -52,9 +47,14 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.adjustMainContentMargin(); 
+  }
+
+
+  onLogout(): void {
+    localStorage.removeItem('token'); 
+    this.router.navigate(['/login']); 
   }
 }
