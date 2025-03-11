@@ -244,4 +244,18 @@ export class AccountExecDashboardComponent {
       alert('Please fill in all required fields');
     }
   }
+
+  removeExecutive(executiveId: number): void {
+    if (confirm('Are you sure you want to delete this executive?')) {
+      this.accountExecService.removeExecutive(executiveId).subscribe({
+        next: () => {
+          this.accountExecutives = this.accountExecutives.filter(executive => executive.executive_id !== executiveId);
+        },
+        error: (error) => {
+          console.error('Error Deleting Executive:', error);
+          alert('Error Deleting Executive. Please try again.');
+        }
+      })
+    }
+  }
 }
