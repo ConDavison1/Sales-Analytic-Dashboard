@@ -1,58 +1,64 @@
-<div class="revenue">
-  <!-- Cards Section -->
-  <div *ngIf="isDataLoaded" class="cards">
-    <div *ngFor="let card of cards" class="card">
-      <h3>{{ card.title }}</h3>
-      <p>{{ card.value }}</p>
-      <span>{{ card.percentage }}</span>
+<div class="container">
+  <app-sidebar></app-sidebar>
+  <div class="main-content">
+    <div class="revenue">
+      <app-header></app-header>
+      <!-- Cards Section -->
+      <div *ngIf="isDataLoaded" class="cards">
+        <div *ngFor="let card of cards" class="card">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.value }}</p>
+          <span>{{ card.percentage }}</span>
+        </div>
+      </div>
+
+      <!-- Revenue Estimates Table -->
+      <div class="table-container" *ngIf="isDataLoaded">
+        <h2 class="text-xl font-semibold mb-4">Revenue Estimates</h2>
+        <table class="scrollable-table">
+          <thead>
+            <tr>
+              <th>Account Name</th>
+              <th>Revenue Type</th>
+              <th>Total Revenue ($)</th>
+              <th>ARR ($)</th>
+              <th>Time Period</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data -->
+            <tr *ngFor="let row of revenueData">
+              <td>{{ row.account_name }}</td>
+              <td>{{ row.revenue_type }}</td>
+              <td>{{ row.total_revenue | currency }}</td>
+              <td>{{ row.iacv | currency }}</td>
+              <td>{{ row.time_period }}</td>
+            </tr>
+          </tbody>
+        </table>  
+      </div>
+
+      <!-- Charts Section -->
+      <div class="chart-container" *ngIf="isDataLoaded">
+        <apx-chart 
+          [series]="barChart.series" 
+          [chart]="barChart.chart" 
+          [xaxis]="barChart.xaxis"
+          [plotOptions]="barChart.plotOptions"
+          [dataLabels]="barChart.dataLabels"
+          [colors]="barChart.colors">
+        </apx-chart>
+      </div>
+
+      <!-- Revenue Target Gauge -->
+      <div class="chart-container relative" *ngIf="isDataLoaded">
+        <apx-chart 
+          [series]="gaugeChart.series" 
+          [chart]="gaugeChart.chart"
+          [plotOptions]="gaugeChart.plotOptions"
+          [fill]="gaugeChart.fill">
+        </apx-chart>
+      </div>
     </div>
-  </div>
-
-  <!-- Revenue Estimates Table -->
-  <div class="table-container" *ngIf="isDataLoaded">
-    <h2 class="text-xl font-semibold mb-4">Revenue Estimates</h2>
-    <table class="scrollable-table">
-      <thead>
-        <tr>
-          <th>Account Name</th>
-          <th>Revenue Type</th>
-          <th>Total Revenue ($)</th>
-          <th>ARR ($)</th>
-          <th>Time Period</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Data -->
-        <tr *ngFor="let row of revenueData">
-          <td>{{ row.account_name }}</td>
-          <td>{{ row.revenue_type }}</td>
-          <td>{{ row.total_revenue | currency }}</td>
-          <td>{{ row.iacv | currency }}</td>
-          <td>{{ row.time_period }}</td>
-        </tr>
-      </tbody>
-    </table>  
-  </div>
-
-  <!-- Charts Section -->
-  <div class="chart-container" *ngIf="isDataLoaded">
-    <apx-chart 
-      [series]="barChart.series" 
-      [chart]="barChart.chart" 
-      [xaxis]="barChart.xaxis"
-      [plotOptions]="barChart.plotOptions"
-      [dataLabels]="barChart.dataLabels"
-      [colors]="barChart.colors">
-    </apx-chart>
-  </div>
-
-  <!-- Revenue Target Gauge -->
-  <div class="chart-container relative" *ngIf="isDataLoaded">
-    <apx-chart 
-      [series]="gaugeChart.series" 
-      [chart]="gaugeChart.chart"
-      [plotOptions]="gaugeChart.plotOptions"
-      [fill]="gaugeChart.fill">
-    </apx-chart>
   </div>
 </div>

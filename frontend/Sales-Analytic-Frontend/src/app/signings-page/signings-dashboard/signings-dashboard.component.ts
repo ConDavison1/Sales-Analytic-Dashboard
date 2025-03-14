@@ -2,6 +2,8 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApexChart } from 'ng-apexcharts';
+import { HeaderComponent } from '../../header/header.component';
+import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { SigningsService } from '../../services/signings-page/signings.service';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 
@@ -23,7 +25,7 @@ interface ChartData {
 }
 @Component({
   selector: 'app-signings-dashboard',
-  imports: [NgApexchartsModule, CommonModule],
+  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent],
   standalone: true,
   templateUrl: './signings-dashboard.component.html',
   styleUrls: ['./signings-dashboard.component.css'],
