@@ -17,7 +17,7 @@ export type ChartOptions = {
   tooltip: any;
   legend: any;
   colors: any;
-  ApexResponsive: ApexResponsive[];
+  responsive: ApexResponsive[];
 };
 
 @Component({
@@ -50,6 +50,14 @@ export class LandingPageComponent implements OnInit {
   constructor(private dashboardService: DashboardService) {
     this.chartOptionsOne = {
       series: [{ name: 'Pipeline', data: [] }],
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: { width: "100%" }
+          }
+        }
+      ],
       chart: { type: 'bar', height: 350 },
       colors: ['#1E88E5'],
       plotOptions: {

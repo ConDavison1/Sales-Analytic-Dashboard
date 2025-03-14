@@ -4,8 +4,6 @@
   grid-template-columns: repeat(4, 1fr); /* 4 columns for the cards */
   gap: 16px; /* Space between cards and chart */
   margin: 20px; /* Add space around the grid */
-  max-width: 100vw;
-  overflow-x: hidden;
 }
 
 /* Cards Section */
@@ -55,7 +53,8 @@
 #chartfour {
   grid-column: span 1; /* Chart spans 2 columns */
   max-width: 100%; /* Ensure the chart takes full width of its container */
-  margin: 0; /* Remove margin to align with the grid */
+  overflow-x: hidden;
+  
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
