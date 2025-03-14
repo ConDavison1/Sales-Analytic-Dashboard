@@ -1,53 +1,53 @@
 .clients-page {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columns for the cards */
-  gap: 0px; /* Space between cards and chart */
-  margin: 20px; /* Add space around the grid */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0px;
+  margin: 20px;
 }
 
 /* Cards Section */
 .cards {
-  grid-column: 1 / -1; /* Cards span all 4 columns */
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 cards in a row */
-  gap: 16px; /* Space between cards */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   max-width: 100%;
 }
 
 .card {
-  padding: 16px; /* Inner padding */
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
-  text-align: center; /* Center text */
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
   background-color: #ffffff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Smooth hover effect */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px); /* Lift up the card on hover */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* More shadow on hover */
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .card h3 {
   font-size: 18px;
-  margin-bottom: 12px; /* Spacing below title */
+  margin-bottom: 12px;
   font-weight: bold;
 }
 
 .card p {
-  margin: 6px 0; /* Spacing between values */
+  margin: 6px 0;
   font-size: 16px;
 }
 
 .card p:nth-child(3) {
-  font-size: 14px; /* Smaller size for percentage */
+  font-size: 14px;
   font-weight: 500;
   opacity: 0.8;
 }
 
 /* Clients Section */
 .table-container {
-  grid-column: 1 / -1; /* Clients span all columns */
+  grid-column: 1 / -1;
   max-width: 100%;
   margin: 0;
   padding: 16px;
@@ -63,7 +63,7 @@
 }
 
 .scrollable-table {
-  max-height: 400px; /* Limit height for scrolling */
+  max-height: 400px;
   overflow-y: auto;
   position: relative;
 }
@@ -78,8 +78,8 @@
 .custom-table thead {
   position: sticky;
   top: 0;
-  background-color: #f8f9fa; /* Keep header visible */
-  z-index: 10; /* Ensure it stays on top */
+  background-color: #f8f9fa;
+  z-index: 10;
 }
 
 .custom-table th,
@@ -116,30 +116,28 @@
 }
 
 #chart {
-  grid-column: 1 / 3; /* Chart spans all 4 columns */
+  grid-column: 1 / 3;
   max-width: 100%;
-  margin: 20px 0; /* Add space around the chart */
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background-color: #ffffff;
 }
 
+/* Add Client Form */
 .add-client {
-  grid-column: 3 / 5; /* Add client form spans 2 columns */
+  grid-column: 3 / 5;
   max-width: 100%;
-  margin: 20px 0; /* Add space around the form */
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background-color: #ffffff;
   display: flex;
-  justify-content: center;
 }
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* Adds space between form elements */
+  gap: 12px;
   margin-top: 12px;
 }
 
