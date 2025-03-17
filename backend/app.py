@@ -654,6 +654,100 @@ def get_wins_distribution_by_forecast_category():
         return jsonify({"error": str(e)}), 500  # Handle errors
 # -----------------------------
 
+# -----------------------------
+@app.route('/quarterly-revenue-performance-ae', methods=['GET'])
+def get_quarterly_revenue_performance_ae():
+    try:
+        # Extract query parameters
+        quarter = request.args.get('quarter', type=int)
+        executive_id = request.args.get('id', type=int)
+        year = request.args.get('year', type=int, default=datetime.now().year)
+
+        # Validate inputs
+        if not all([quarter, executive_id]):
+            return jsonify({"message": "Missing required parameters"}), 400
+
+        if quarter not in [1, 2, 3, 4]:
+            return jsonify({"message": "Invalid quarter. Must be 1, 2, 3, or 4"}), 400
+
+        if executive_id <= 0:
+            return jsonify({"message": "Invalid account executive ID. Must be a positive integer"}), 400
+
+        # Define date ranges for each quarter
+        quarter_end_dates = {
+            1: datetime(year, 3, 31).date(),
+            2: datetime(year, 6, 30).date(),
+            3: datetime(year, 9, 30).date(),
+            4: datetime(year, 12, 31).date()
+        }
+        start_date = datetime(year, 1, 1).date()
+        end_date = quarter_end_dates[quarter]
+
+        print(f"Querying revenue from {start_date} to {end_date} for executive ID: {executive_id}")
+
+        # Step 1: Find all client accounts assigned to the specified account executive
+        client_accounts = db.session.query(Client.client_id).filter_by(executive_id=executive_id).all()
+        client_ids = [account[0] for account in client_accounts]
+
+        if not client_ids:
+            # No clients assigned to this account executive
+            return jsonify({
+                "metric": "revenue",
+                "quarter": quarter,
+                "year": year,
+                "amount": 0,
+                "percentage": 0
+            }), 200
+
+        print(f"Found client IDs: {client_ids}")
+
+        # Step 2: Calculate total revenue from these clients within the date range
+        total_revenue = db.session.query(db.func.sum(Revenue.total_revenue)).\
+            filter(Revenue.opportunity_id.in_(client_ids)).\
+            filter(Revenue.revenue_date >= start_date).\
+            filter(Revenue.revenue_date <= end_date).\
+            scalar() or 0
+
+        print(f"Total Revenue Query Result: {total_revenue}")
+
+        # Step 3: Calculate percentage of target achieved
+        # Determine annual target for this executive
+        if executive_id == 1:
+            annual_target = 20000000
+        elif executive_id == 2:
+            annual_target = 27000000
+        elif 3 <= executive_id <= 7:
+            annual_target = 2500000
+        else:
+            # For other executives, use a default value or return an error
+            return jsonify({"message": "Invalid account executive ID"}), 400
+        
+        # Define quarterly target percentages
+        quarter_percentages = {1: 0.1, 2: 0.2, 3: 0.25, 4: 0.45}
+        
+        # Calculate quarterly target amount
+        quarterly_target = annual_target * quarter_percentages[quarter]
+        
+        # Calculate percentage achieved (avoid division by zero)
+        percentage_achieved = (total_revenue / quarterly_target * 100) if quarterly_target > 0 else 0
+        
+        # Return the performance data
+        return jsonify({
+            "metric": "revenue",
+            "quarter": quarter,
+            "year": year,
+            "amount": round(total_revenue, 2),
+            "percentage": round(percentage_achieved, 2)
+        }), 200
+
+    except Exception as e:
+        print(f"Error in /quarterly-revenue-performance-ae endpoint: {e}")
+        traceback.print_exc()  # Print full traceback for debugging
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+    
+
+# ----------------------
+
 
 if __name__ == '__main__':
     app.run(debug=True)
