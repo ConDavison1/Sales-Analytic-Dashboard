@@ -25,6 +25,7 @@ class Revenue(db.Model):
     opportunity_id = db.Column(db.Integer, primary_key=True)
     account_name = db.Column(db.String(255), nullable=False)
     revenue_type = db.Column(db.String(50), nullable=False)
+    revenue_date = db.Column(db.Date, nullable=False)  # this did not exist before; i've included it  
     total_revenue = db.Column(db.Float, nullable=False)
     iacv = db.Column(db.Float, nullable=True)
 
