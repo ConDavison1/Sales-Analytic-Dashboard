@@ -897,7 +897,65 @@ def get_quarterly_signings_performance_ae():
         return jsonify({"message": f"An error occurred: {e}"}), 500        
             
     
+@app.route('/quarterly-signings-performance-dir', methods=['GET'])
+def get_quarterly_signings_performance_dir():
+    try:
+        # Extract query parameters
+        quarter = request.args.get('quarter', type=int)
+        year = request.args.get('year', type=int, default=datetime.now().year)
 
+        # Validate inputs
+        if not quarter:
+            return jsonify({"message": "Missing required quarter parameter"}), 400
+
+        if quarter not in [1, 2, 3, 4]:
+            return jsonify({"message": "Invalid quarter. Must be 1, 2, 3, or 4"}), 400
+
+        # Define date ranges for each quarter
+        quarter_end_dates = {
+            1: datetime(year, 3, 31).date(),
+            2: datetime(year, 6, 30).date(),
+            3: datetime(year, 9, 30).date(),
+            4: datetime(year, 12, 31).date()
+        }
+        start_date = datetime(year, 1, 1).date()
+        end_date = quarter_end_dates[quarter]
+
+        print(f"Querying signings from {start_date} to {end_date}")
+
+        # Calculate total incremental ACV across all signings within the date range
+        total_signings = db.session.query(db.func.sum(Signing.incremental_acv)).\
+            filter(Signing.signing_date >= start_date).\
+            filter(Signing.signing_date <= end_date).\
+            scalar() or 0
+        
+        print(f"Total Signings Query Result: {total_signings}")
+
+        # Define director's annual target for signings
+        annual_target = 15000000  # 15M
+
+        # Define quarterly target percentages
+        quarter_percentages = {1: 0.1, 2: 0.2, 3: 0.25, 4: 0.45}
+        
+        # Calculate quarterly target amount
+        quarterly_target = annual_target * quarter_percentages[quarter]
+        
+        # Calculate percentage achieved (avoid division by zero)
+        percentage_achieved = (total_signings / quarterly_target * 100) if quarterly_target > 0 else 0
+        
+        # Return the performance data
+        return jsonify({
+            "metric": "signings",
+            "quarter": quarter,
+            "year": year,
+            "amount": round(total_signings, 2),
+            "percentage": round(percentage_achieved, 2)
+        }), 200
+
+    except Exception as e:
+        print(f"Error in /quarterly-signings-performance-dir endpoint: {e}")
+        traceback.print_exc()  # Print full traceback for debugging
+        return jsonify({"message": f"An error occurred: {e}"}), 500
     
 # ----------------------
 
