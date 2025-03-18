@@ -32,16 +32,18 @@
                     <td>{{ row.email }}</td>
                 </tr>
                 <tr *ngIf="selectedExecutive === row" class="expanded-row">
-                    <td colspan="4">
+                    <td colspan="5">
                         <div class="executive-details">
                             <h3>Executive Details</h3>
-                            <p>ID: {{selectedExecutive.executive_id }}</p>
-                            <p>Name: {{ selectedExecutive.first_name }} {{ selectedExecutive.last_name }}</p>
-                            <p>Email: {{ selectedExecutive.email }}</p>
-                            <p>Location: {{ selectedExecutive.location }}</p>
-                            <p>Performance: {{ selectedExecutive.performance }}</p>
-                            <p>Status: {{ selectedExecutive.status }}</p>
-                            <p>Assigned Accounts: {{ selectedExecutive.assigned_accounts }}</p>
+                            <div class="grid-container">
+                                <div><strong>ID:</strong> {{ selectedExecutive.executive_id }}</div>
+                                <div><strong>Name:</strong> {{ selectedExecutive.first_name }} {{ selectedExecutive.last_name }}</div>
+                                <div><strong>Email:</strong> {{ selectedExecutive.email }}</div>
+                                <div><strong>Location:</strong> {{ selectedExecutive.location }}</div>
+                                <div><strong>Performance:</strong> {{ selectedExecutive.performance }}</div>
+                                <div><strong>Status:</strong> {{ selectedExecutive.status }}</div>
+                                <div><strong>Assigned Accounts:</strong> {{ selectedExecutive.assigned_accounts }}</div>
+                            </div>
                             <button class="remove-executive">Remove Executive</button>
                         </div>
                     </td>
@@ -68,6 +70,11 @@
     <div class="add-executive">
         <form [formGroup]="addExecutiveForm" (ngSubmit)="addExecutive()">
             <h2>Add Executive</h2>
+
+            <div class="form-group">
+                <label for="executive_id">ID</label>
+                <input type="number" id="executive_id" formControlName="executive_id" required />
+            </div>
 
             <div class="form-group">
                 <label for="first_name">First Name</label>

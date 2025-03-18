@@ -101,6 +101,50 @@
     background-color: #f0f0f0;
 }
 
+.executive-details {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.executive-details h3 {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.grid-container div {
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.remove-executive {
+    margin-top: 15px;
+    padding: 8px 12px;
+    border: none;
+    background-color: #d9534f;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    display: block;
+}
+
+.remove-executive:hover {
+    background-color: #c9302c;
+}
+
+
 .chart-container {
     grid-column: span 2;
     max-width: 100%;
@@ -112,33 +156,33 @@
 }
 
 .add-executive {
-    grid-column: span 2;
+    grid-column: 3 / 5;
     max-width: 100%;
-    margin: 0;
     padding: 16px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     background-color: #ffffff;
     display: flex;
     justify-content: center;
-  }
-  .form-group {
+}
+
+.form-group {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-top: 12px;
-  }
-  
-  .form-group input {
+}
+
+.form-group input {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
     background-color: #f9f9f9;
     transition: border-color 0.3s ease-in-out;
-  }
-  
-  .submit-button {
+}
+
+.submit-button {
     margin-top: 12px;
     padding: 12px;
     background-color: #007bff;
@@ -148,22 +192,8 @@
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
-  }
+}
   
-  .submit-button:hover {
+.submit-button:hover {
     background-color: #0056b3;
-  }
-
-  .remove-executive {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .remove-executive:hover {
-    background-color: #cc0000;
-  }
+}

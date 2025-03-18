@@ -76,7 +76,7 @@ export class AccountExecDashboardComponent {
         location: 'Calgary',
         performance: '$50000',
         status: 'Active',
-        assigned_accounts: [3, 4, 5, 6, 7, 8]
+        assigned_accounts: ["Sigma Strategies", "Beta Biotech", "Alpha Agencies"]
       },
       {
         executive_id: 2,
