@@ -72,13 +72,19 @@ export class AccountExecDashboardComponent {
         executive_id: 1,
         first_name: 'John',
         last_name: 'Doe',
-        email: 'john.doe@example.com'
+        email: 'john.doe@example.com',
+        location: 'Calgary',
+        performance: '$50000',
+        status: 'Active',
+        assigned_accounts: [3, 4, 5, 6, 7, 8]
       },
       {
         executive_id: 2,
         first_name: 'Jane',
         last_name: 'Doe',
         email: 'jane.doe@example.com',
+        location: 'Toronto',
+        performance: '$70000',
         status: 'Active',
         assigned_accounts: [1, 2, 17, 67, 68, 71]
       }
@@ -87,10 +93,10 @@ export class AccountExecDashboardComponent {
     this.topExecutivesChartData = [
       { category: 'John Doe', count: 50000 },
       { category: 'Jane Doe', count: 70000 },
-      { category: 'Alex Smith', count: 60000 },
       { category: 'Emily Johnson', count: 80000 },
       { category: 'Michael Brown', count: 75000 },
-      { category: 'Steven White', count: 100}
+      { category: 'Steven White', count: 100},
+      { category: 'Sarah Black', count: 90000}
     ];
 
     this.updateBarChartData();
@@ -236,6 +242,20 @@ export class AccountExecDashboardComponent {
       })
     } else {
       alert('Please fill in all required fields');
+    }
+  }
+
+  removeExecutive(executiveId: number): void {
+    if (confirm('Are you sure you want to delete this executive?')) {
+      this.accountExecService.removeExecutive(executiveId).subscribe({
+        next: () => {
+          this.accountExecutives = this.accountExecutives.filter(executive => executive.executive_id !== executiveId);
+        },
+        error: (error) => {
+          console.error('Error Deleting Executive:', error);
+          alert('Error Deleting Executive. Please try again.');
+        }
+      })
     }
   }
 }
