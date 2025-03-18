@@ -2,6 +2,8 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApexChart } from 'ng-apexcharts';
+import { HeaderComponent } from '../../header/header.component';
+import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
 export type ChartOptions = {
@@ -19,7 +21,7 @@ export type ChartOptions = {
 
 @Component({
   selector: 'app-pipeline-dashboard',
-  imports: [NgApexchartsModule, CommonModule],
+  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent],
   standalone: true,
   templateUrl: './pipeline-dashboard.component.html',
   styleUrl: './pipeline-dashboard.component.css',

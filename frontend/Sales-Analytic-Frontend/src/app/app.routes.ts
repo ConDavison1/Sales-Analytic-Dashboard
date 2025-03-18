@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './landing-page/landing-page/landing-page.component';
-import { RevenuePageFullComponent } from './revenue-page/revenue-page-full/revenue-page-full.component';
 import { LoginComponent } from './login/login.component';
 import { ClientsPageComponent } from './clients-page/clients-page/clients-page.component';
-import { SigningsPageComponent } from './signings-page/signings-page/signings-page.component';
 import { AccountExecPageComponent } from './account-exec-page/account-exec-page/account-exec-page.component';
-import { PipelinePageComponent } from './pipeline-page/pipeline-page/pipeline-page.component';
 import { WinsPageComponent } from './wins-page/wins-page/wins-page.component';
 import { AuthGuard } from './auth/auth.guard'; // Import the AuthGuard
+import { RevenuePageComponent } from './revenue-page/revenue-page/revenue-page.component';
+import { SigningsDashboardComponent } from './signings-page/signings-dashboard/signings-dashboard.component';
+import { PipelineDashboardComponent } from './pipeline-page/pipeline-dashboard/pipeline-dashboard.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,7 +19,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'revenue-page',
-    component: RevenuePageFullComponent,
+    component: RevenuePageComponent,
     canActivate: [AuthGuard],
   },
   {
@@ -29,12 +29,12 @@ export const appRoutes: Routes = [
   },
   {
     path: 'signings',
-    component: SigningsPageComponent,
+    component: SigningsDashboardComponent,
     canActivate: [AuthGuard],
   },
   {
     path: 'pipeline',
-    component: PipelinePageComponent,
+    component: PipelineDashboardComponent,
     canActivate: [AuthGuard],
   },
   {

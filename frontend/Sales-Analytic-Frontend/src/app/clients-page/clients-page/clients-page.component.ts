@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router'; 
+import { Router } from '@angular/router';
 import { ClientService } from './../../services/client-services/client.service';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
@@ -63,7 +63,7 @@ export class ClientsPageComponent implements OnInit {
     responsive: [],
   };
 
-  clients: any[] = []; 
+  clients: any[] = [];
   isLoadingClients: boolean = true;
 
   pipelineCount: number = 0;
@@ -73,9 +73,9 @@ export class ClientsPageComponent implements OnInit {
   addClientForm: FormGroup;
 
   constructor(
-    private clientService: ClientService, 
+    private clientService: ClientService,
     private fb: FormBuilder,
-    private router: Router 
+    private router: Router
   ) {
     this.addClientForm = this.fb.group({
       executive_id: ['', Validators.required],
@@ -94,7 +94,7 @@ export class ClientsPageComponent implements OnInit {
 
   initializeChart(): void {
     this.chartOptions = {
-      series: [14, 23, 21, 17, 15, 10],
+      series: [8, 6, 10, 9, 7, 11, 10],
       chart: {
         type: 'polarArea',
       },
@@ -107,7 +107,7 @@ export class ClientsPageComponent implements OnInit {
         opacity: 0.8,
         type: 'solid',
       },
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      labels: ['Emily', 'Michael', 'Sophia', 'David', 'Olivia', 'James', 'Ava'],
       responsive: [
         {
           breakpoint: 480,
@@ -144,25 +144,37 @@ export class ClientsPageComponent implements OnInit {
 
   get cards() {
     return [
-      { title: 'Pipeline', value: `$${this.pipelineCount}`, percentage: '+55%' },
+      {
+        title: 'Pipeline',
+        value: `$${this.pipelineCount}`,
+        percentage: '+55%',
+      },
       { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
-      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+89%' },
-      { title: 'Count To Wins', value: `${this.winsCount}`, percentage: '-14%' },
+      {
+        title: 'Signings',
+        value: `$${this.signingsCount}`,
+        percentage: '+89%',
+      },
+      {
+        title: 'Count To Wins',
+        value: `${this.winsCount}`,
+        percentage: '-14%',
+      },
     ];
   }
 
   fetchClients(): void {
     this.clientService.getClients().subscribe({
       next: (data) => {
-        this.clients = data; 
+        this.clients = data;
       },
       error: (err) => {
         console.error('Error fetching clients:', err);
         if (err.status === 401) {
-          alert("Unauthorized! Redirecting to login...");
+          alert('Unauthorized! Redirecting to login...');
           this.router.navigate(['/login']);
         }
-      }
+      },
     });
   }
 
@@ -170,12 +182,14 @@ export class ClientsPageComponent implements OnInit {
     if (confirm('Are you sure you want to delete this client?')) {
       this.clientService.deleteClient(clientId).subscribe({
         next: () => {
-          this.clients = this.clients.filter(client => client.client_id !== clientId); 
+          this.clients = this.clients.filter(
+            (client) => client.client_id !== clientId
+          );
         },
         error: (err) => {
-          console.error("Error deleting client:", err);
-          alert("Error deleting client. Please try again.");
-        }
+          console.error('Error deleting client:', err);
+          alert('Error deleting client. Please try again.');
+        },
       });
     }
   }
@@ -185,13 +199,13 @@ export class ClientsPageComponent implements OnInit {
       this.clientService.addClient(this.addClientForm.value).subscribe({
         next: (response) => {
           alert('Client added successfully');
-          this.clients.push(response); 
+          this.clients.push(response);
           this.addClientForm.reset();
         },
         error: (err) => {
           console.error('Error adding client', err);
-          alert("Failed to add client. Please check your input.");
-        }
+          alert('Failed to add client. Please check your input.');
+        },
       });
     } else {
       alert('Please fill in all required fields');

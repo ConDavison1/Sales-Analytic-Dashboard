@@ -5,8 +5,10 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApexChart } from 'ng-apexcharts';
+import { HeaderComponent } from '../../header/header.component';
 import { RevenueService } from '../../services/revenue-services/revenue.service';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 
@@ -25,11 +27,10 @@ export type ChartOptions = {
 
 @Component({
   selector: 'app-revenue-page',
-  imports: [NgApexchartsModule, CommonModule],
+  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent],
   standalone: true,
   templateUrl: './revenue-page.component.html',
   styleUrls: ['./revenue-page.component.css'],
-  encapsulation: ViewEncapsulation.Emulated,
 })
 export class RevenuePageComponent implements OnInit {
   pipelineCount: number = 0;
