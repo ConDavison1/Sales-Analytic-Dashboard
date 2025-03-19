@@ -36,7 +36,7 @@ interface ChartDataResponse {
   providedIn: 'root',
 })
 export class DashboardService {
-  private baseUrl = 'http://localhost:5000';
+  private baseUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
 
   constructor(private http: HttpClient) {}
 

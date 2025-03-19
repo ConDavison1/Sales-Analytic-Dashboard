@@ -25,7 +25,7 @@ export class SigningsService {
   getSignings() {
     throw new Error('Method not implemented.');
   }
-  private apiUrl = 'http://localhost:5000';
+  private apiUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
 
   constructor(private http: HttpClient) {}
 

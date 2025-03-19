@@ -33,7 +33,7 @@ interface Clients {
   providedIn: 'root',
 })
 export class ClientService {
-  private baseUrl = 'http://localhost:5000';
+  private baseUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
 
   constructor(private http: HttpClient, private router: Router) {} 
 

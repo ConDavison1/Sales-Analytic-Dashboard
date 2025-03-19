@@ -19,8 +19,6 @@ CORS(app, supports_credentials=True)
 db.init_app(app)
 
 
-load_dotenv()
-
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 @app.route('/login', methods=['POST'])
@@ -656,4 +654,5 @@ def get_wins_distribution_by_forecast_category():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 8080)) 
+    app.run(host='0.0.0.0', port=port)

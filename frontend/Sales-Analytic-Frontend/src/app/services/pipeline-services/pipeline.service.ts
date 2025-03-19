@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PipelineService {
-  private apiUrl = 'http://localhost:5000';
+  private apiUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
   constructor(private http: HttpClient) { }
 
   getPipelineTable(): Observable<any[]> {

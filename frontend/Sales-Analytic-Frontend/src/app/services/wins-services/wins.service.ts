@@ -15,7 +15,7 @@ interface Wins {
   providedIn: 'root',
 })
 export class WinsService {
-  baseUrl = 'http://localhost:5000';
+  baseUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
   constructor(private http: HttpClient) {}
 
   getWins(): Observable<Wins[]> {

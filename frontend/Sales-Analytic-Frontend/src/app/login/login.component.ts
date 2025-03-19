@@ -43,7 +43,7 @@ export class LoginComponent {
   onLogin() {
     const payload = { username: this.username, password: this.password };
   
-    this.http.post('http://localhost:5000/login', payload).subscribe({
+    this.http.post('https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app/login', payload).subscribe({
       next: (response: any) => {
         if (!response.token) {
           this.message = "Login failed: No token received!";
