@@ -384,82 +384,124 @@ def pipeline_chart_data():
 @app.route('/wins-rows', methods=['GET'])
 def get_wins():
     try:
-        # Retrieve query parameters
-        account_name = request.args.get('account_name', type=str)
-        win_status = request.args.get('win_status', type=str)  # "true", "false", or "all"
-        start_date = request.args.get('start_date', type=str)  # Format: YYYY-MM-DD
-        end_date = request.args.get('end_date', type=str)  # Format: YYYY-MM-DD
-        industry = request.args.get('industry', type=str)
-        account_type = request.args.get('account_type', type=str)
-        lower_bound = request.args.get('lower_bound', type=float)  # Deal value lower limit
-        upper_bound = request.args.get('upper_bound', type=float)  # Deal value upper limit
-        forecast_category = request.args.get('forecast_category', type=str)
-        account_executive = request.args.get('account_executive', type=int)
+        # Validate win_status parameter
+        win_status = request.args.get('win_status', type=str)
+        if win_status and win_status.lower() not in ["true", "false", "all"]:
+            return jsonify({"error": "win_status must be 'true', 'false', or 'all'"}), 400
 
-        # Start query
-        query = Win.query
-
-        # Apply filters (only if provided)
-        if account_name:
-            query = query.filter(Win.account_name.ilike(f"%{account_name}%"))  # Case-insensitive search
-
-        if win_status and win_status.lower() in ["true", "false"]:
-            query = query.filter(Win.is_win == (win_status.lower() == "true"))  # Convert to boolean
-
+        # Validate date parameters
+        start_date = request.args.get('start_date', type=str)
+        end_date = request.args.get('end_date', type=str)
+        
+        # Parse and validate dates
+        start_date_obj = None
+        end_date_obj = None
+        
         if start_date:
             try:
                 start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-                query = query.filter(Win.win_date >= start_date_obj)
             except ValueError:
                 return jsonify({"error": "Invalid start_date format. Use YYYY-MM-DD"}), 400
-
+                
         if end_date:
             try:
                 end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
-                query = query.filter(Win.win_date <= end_date_obj)
             except ValueError:
                 return jsonify({"error": "Invalid end_date format. Use YYYY-MM-DD"}), 400
-
+        
+        # Ensure start_date <= end_date if both are provided
+        if start_date_obj and end_date_obj and start_date_obj > end_date_obj:
+            return jsonify({"error": "start_date cannot be after end_date"}), 400
+        
+        # Validate numeric parameters
+        lower_bound = request.args.get('lower_bound', type=float)
+        upper_bound = request.args.get('upper_bound', type=float)
+        
+        if lower_bound is not None and lower_bound < 0:
+            return jsonify({"error": "lower_bound cannot be negative"}), 400
+            
+        if upper_bound is not None and upper_bound < 0:
+            return jsonify({"error": "upper_bound cannot be negative"}), 400
+            
+        if lower_bound is not None and upper_bound is not None and lower_bound > upper_bound:
+            return jsonify({"error": "lower_bound cannot be greater than upper_bound"}), 400
+        
+        # Get other parameters with proper typing
+        account_name = request.args.get('account_name', type=str)
+        industry = request.args.get('industry', type=str)
+        account_type = request.args.get('account_type', type=str)
+        forecast_category = request.args.get('forecast_category', type=str)
+        account_executive = request.args.get('account_executive', type=int)
+        
+        # Validate forecast_category against allowed values (case-insensitive)
+        valid_forecast_categories = ["commit", "omit", "upside", "pipeline"]
+        if forecast_category and forecast_category.lower() not in valid_forecast_categories:
+            return jsonify({"error": f"forecast_category must be one of: Commit, Omit, Upside, Pipeline"}), 400
+        
+        # Start building the query
+        query = Win.query
+        
+        # Apply filters safely (note the use of parameter binding for LIKE queries)
+        if account_name:
+            # Use parameter binding for safety against SQL injection
+            query = query.filter(Win.account_name.ilike("%" + account_name + "%"))
+        
+        if win_status and win_status.lower() != "all":
+            query = query.filter(Win.is_win == (win_status.lower() == "true"))
+        
+        if start_date_obj:
+            query = query.filter(Win.win_date >= start_date_obj)
+            
+        if end_date_obj:
+            query = query.filter(Win.win_date <= end_date_obj)
+            
         if industry:
-            query = query.filter(Win.industry.ilike(f"%{industry}%"))
-
+            # Use parameter binding for safety against SQL injection
+            query = query.filter(Win.industry.ilike("%" + industry + "%"))
+            
         if account_type:
-            query = query.filter(Win.account_type.ilike(f"%{account_type}%"))
-
+            # Use parameter binding for safety against SQL injection
+            query = query.filter(Win.account_type.ilike("%" + account_type + "%"))
+            
         if lower_bound is not None:
             query = query.filter(Win.deal_value >= lower_bound)
-
+            
         if upper_bound is not None:
             query = query.filter(Win.deal_value <= upper_bound)
-
+            
         if forecast_category:
-            query = query.filter(Win.forecast_category.ilike(f"%{forecast_category}%"))
-
-        # if account_executive:
-        #     query = query.filter(Win.account_executive == account_executive)
-
+            # Case-insensitive comparison for forecast_category
+            query = query.filter(func.lower(Win.forecast_category) == forecast_category.lower())
+            
+        if account_executive:
+            query = query.filter(Win.account_executive == account_executive)
+        
         # Execute the query
         wins = query.all()
-
-        # Convert result to JSON format
-        win_list = [
-            {
+        
+        # Convert to JSON-serializable format
+        win_list = []
+        for win in wins:
+            win_list.append({
                 "opportunity_id": win.opportunity_id,
                 "account_name": win.account_name,
-                "win_date": win.win_date.strftime("%Y-%m-%d"),  # Convert date to string
+                "win_date": win.win_date.strftime("%Y-%m-%d"),
                 "industry": win.industry,
                 "account_type": win.account_type,
                 "deal_value": win.deal_value,
                 "forecast_category": win.forecast_category,
                 "is_win": win.is_win
-                # "account_executive": win.account_executive
-            } for win in wins
-        ]
+            })
         
-        return jsonify(win_list), 200  # Return data with HTTP 200 (OK)
-
+        return jsonify(win_list), 200
+        
     except Exception as e:
-        return jsonify({"error": str(e)}), 500  # Handle errors
+        # Log the error for debugging
+        import traceback
+        traceback.print_exc()
+        
+        # Return a generic error message to the client
+        return jsonify({"error": "An internal server error occurred"}), 500
 
 @app.route('/wins-average-deal-size', methods=['GET'])
 def get_average_deal_size():
@@ -506,6 +548,7 @@ def get_win_rate():
         return jsonify({"error": str(e)}), 500  # Handle errors
 
 @app.route('/wins-open-opportunities', methods=['GET'])
+@jwt_required()
 def get_open_opportunities():
     try:
         # Query to count the total number of open opportunities (where is_win is False)
