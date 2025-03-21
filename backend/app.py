@@ -1095,6 +1095,72 @@ def get_quarterly_cows_performance_ae():
         print(f"Error in /quarterly-cows-performance-ae endpoint: {e}")
         traceback.print_exc()  # Print full traceback for debugging
         return jsonify({"message": f"An error occurred: {e}"}), 500
+
+@app.route('/quarterly-cows-performance-dir', methods=['GET'])
+def get_quarterly_cows_performance_dir():
+    try:
+        # Extract query parameters
+        quarter = request.args.get('quarter', type=int)
+        year = request.args.get('year', type=int, default=datetime.now().year)
+
+        # Validate inputs
+        if not quarter:
+            return jsonify({"message": "Missing required quarter parameter"}), 400
+
+        if quarter not in [1, 2, 3, 4]:
+            return jsonify({"message": "Invalid quarter. Must be 1, 2, 3, or 4"}), 400
+            
+        if year <= 0:
+            return jsonify({"message": "Invalid year. Must be a positive integer"}), 400
+
+        # Define date ranges for each quarter
+        quarter_end_dates = {
+            1: datetime(year, 3, 31).date(),
+            2: datetime(year, 6, 30).date(),
+            3: datetime(year, 9, 30).date(),
+            4: datetime(year, 12, 31).date()
+        }
+        start_date = datetime(year, 1, 1).date()
+        end_date = quarter_end_dates[quarter]
+
+        print(f"Querying wins from {start_date} to {end_date} for director")
+
+        # Count all wins within the date range where is_win = True
+        win_count = db.session.query(db.func.count(Win.opportunity_id)).\
+            filter(Win.is_win == True).\
+            filter(Win.win_date >= start_date).\
+            filter(Win.win_date <= end_date).\
+            scalar() or 0
+
+        print(f"Win Count Query Result: {win_count}")
+
+        # Calculate percentage of target achieved
+        # Define director's annual target
+        annual_target = 50  # 50 wins per year
+        
+        # Define quarterly target percentages
+        quarter_percentages = {1: 0.1, 2: 0.2, 3: 0.25, 4: 0.45}
+        
+        # Calculate quarterly target amount
+        quarterly_target = annual_target * quarter_percentages[quarter]
+        
+        # Calculate percentage achieved (avoid division by zero)
+        percentage_achieved = (win_count / quarterly_target * 100) if quarterly_target > 0 else 0
+        
+        # Return the performance data
+        return jsonify({
+            "metric": "wins",
+            "quarter": quarter,
+            "year": year,
+            "amount": win_count,
+            "percentage": round(percentage_achieved, 2)
+        }), 200
+
+    except Exception as e:
+        print(f"Error in /quarterly-cows-performance-dir endpoint: {e}")
+        traceback.print_exc()  # Print full traceback for debugging
+        return jsonify({"message": f"An error occurred: {e}"}), 500        
+    
 # ----------------------
 
 
