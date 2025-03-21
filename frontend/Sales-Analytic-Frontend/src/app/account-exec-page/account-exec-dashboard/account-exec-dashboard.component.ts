@@ -227,35 +227,63 @@ export class AccountExecDashboardComponent {
     },
   };
 
+  // addExecutive(): void {
+  //   if (this.addExecutiveForm.valid) {
+  //     this.accountExecService.addExecutive(this.addExecutiveForm.value).subscribe({
+  //       next: (response) => {
+  //         alert('New Executive Added');
+  //         this.accountExecutives.push(response);
+  //         this.addExecutiveForm.reset();
+  //       },
+  //       error: (error) => {
+  //         console.error('Error Adding new Executive:', error);
+  //         alert('Failed to Add New Executive. Please check your input.');
+  //       }
+  //     })
+  //   } else {
+  //     alert('Please fill in all required fields');
+  //   }
+  // }
+
+  // Add Executive Functionality for Mock Data
   addExecutive(): void {
     if (this.addExecutiveForm.valid) {
-      this.accountExecService.addExecutive(this.addExecutiveForm.value).subscribe({
-        next: (response) => {
-          alert('New Executive Added');
-          this.accountExecutives.push(response);
-          this.addExecutiveForm.reset();
-        },
-        error: (error) => {
-          console.error('Error Adding new Executive:', error);
-          alert('Failed to Add New Executive. Please check your input.');
-        }
-      })
+      const newExecutive = {
+        executive_id: this.accountExecData.length + 1, // Generate a simple ID
+        ...this.addExecutiveForm.value,
+      };
+  
+      this.accountExecData.push(newExecutive); // Add to static data
+      alert('New Executive Added');
+      console.log('Updated Executives:', this.accountExecData);
+      this.addExecutiveForm.reset();
     } else {
       alert('Please fill in all required fields');
     }
   }
 
+  // Remove Executive Functionality for Database
+  // removeExecutive(executiveId: number): void {
+  //   if (confirm('Are you sure you want to delete this executive?')) {
+  //     this.accountExecService.removeExecutive(executiveId).subscribe({
+  //       next: () => {
+  //         this.accountExecutives = this.accountExecutives.filter((executive) => executive.executive_id !== executiveId);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error Deleting Executive:', error);
+  //         alert('Error Deleting Executive. Please try again.');
+  //       }
+  //     })
+  //   }
+  // }
+
+  // Remove Executive Functionality for Mock Data
   removeExecutive(executiveId: number): void {
     if (confirm('Are you sure you want to delete this executive?')) {
-      this.accountExecService.removeExecutive(executiveId).subscribe({
-        next: () => {
-          this.accountExecutives = this.accountExecutives.filter(executive => executive.executive_id !== executiveId);
-        },
-        error: (error) => {
-          console.error('Error Deleting Executive:', error);
-          alert('Error Deleting Executive. Please try again.');
-        }
-      })
+      this.accountExecData = this.accountExecData.filter(
+        (executive) => executive.executive_id !== executiveId
+      );
+      console.log('Updated Executives:', this.accountExecData);
     }
   }
 }
