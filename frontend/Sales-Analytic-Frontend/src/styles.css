@@ -4,12 +4,22 @@
     --bg-color: #f8f8f8;
     --card-bg: #2b2f48;
     --primary: #0095ff;
+    --text-color: black;
+  }
+
+  /* Dark Mode */
+  .dark-mode {
+    --bg-color: #121212;
+    --card-bg: #1e1e2e;
+    --primary: #66ccff;
+    --text-color: white;
   }
   
   body {
     font-family: 'Arial', sans-serif;
     background-color: var(--bg-color);
-    color: black;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
   }
   
   .container {

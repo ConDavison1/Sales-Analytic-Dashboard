@@ -1,1 +1,17 @@
-<p>settings-page works!</p>
+<div class="container">
+    <app-sidebar></app-sidebar>
+    <div class="main-content">
+        <div class="settings-page">
+            <app-header></app-header>
+            <div>
+                <h2>Settings</h2>
+            </div>
+            <div>
+                <button (click)="toggleTheme()">
+                    <span *ngIf="theme() === 'light'">Light Mode</span>
+                    <span *ngIf="theme() === 'dark'">Dark Mode</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ import { AuthGuard } from './auth/auth.guard'; // Import the AuthGuard
 import { RevenuePageComponent } from './revenue-page/revenue-page/revenue-page.component';
 import { SigningsDashboardComponent } from './signings-page/signings-dashboard/signings-dashboard.component';
 import { PipelineDashboardComponent } from './pipeline-page/pipeline-dashboard/pipeline-dashboard.component';
+import { SettingsPageComponent } from './settings-page/settings-page.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -45,5 +46,9 @@ export const appRoutes: Routes = [
   {
     path: 'account-executives',
     component: AccountExecPageComponent,
+  },
+  {
+    path: 'settings',
+    component: SettingsPageComponent,
   },
 ];
