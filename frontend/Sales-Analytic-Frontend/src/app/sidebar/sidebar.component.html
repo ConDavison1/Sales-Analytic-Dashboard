@@ -74,14 +74,6 @@
   <!-- Footer Section -->
   <div class="sidebar-footer">
     <a
-      [routerLink]="['/settings']"
-      [routerLinkActive]="'active'"
-      [class.active]="activeLink === 'settings'"
-    >
-      <i class="material-icons">settings</i>
-      <span *ngIf="!isSidebarCollapsed">Settings</span>
-    </a>
-    <a
     (click)="onLogout()"  
     [routerLinkActive]="'active'"
     [class.active]="activeLink === 'logout'"

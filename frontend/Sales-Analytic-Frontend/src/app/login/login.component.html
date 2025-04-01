@@ -21,13 +21,14 @@
       <div class="input-group">
         <label for="password">Password</label>
         <input
-          type="password"
+          [type]="showPassword ? 'text' : 'password'"
           id="password"
           [(ngModel)]="password"
           name="password"
           placeholder="Type your password"
           required
         />
+        <i (click)="togglePasswordVisibility()" class="eye-icon" [ngClass]="showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
       </div>
       <div>
         <a href="javascript:void(0)" (click)="openForgotPasswordModal()" class="forgot-password">Forgot your password?</a>

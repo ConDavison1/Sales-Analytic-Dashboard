@@ -40,6 +40,12 @@ export class LoginComponent {
     });
   }
 
+  showPassword = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
   onLogin() {
     const payload = { username: this.username, password: this.password };
   
