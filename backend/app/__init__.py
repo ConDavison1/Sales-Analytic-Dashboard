@@ -55,6 +55,7 @@ def create_app(config_name='default'):
     from .routes.revenue import revenue_bp       # Revenue reporting endpoints  
     from .routes.wins import wins_bp             # Sales wins tracking endpoints
     from .routes.signings import signings_bp     # Contract signing endpoints
+    from .routes.landing import landing_bp       # Landing page endpoints
     
     # Add each blueprint to the application with its URL prefix
     # The URL prefixes are defined in each blueprint file
@@ -65,6 +66,7 @@ def create_app(config_name='default'):
     app.register_blueprint(revenue_bp)           # /api/revenue/...
     app.register_blueprint(wins_bp)              # /api/wins/...
     app.register_blueprint(signings_bp)          # /api/signings/...
+    app.register_blueprint(landing_bp)           # /api/landing/...
     
     # Return the fully configured application
     return app
