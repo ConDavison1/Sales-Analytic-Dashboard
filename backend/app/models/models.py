@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -13,21 +12,15 @@ class User(db.Model):
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
     role = db.Column(db.String(20), nullable=False)
-    hashed_password = db.Column(db.String(500), nullable=False)
+    hashed_password = db.Column(db.String(100), nullable=False)  # Not actually hashed for now
 
     # Relationships
-    account_executives = db.relationship('DirectorAccountExecutive', 
-                                         foreign_keys='DirectorAccountExecutive.director_id',
-                                         backref='director', lazy='dynamic')
-    clients = db.relationship('Client', backref='account_executive', lazy='dynamic')
-    yearly_targets = db.relationship('YearlyTarget', backref='user', lazy='dynamic')
-    quarterly_targets = db.relationship('QuarterlyTarget', backref='user', lazy='dynamic')
-
-    def set_password(self, password):
-        self.hashed_password = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.hashed_password, password)
+    # account_executives = db.relationship('DirectorAccountExecutive', 
+    #                                      foreign_keys='DirectorAccountExecutive.director_id',
+    #                                      backref='director', lazy='dynamic')
+    # clients = db.relationship('Client', backref='account_executive', lazy='dynamic')
+    # yearly_targets = db.relationship('YearlyTarget', backref='user', lazy='dynamic')
+    # quarterly_targets = db.relationship('QuarterlyTarget', backref='user', lazy='dynamic')
     
     def to_dict(self):
         return {
@@ -65,10 +58,10 @@ class Client(db.Model):
     created_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    opportunities = db.relationship('Opportunity', backref='client', lazy='dynamic')
-    signings = db.relationship('Signing', backref='client', lazy='dynamic')
-    revenue = db.relationship('Revenue', backref='client', lazy='dynamic')
-    wins = db.relationship('Win', backref='client', lazy='dynamic')
+    # opportunities = db.relationship('Opportunity', backref='client', lazy='dynamic')
+    # signings = db.relationship('Signing', backref='client', lazy='dynamic')
+    # revenue = db.relationship('Revenue', backref='client', lazy='dynamic')
+    # wins = db.relationship('Win', backref='client', lazy='dynamic')
     
     def to_dict(self):
         return {
@@ -90,10 +83,10 @@ class Product(db.Model):
     product_category = db.Column(db.String(50), nullable=False)
 
     # Relationships
-    opportunities = db.relationship('Opportunity', backref='product', lazy='dynamic')
-    signings = db.relationship('Signing', backref='product', lazy='dynamic')
-    revenue = db.relationship('Revenue', backref='product', lazy='dynamic')
-    wins = db.relationship('Win', backref='product', lazy='dynamic')
+    # opportunities = db.relationship('Opportunity', backref='product', lazy='dynamic')
+    # signings = db.relationship('Signing', backref='product', lazy='dynamic')
+    # revenue = db.relationship('Revenue', backref='product', lazy='dynamic')
+    # wins = db.relationship('Win', backref='product', lazy='dynamic')
     
     def to_dict(self):
         return {
@@ -119,10 +112,10 @@ class Opportunity(db.Model):
     last_modified_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    signings = db.relationship('Signing', backref='opportunity', lazy='dynamic')
-    revenue = db.relationship('Revenue', backref='opportunity', lazy='dynamic')
-    wins = db.relationship('Win', backref='opportunity', lazy='dynamic')
-    update_events = db.relationship('UpdateEvent', backref='opportunity', lazy='dynamic')
+    # signings = db.relationship('Signing', backref='opportunity', lazy='dynamic')
+    # revenue = db.relationship('Revenue', backref='opportunity', lazy='dynamic')
+    # wins = db.relationship('Win', backref='opportunity', lazy='dynamic')
+    # update_events = db.relationship('UpdateEvent', backref='opportunity', lazy='dynamic')
     
     def to_dict(self):
         return {
@@ -156,7 +149,7 @@ class Signing(db.Model):
     fiscal_quarter = db.Column(db.Integer, nullable=False)
 
     # Relationships
-    revenue = db.relationship('Revenue', backref='signing', lazy='dynamic')
+    # revenue = db.relationship('Revenue', backref='signing', lazy='dynamic')
     
     def to_dict(self):
         return {
@@ -242,7 +235,7 @@ class YearlyTarget(db.Model):
     amount = db.Column(db.Numeric(15, 2), nullable=False)
     
     # Relationships
-    quarterly_targets = db.relationship('QuarterlyTarget', backref='yearly_target', lazy='dynamic')
+    # quarterly_targets = db.relationship('QuarterlyTarget', backref='yearly_target', lazy='dynamic')
     
     __table_args__ = (
         db.UniqueConstraint('user_id', 'fiscal_year', 'target_type', name='unique_target_per_user_year_type'),
@@ -289,7 +282,7 @@ class UpdateEvent(db.Model):
     change_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     # Relationships
-    updates = db.relationship('OpportunityUpdateLog', backref='update_event', lazy='dynamic')
+    # updates = db.relationship('OpportunityUpdateLog', backref='update_event', lazy='dynamic')
     
     def to_dict(self):
         return {
