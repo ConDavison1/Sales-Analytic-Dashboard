@@ -15,6 +15,142 @@ from datetime import datetime
 # Create a Blueprint for landing page routes
 landing_bp = Blueprint('landing', __name__, url_prefix='/api/landing')
 
+@landing_bp.route('/win-chart-data', methods=['GET'])
+def get_win_chart_data():
+    """
+    Get Win Chart Data for histogram visualization
+    
+    Returns the distribution of win counts (sum of win multipliers) by quarter
+    for the specified fiscal year, to be displayed as a histogram chart.
+    
+    Query parameters:
+        - user_id: ID of the current user (required)
+        - year: Fiscal year (default: 2024)
+    
+    Returns:
+        - 200 OK with quarterly win distribution data
+        - 400 Bad Request if missing required parameters
+        - 404 Not Found if user doesn't exist
+    """
+    # Get query parameters
+    user_id = request.args.get('user_id', type=int)
+    year = request.args.get('year', 2024, type=int)
+    
+    # Validate required parameters
+    if not user_id:
+        return jsonify({"error": "Missing required parameter: user_id"}), 400
+    
+    # Get user and validate
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    # Calculate win chart data based on user role
+    if user.role == 'director':
+        # For directors: Calculate win chart data for all account executives under them
+        quarterly_data = calculate_director_win_chart_data(user_id, year)
+    elif user.role == 'account-executive':
+        # For account executives: Calculate win chart data for their clients only
+        quarterly_data = calculate_ae_win_chart_data(user_id, year)
+    else:
+        # For any other role, return zeros for all quarters
+        quarterly_data = [
+            {"quarter": 1, "win_count": 0.0},
+            {"quarter": 2, "win_count": 0.0},
+            {"quarter": 3, "win_count": 0.0},
+            {"quarter": 4, "win_count": 0.0}
+        ]
+    
+    return jsonify({
+        "win_chart_data": quarterly_data,
+        "year": year
+    }), 200
+
+
+def calculate_director_win_chart_data(director_id, year):
+    """Calculate quarterly win chart data for a director based on all AEs under them"""
+    
+    # Get all account executives managed by this director
+    ae_relations = DirectorAccountExecutive.query.filter_by(director_id=director_id).all()
+    ae_ids = [relation.account_executive_id for relation in ae_relations]
+    
+    # Get all clients managed by these account executives
+    client_ids = []
+    if ae_ids:
+        clients = Client.query.filter(Client.account_executive_id.in_(ae_ids)).all()
+        client_ids = [client.client_id for client in clients]
+    
+    # Calculate win chart data using these client IDs
+    return calculate_win_chart_data_for_clients(client_ids, year)
+
+
+def calculate_ae_win_chart_data(ae_id, year):
+    """Calculate quarterly win chart data for an account executive based on their clients"""
+    
+    # Get all clients managed by this account executive
+    clients = Client.query.filter_by(account_executive_id=ae_id).all()
+    client_ids = [client.client_id for client in clients]
+    
+    # Calculate win chart data using these client IDs
+    return calculate_win_chart_data_for_clients(client_ids, year)
+
+
+def calculate_win_chart_data_for_clients(client_ids, year):
+    """
+    Calculate quarterly win chart data (sum of win multipliers by quarter) for the specified clients
+    
+    Args:
+        client_ids: List of client IDs to filter by, or None for all clients
+        year: The fiscal year to calculate for
+    
+    Returns:
+        List of dictionaries with quarter and win_count values
+    """
+    # If client_ids is an empty list, return zeros for all quarters
+    if client_ids is not None and not client_ids:
+        return [
+            {"quarter": 1, "win_count": 0.0},
+            {"quarter": 2, "win_count": 0.0},
+            {"quarter": 3, "win_count": 0.0},
+            {"quarter": 4, "win_count": 0.0}
+        ]
+    
+    # Query to calculate sum of win multipliers grouped by quarter
+    wins_query = db.session.query(
+        Win.fiscal_quarter,
+        func.sum(Win.win_multiplier).label('win_count')
+    ).filter(
+        Win.fiscal_year == year
+    )
+    
+    # Add client filter if needed
+    if client_ids is not None:
+        wins_query = wins_query.filter(Win.client_id.in_(client_ids))
+    
+    # Group by quarter and order by quarter
+    wins_query = wins_query.group_by(Win.fiscal_quarter).order_by(Win.fiscal_quarter)
+    
+    # Execute query
+    quarterly_results = wins_query.all()
+    
+    # Initialize results with zeros for all quarters
+    quarterly_data = {
+        1: 0.0,
+        2: 0.0,
+        3: 0.0,
+        4: 0.0
+    }
+    
+    # Update with actual values from query
+    for quarter, win_count in quarterly_results:
+        quarterly_data[quarter] = float(win_count)
+    
+    # Format into list of dictionaries for the response
+    return [
+        {"quarter": quarter, "win_count": count}
+        for quarter, count in quarterly_data.items()
+    ]
+
 
 @landing_bp.route('/kpi-cards', methods=['GET'])
 def get_kpi_cards():
@@ -22,12 +158,11 @@ def get_kpi_cards():
     Get Key Performance Indicators for the landing page cards
     
     Calculates four KPIs: Pipeline, Revenue, Signings, and Wins
-    Based on user role (director or account executive), year, and quarter
+    Based on user role (director or account executive) and year
     
     Query parameters:
         - user_id: ID of the current user (required)
         - year: Fiscal year (default: 2024)
-        - quarter: Fiscal quarter (default: 4)
     
     Returns:
         - 200 OK with calculated KPI values
@@ -37,15 +172,10 @@ def get_kpi_cards():
     # Get query parameters
     user_id = request.args.get('user_id', type=int)
     year = request.args.get('year', 2024, type=int)
-    quarter = request.args.get('quarter', 4, type=int)
     
     # Validate required parameters
     if not user_id:
         return jsonify({"error": "Missing required parameter: user_id"}), 400
-    
-    # Validate quarter
-    if quarter not in [1, 2, 3, 4]:
-        return jsonify({"error": "Quarter must be between 1 and 4"}), 400
     
     # Get user and validate
     user = User.query.get(user_id)
@@ -55,10 +185,10 @@ def get_kpi_cards():
     # Calculate KPIs based on user role
     if user.role == 'director':
         # For directors: Calculate KPIs for all account executives under them
-        kpis = calculate_director_kpis(user_id, year, quarter)
+        kpis = calculate_director_kpis(user_id, year)
     elif user.role == 'account-executive':
         # For account executives: Calculate KPIs for their clients only
-        kpis = calculate_ae_kpis(user_id, year, quarter)
+        kpis = calculate_ae_kpis(user_id, year)
     else:
         # For any other role, return zeros
         kpis = {
@@ -71,7 +201,7 @@ def get_kpi_cards():
     return jsonify(kpis), 200
 
 
-def calculate_director_kpis(director_id, year, quarter):
+def calculate_director_kpis(director_id, year):
     """Calculate KPIs for a director based on all AEs under them"""
     
     # Get all account executives managed by this director
@@ -85,10 +215,10 @@ def calculate_director_kpis(director_id, year, quarter):
         client_ids = [client.client_id for client in clients]
     
     # Calculate KPIs using these client IDs
-    return calculate_kpis_for_clients(client_ids, year, quarter)
+    return calculate_kpis_for_clients(client_ids, year)
 
 
-def calculate_ae_kpis(ae_id, year, quarter):
+def calculate_ae_kpis(ae_id, year):
     """Calculate KPIs for an account executive based on their clients"""
     
     # Get all clients managed by this account executive
@@ -96,29 +226,22 @@ def calculate_ae_kpis(ae_id, year, quarter):
     client_ids = [client.client_id for client in clients]
     
     # Calculate KPIs using these client IDs
-    return calculate_kpis_for_clients(client_ids, year, quarter)
+    return calculate_kpis_for_clients(client_ids, year)
 
 
-def calculate_kpis_for_clients(client_ids, year, quarter):
+def calculate_kpis_for_clients(client_ids, year):
     """
-    Calculate all four KPIs for the specified clients
+    Calculate all four KPIs for the specified clients for the entire year
     
     Args:
         client_ids: List of client IDs to filter by, or None for all clients
         year: The fiscal year to calculate for
-        quarter: The fiscal quarter (up to which to calculate)
     
     Returns:
         Dictionary with calculated KPI values
     """
-    # Get end date for the specified quarter
-    quarter_end_dates = {
-        1: f"{year}-03-31",
-        2: f"{year}-06-30",
-        3: f"{year}-09-30",
-        4: f"{year}-12-31"
-    }
-    end_date = quarter_end_dates[quarter]
+    # Get end date for the year
+    end_date = f"{year}-12-31"
     
     # Initialize KPI results
     kpis = {
@@ -136,13 +259,13 @@ def calculate_kpis_for_clients(client_ids, year, quarter):
     kpis['pipeline'] = calculate_pipeline_kpi(client_ids, year, end_date)
     
     # 2. Revenue KPI
-    kpis['revenue'] = calculate_revenue_kpi(client_ids, year, quarter)
+    kpis['revenue'] = calculate_revenue_kpi(client_ids, year)
     
     # 3. Signings KPI
-    kpis['signings'] = calculate_signings_kpi(client_ids, year, quarter)
+    kpis['signings'] = calculate_signings_kpi(client_ids, year)
     
     # 4. Wins KPI
-    kpis['wins'] = calculate_wins_kpi(client_ids, year, quarter)
+    kpis['wins'] = calculate_wins_kpi(client_ids, year)
     
     return kpis
 
@@ -170,13 +293,12 @@ def calculate_pipeline_kpi(client_ids, year, end_date):
     return float(pipeline_result) if pipeline_result else 0.0
 
 
-def calculate_revenue_kpi(client_ids, year, quarter):
-    """Calculate the revenue KPI value"""
+def calculate_revenue_kpi(client_ids, year):
+    """Calculate the revenue KPI value for the entire year"""
     revenue_query = db.session.query(
         func.sum(Revenue.amount)
     ).filter(
-        Revenue.fiscal_year == year,
-        Revenue.fiscal_quarter <= quarter
+        Revenue.fiscal_year == year
     )
     
     # Add client filter if needed
@@ -187,8 +309,8 @@ def calculate_revenue_kpi(client_ids, year, quarter):
     return float(revenue_result) if revenue_result else 0.0
 
 
-def calculate_signings_kpi(client_ids, year, quarter):
-    """Calculate the signings KPI value (annualized contract values)"""
+def calculate_signings_kpi(client_ids, year):
+    """Calculate the signings KPI value (annualized contract values) for the entire year"""
     # This SQL expression calculates the precise contract duration in years
     # by finding the exact difference between dates and dividing by 365.25
     duration_expr = func.cast(
@@ -199,8 +321,7 @@ def calculate_signings_kpi(client_ids, year, quarter):
     signings_query = db.session.query(
         func.sum(Signing.total_contract_value / func.greatest(duration_expr, 1.0))
     ).filter(
-        Signing.fiscal_year == year,
-        Signing.fiscal_quarter <= quarter
+        Signing.fiscal_year == year
     )
     
     # Add client filter if needed
@@ -211,13 +332,12 @@ def calculate_signings_kpi(client_ids, year, quarter):
     return float(signings_result) if signings_result else 0.0
 
 
-def calculate_wins_kpi(client_ids, year, quarter):
-    """Calculate the wins KPI value (sum of win multipliers)"""
+def calculate_wins_kpi(client_ids, year):
+    """Calculate the wins KPI value (sum of win multipliers) for the entire year"""
     wins_query = db.session.query(
         func.sum(Win.win_multiplier)
     ).filter(
-        Win.fiscal_year == year,
-        Win.fiscal_quarter <= quarter
+        Win.fiscal_year == year
     )
     
     # Add client filter if needed
