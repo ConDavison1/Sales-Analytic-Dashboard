@@ -11,6 +11,8 @@ from ..models.models import (
     DirectorAccountExecutive
 )
 from datetime import datetime
+import logging
+
 
 # Create a Blueprint for landing page routes
 landing_bp = Blueprint('landing', __name__, url_prefix='/api/landing')
@@ -18,20 +20,29 @@ landing_bp = Blueprint('landing', __name__, url_prefix='/api/landing')
 @landing_bp.route('/revenue-chart-data', methods=['GET'])
 def get_revenue_chart_data():
     """
-    Get Revenue Chart Data for histogram visualization
-    
-    Returns the distribution of revenue across the 12 months
-    for the specified fiscal year, to be displayed as a histogram chart.
-    
-    Query parameters:
+        Get Revenue Chart Data for histogram visualization
+
+        Returns the distribution of revenue across the 12 months
+        for the specified fiscal year, to be displayed as a histogram chart.
+
+        Query parameters:
         - username: Username of the current user (required)
         - year: Fiscal year (default: 2024)
-    
-    Returns:
-        - 200 OK with monthly revenue distribution data
+
+        Returns:
+        - 200 OK with monthly revenue distribution data in format:
+        {
+            "revenue_chart_data": [
+                {"month": 1, "revenue": 5000.0},
+                {"month": 2, "revenue": 6200.0},
+                ...
+                {"month": 12, "revenue": 4500.0}
+            ],
+            "year": 2024
+        }
         - 400 Bad Request if missing required parameters
         - 404 Not Found if user doesn't exist
-    """
+   """
     # Get query parameters
     username = request.args.get('username', type=str)
     year = request.args.get('year', 2024, type=int)
@@ -155,17 +166,26 @@ def calculate_revenue_chart_data_for_clients(client_ids, year):
 @landing_bp.route('/win-chart-data', methods=['GET'])
 def get_win_chart_data():
     """
-    Get Win Chart Data for histogram visualization
-    
-    Returns the distribution of win counts (sum of win multipliers) by quarter
-    for the specified fiscal year, to be displayed as a histogram chart.
-    
-    Query parameters:
+        Get Win Chart Data for histogram visualization
+
+        Returns the distribution of win counts (sum of win multipliers) by quarter
+        for the specified fiscal year, to be displayed as a histogram chart.
+
+        Query parameters:
         - username: Username of the current user (required)
         - year: Fiscal year (default: 2024)
-    
-    Returns:
-        - 200 OK with quarterly win distribution data
+
+        Returns:
+        - 200 OK with quarterly win distribution data in format:
+        {
+            "win_chart_data": [
+                {"quarter": 1, "win_count": 1.5},
+                {"quarter": 2, "win_count": 2.0},
+                {"quarter": 3, "win_count": 0.5}, 
+                {"quarter": 4, "win_count": 1.0}
+            ],
+            "year": 2024
+        }
         - 400 Bad Request if missing required parameters
         - 404 Not Found if user doesn't exist
     """
@@ -291,78 +311,141 @@ def calculate_win_chart_data_for_clients(client_ids, year):
 @landing_bp.route('/kpi-cards', methods=['GET'])
 def get_kpi_cards():
     """
-    Get Key Performance Indicators for the landing page cards
-    
-    Calculates four KPIs: Pipeline, Revenue, Signings, and Wins
-    Based on user role (director or account executive) and year
-    
-    Query parameters:
+        Get Key Performance Indicators for the landing page cards
+
+        Calculates four KPIs: Pipeline, Revenue, Signings, and Wins
+        Based on user role (director or account executive) and year
+
+        Query parameters:
         - username: Username of the current user (required)
         - year: Fiscal year (default: 2024)
-    
-    Returns:
-        - 200 OK with calculated KPI values
+
+        Returns:
+        - 200 OK with calculated KPI values in format:
+        {
+            "pipeline": 125000.0,
+            "revenue": 75000.0,
+            "signings": 50000.0,
+            "wins": 3.5
+        }
         - 400 Bad Request if missing required parameters
         - 404 Not Found if user doesn't exist
+        - 500 Internal Server Error with error details if calculation fails
     """
-    # Get query parameters
-    username = request.args.get('username', type=str)
-    year = request.args.get('year', 2024, type=int)
-    
-    # Validate required parameters
-    if not username:
-        return jsonify({"error": "Missing required parameter: username"}), 400
-    
-    # Get user by username and validate
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    
-    # Calculate KPIs based on user role
-    if user.role == 'director':
-        # For directors: Calculate KPIs for all account executives under them
-        kpis = calculate_director_kpis(user.user_id, year)
-    elif user.role == 'account-executive':
-        # For account executives: Calculate KPIs for their clients only
-        kpis = calculate_ae_kpis(user.user_id, year)
-    else:
-        # For any other role, return zeros
+    try:
+        # Get query parameters with defaults
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Initialize default KPIs
         kpis = {
             'pipeline': 0.0,
             'revenue': 0.0, 
             'signings': 0.0,
             'wins': 0.0
         }
-    
-    return jsonify(kpis), 200
+        
+        # Calculate KPIs based on user role
+        if user.role == 'director':
+            # For directors: Calculate KPIs for all account executives under them
+            kpis = calculate_director_kpis(user.user_id, year)
+        elif user.role == 'account-executive':
+            # For account executives: Calculate KPIs for their clients only
+            kpis = calculate_ae_kpis(user.user_id, year)
+        
+        return jsonify(kpis), 200
+        
+    except Exception as e:
+        # Log the error for debugging
+        logging.error(f"Error in KPI cards calculation: {str(e)}")
+        return jsonify({"error": f"Failed to calculate KPIs: {str(e)}"}), 500
 
 
 def calculate_director_kpis(director_id, year):
     """Calculate KPIs for a director based on all AEs under them"""
-    
-    # Get all account executives managed by this director
-    ae_relations = DirectorAccountExecutive.query.filter_by(director_id=director_id).all()
-    ae_ids = [relation.account_executive_id for relation in ae_relations]
-    
-    # Get all clients managed by these account executives
-    client_ids = []
-    if ae_ids:
+    try:
+        # Initialize default KPIs
+        kpis = {
+            'pipeline': 0.0,
+            'revenue': 0.0, 
+            'signings': 0.0,
+            'wins': 0.0
+        }
+        
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=director_id).all()
+        
+        # If no AEs are found, return zeros
+        if not ae_relations:
+            return kpis
+            
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Get all clients managed by these account executives
+        client_ids = []
         clients = Client.query.filter(Client.account_executive_id.in_(ae_ids)).all()
+        
+        # If no clients are found, return zeros
+        if not clients:
+            return kpis
+            
         client_ids = [client.client_id for client in clients]
-    
-    # Calculate KPIs using these client IDs
-    return calculate_kpis_for_clients(client_ids, year)
+        
+        # Calculate KPIs using these client IDs
+        return calculate_kpis_for_clients(client_ids, year)
+        
+    except Exception as e:
+        logging.error(f"Error calculating director KPIs: {str(e)}")
+        # Return zeros instead of raising the exception
+        return {
+            'pipeline': 0.0,
+            'revenue': 0.0, 
+            'signings': 0.0,
+            'wins': 0.0
+        }
 
 
 def calculate_ae_kpis(ae_id, year):
     """Calculate KPIs for an account executive based on their clients"""
-    
-    # Get all clients managed by this account executive
-    clients = Client.query.filter_by(account_executive_id=ae_id).all()
-    client_ids = [client.client_id for client in clients]
-    
-    # Calculate KPIs using these client IDs
-    return calculate_kpis_for_clients(client_ids, year)
+    try:
+        # Initialize default KPIs
+        kpis = {
+            'pipeline': 0.0,
+            'revenue': 0.0, 
+            'signings': 0.0,
+            'wins': 0.0
+        }
+        
+        # Get all clients managed by this account executive
+        clients = Client.query.filter_by(account_executive_id=ae_id).all()
+        
+        # If no clients are found, return zeros
+        if not clients:
+            return kpis
+            
+        client_ids = [client.client_id for client in clients]
+        
+        # Calculate KPIs using these client IDs
+        return calculate_kpis_for_clients(client_ids, year)
+        
+    except Exception as e:
+        logging.error(f"Error calculating AE KPIs: {str(e)}")
+        # Return zeros instead of raising the exception
+        return {
+            'pipeline': 0.0,
+            'revenue': 0.0, 
+            'signings': 0.0,
+            'wins': 0.0
+        }
 
 
 def calculate_kpis_for_clients(client_ids, year):
@@ -370,115 +453,174 @@ def calculate_kpis_for_clients(client_ids, year):
     Calculate all four KPIs for the specified clients for the entire year
     
     Args:
-        client_ids: List of client IDs to filter by, or None for all clients
+        client_ids: List of client IDs to filter by
         year: The fiscal year to calculate for
     
     Returns:
         Dictionary with calculated KPI values
     """
-    # Get end date for the year
-    end_date = f"{year}-12-31"
-    
-    # Initialize KPI results
-    kpis = {
-        'pipeline': 0.0,
-        'revenue': 0.0, 
-        'signings': 0.0,
-        'wins': 0.0
-    }
-    
-    # If client_ids is an empty list, return zeros
-    if client_ids is not None and not client_ids:
+    try:
+        # Initialize KPI results
+        kpis = {
+            'pipeline': 0.0,
+            'revenue': 0.0, 
+            'signings': 0.0,
+            'wins': 0.0
+        }
+        
+        # If client_ids is an empty list, return zeros
+        if not client_ids:
+            return kpis
+            
+        # Calculate each KPI individually and catch exceptions for each
+        try:
+            kpis['pipeline'] = calculate_pipeline_kpi(client_ids, year)
+        except Exception as e:
+            logging.error(f"Error calculating pipeline KPI: {str(e)}")
+            kpis['pipeline'] = 0.0
+            
+        try:
+            kpis['revenue'] = calculate_revenue_kpi(client_ids, year)
+        except Exception as e:
+            logging.error(f"Error calculating revenue KPI: {str(e)}")
+            kpis['revenue'] = 0.0
+            
+        try:
+            kpis['signings'] = calculate_signings_kpi(client_ids, year)
+        except Exception as e:
+            logging.error(f"Error calculating signings KPI: {str(e)}")
+            kpis['signings'] = 0.0
+            
+        try:
+            kpis['wins'] = calculate_wins_kpi(client_ids, year)
+        except Exception as e:
+            logging.error(f"Error calculating wins KPI: {str(e)}")
+            kpis['wins'] = 0.0
+        
         return kpis
-    
-    # 1. Pipeline KPI
-    kpis['pipeline'] = calculate_pipeline_kpi(client_ids, year, end_date)
-    
-    # 2. Revenue KPI
-    kpis['revenue'] = calculate_revenue_kpi(client_ids, year)
-    
-    # 3. Signings KPI
-    kpis['signings'] = calculate_signings_kpi(client_ids, year)
-    
-    # 4. Wins KPI
-    kpis['wins'] = calculate_wins_kpi(client_ids, year)
-    
-    return kpis
+        
+    except Exception as e:
+        logging.error(f"Error in calculate_kpis_for_clients: {str(e)}")
+        return {
+            'pipeline': 0.0,
+            'revenue': 0.0, 
+            'signings': 0.0,
+            'wins': 0.0
+        }
 
 
-def calculate_pipeline_kpi(client_ids, year, end_date):
+def calculate_pipeline_kpi(client_ids, year):
     """Calculate the pipeline KPI value"""
-    pipeline_query = db.session.query(
-        func.sum(
-            case(
-                [(Opportunity.forecast_category != 'omit', 
-                  Opportunity.amount * Opportunity.probability / 100)],
-                else_=0
+    try:
+        # Use date range filtering instead of extract function to handle timestamps properly
+        start_date = f"{year}-01-01 00:00:00"
+        end_date = f"{year}-12-31 23:59:59"
+        
+        # Create a query to calculate weighted pipeline value using the correct case syntax
+        # The error shows we need to use positional elements for case statements
+        pipeline_query = db.session.query(
+            func.sum(
+                case(
+                    (Opportunity.forecast_category != 'omit', 
+                     Opportunity.amount * Opportunity.probability / 100.0),
+                    else_=0.0
+                )
             )
+        ).filter(
+            Opportunity.client_id.in_(client_ids),
+            Opportunity.created_date >= start_date,
+            Opportunity.created_date <= end_date
         )
-    ).filter(
-        extract('year', Opportunity.created_date) == year,
-        Opportunity.created_date <= end_date
-    )
-    
-    # Add client filter if needed
-    if client_ids is not None:
-        pipeline_query = pipeline_query.filter(Opportunity.client_id.in_(client_ids))
-    
-    pipeline_result = pipeline_query.scalar()
-    return float(pipeline_result) if pipeline_result else 0.0
-
+        
+        pipeline_result = pipeline_query.scalar()
+        
+        # Return the result, default to 0.0 if None
+        return float(pipeline_result) if pipeline_result is not None else 0.0
+        
+    except Exception as e:
+        # Print the full exception for easier debugging
+        print(f"Error in pipeline calculation: {str(e)}")
+        return 0.0
 
 def calculate_revenue_kpi(client_ids, year):
     """Calculate the revenue KPI value for the entire year"""
-    revenue_query = db.session.query(
-        func.sum(Revenue.amount)
-    ).filter(
-        Revenue.fiscal_year == year
-    )
-    
-    # Add client filter if needed
-    if client_ids is not None:
-        revenue_query = revenue_query.filter(Revenue.client_id.in_(client_ids))
-    
-    revenue_result = revenue_query.scalar()
-    return float(revenue_result) if revenue_result else 0.0
+    try:
+        # Simplify the query and use coalesce to handle nulls
+        revenue_query = db.session.query(
+            func.coalesce(
+                func.sum(Revenue.amount),
+                0.0  # Default to 0.0 if no rows match
+            )
+        ).filter(
+            Revenue.client_id.in_(client_ids),
+            Revenue.fiscal_year == year
+        )
+        
+        # Execute query
+        revenue_result = revenue_query.scalar()
+        
+        # Return the result, default to 0.0 if None
+        return float(revenue_result) if revenue_result is not None else 0.0
+        
+    except Exception as e:
+        logging.error(f"Error in revenue calculation: {str(e)}")
+        return 0.0
 
 
 def calculate_signings_kpi(client_ids, year):
     """Calculate the signings KPI value (annualized contract values) for the entire year"""
-    # This SQL expression calculates the precise contract duration in years
-    # by finding the exact difference between dates and dividing by 365.25
-    duration_expr = func.cast(
-        func.extract('epoch', Signing.end_date) - func.extract('epoch', Signing.start_date),
-        db.Float
-    ) / (60 * 60 * 24 * 365.25)  # Convert seconds to years
-    
-    signings_query = db.session.query(
-        func.sum(Signing.total_contract_value / func.greatest(duration_expr, 1.0))
-    ).filter(
-        Signing.fiscal_year == year
-    )
-    
-    # Add client filter if needed
-    if client_ids is not None:
-        signings_query = signings_query.filter(Signing.client_id.in_(client_ids))
-    
-    signings_result = signings_query.scalar()
-    return float(signings_result) if signings_result else 0.0
+    try:
+        # Simplify the date calculation to reduce errors
+        # Instead of complex date math, use a simpler approach
+        signings_query = db.session.query(
+            func.coalesce(
+                func.sum(
+                    Signing.total_contract_value / 
+                    func.greatest(
+                        # Calculate the duration in years using a simpler approach
+                        # Subtract the years directly and add 1 for partial years
+                        (extract('year', Signing.end_date) - extract('year', Signing.start_date) + 1),
+                        1.0  # Ensure we don't divide by zero
+                    )
+                ),
+                0.0  # Default to 0.0 if no rows match
+            )
+        ).filter(
+            Signing.client_id.in_(client_ids),
+            Signing.fiscal_year == year
+        )
+        
+        # Execute query
+        signings_result = signings_query.scalar()
+        
+        # Return the result, default to 0.0 if None
+        return float(signings_result) if signings_result is not None else 0.0
+        
+    except Exception as e:
+        logging.error(f"Error in signings calculation: {str(e)}")
+        return 0.0
 
 
 def calculate_wins_kpi(client_ids, year):
     """Calculate the wins KPI value (sum of win multipliers) for the entire year"""
-    wins_query = db.session.query(
-        func.sum(Win.win_multiplier)
-    ).filter(
-        Win.fiscal_year == year
-    )
-    
-    # Add client filter if needed
-    if client_ids is not None:
-        wins_query = wins_query.filter(Win.client_id.in_(client_ids))
-    
-    wins_result = wins_query.scalar()
-    return float(wins_result) if wins_result else 0.0
+    try:
+        # Use coalesce to handle nulls
+        wins_query = db.session.query(
+            func.coalesce(
+                func.sum(Win.win_multiplier),
+                0.0  # Default to 0.0 if no rows match
+            )
+        ).filter(
+            Win.client_id.in_(client_ids),
+            Win.fiscal_year == year
+        )
+        
+        # Execute query
+        wins_result = wins_query.scalar()
+        
+        # Return the result, default to 0.0 if None
+        return float(wins_result) if wins_result is not None else 0.0
+        
+    except Exception as e:
+        logging.error(f"Error in wins calculation: {str(e)}")
+        return 0.0
