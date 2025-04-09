@@ -15,6 +15,143 @@ from datetime import datetime
 # Create a Blueprint for landing page routes
 landing_bp = Blueprint('landing', __name__, url_prefix='/api/landing')
 
+@landing_bp.route('/revenue-chart-data', methods=['GET'])
+def get_revenue_chart_data():
+    """
+    Get Revenue Chart Data for histogram visualization
+    
+    Returns the distribution of revenue across the 12 months
+    for the specified fiscal year, to be displayed as a histogram chart.
+    
+    Query parameters:
+        - username: Username of the current user (required)
+        - year: Fiscal year (default: 2024)
+    
+    Returns:
+        - 200 OK with monthly revenue distribution data
+        - 400 Bad Request if missing required parameters
+        - 404 Not Found if user doesn't exist
+    """
+    # Get query parameters
+    username = request.args.get('username', type=str)
+    year = request.args.get('year', 2024, type=int)
+    
+    # Validate required parameters
+    if not username:
+        return jsonify({"error": "Missing required parameter: username"}), 400
+    
+    # Get user by username and validate
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    # Calculate revenue chart data based on user role
+    if user.role == 'director':
+        # For directors: Calculate revenue chart data for all account executives under them
+        monthly_data = calculate_director_revenue_chart_data(user.user_id, year)
+    elif user.role == 'account-executive':
+        # For account executives: Calculate revenue chart data for their clients only
+        monthly_data = calculate_ae_revenue_chart_data(user.user_id, year)
+    else:
+        # For any other role, return zeros for all months
+        monthly_data = [
+            {"month": 1, "revenue": 0.0},
+            {"month": 2, "revenue": 0.0},
+            {"month": 3, "revenue": 0.0},
+            {"month": 4, "revenue": 0.0},
+            {"month": 5, "revenue": 0.0},
+            {"month": 6, "revenue": 0.0},
+            {"month": 7, "revenue": 0.0},
+            {"month": 8, "revenue": 0.0},
+            {"month": 9, "revenue": 0.0},
+            {"month": 10, "revenue": 0.0},
+            {"month": 11, "revenue": 0.0},
+            {"month": 12, "revenue": 0.0}
+        ]
+    
+    return jsonify({
+        "revenue_chart_data": monthly_data,
+        "year": year
+    }), 200
+    
+
+def calculate_director_revenue_chart_data(director_id, year):
+    """Calculate monthly revenue chart data for a director based on all AEs under them"""
+    
+    # Get all account executives managed by this director
+    ae_relations = DirectorAccountExecutive.query.filter_by(director_id=director_id).all()
+    ae_ids = [relation.account_executive_id for relation in ae_relations]
+    
+    # Get all clients managed by these account executives
+    client_ids = []
+    if ae_ids:
+        clients = Client.query.filter(Client.account_executive_id.in_(ae_ids)).all()
+        client_ids = [client.client_id for client in clients]
+    
+    # Calculate revenue chart data using these client IDs
+    return calculate_revenue_chart_data_for_clients(client_ids, year)
+
+
+def calculate_ae_revenue_chart_data(ae_id, year):
+    """Calculate monthly revenue chart data for an account executive based on their clients"""
+    
+    # Get all clients managed by this account executive
+    clients = Client.query.filter_by(account_executive_id=ae_id).all()
+    client_ids = [client.client_id for client in clients]
+    
+    # Calculate revenue chart data using these client IDs
+    return calculate_revenue_chart_data_for_clients(client_ids, year)
+
+
+def calculate_revenue_chart_data_for_clients(client_ids, year):
+    """
+    Calculate monthly revenue chart data for the specified clients
+    
+    Args:
+        client_ids: List of client IDs to filter by, or None for all clients
+        year: The fiscal year to calculate for
+    
+    Returns:
+        List of dictionaries with month and revenue values
+    """
+    # If client_ids is an empty list, return zeros for all months
+    if client_ids is not None and not client_ids:
+        return [
+            {"month": month, "revenue": 0.0}
+            for month in range(1, 13)
+        ]
+    
+    # Query to calculate sum of revenue grouped by month
+    revenue_query = db.session.query(
+        Revenue.month,
+        func.sum(Revenue.amount).label('revenue')
+    ).filter(
+        Revenue.fiscal_year == year
+    )
+    
+    # Add client filter if needed
+    if client_ids is not None:
+        revenue_query = revenue_query.filter(Revenue.client_id.in_(client_ids))
+    
+    # Group by month and order by month
+    revenue_query = revenue_query.group_by(Revenue.month).order_by(Revenue.month)
+    
+    # Execute query
+    monthly_results = revenue_query.all()
+    
+    # Initialize results with zeros for all months
+    monthly_data = {month: 0.0 for month in range(1, 13)}
+    
+    # Update with actual values from query
+    for month, revenue in monthly_results:
+        monthly_data[month] = float(revenue)
+    
+    # Format into list of dictionaries for the response
+    return [
+        {"month": month, "revenue": revenue}
+        for month, revenue in monthly_data.items()
+    ]
+
 @landing_bp.route('/win-chart-data', methods=['GET'])
 def get_win_chart_data():
     """
@@ -24,7 +161,7 @@ def get_win_chart_data():
     for the specified fiscal year, to be displayed as a histogram chart.
     
     Query parameters:
-        - user_id: ID of the current user (required)
+        - username: Username of the current user (required)
         - year: Fiscal year (default: 2024)
     
     Returns:
@@ -33,25 +170,25 @@ def get_win_chart_data():
         - 404 Not Found if user doesn't exist
     """
     # Get query parameters
-    user_id = request.args.get('user_id', type=int)
+    username = request.args.get('username', type=str)
     year = request.args.get('year', 2024, type=int)
     
     # Validate required parameters
-    if not user_id:
-        return jsonify({"error": "Missing required parameter: user_id"}), 400
+    if not username:
+        return jsonify({"error": "Missing required parameter: username"}), 400
     
-    # Get user and validate
-    user = User.query.get(user_id)
+    # Get user by username and validate
+    user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"error": "User not found"}), 404
     
     # Calculate win chart data based on user role
     if user.role == 'director':
         # For directors: Calculate win chart data for all account executives under them
-        quarterly_data = calculate_director_win_chart_data(user_id, year)
+        quarterly_data = calculate_director_win_chart_data(user.user_id, year)
     elif user.role == 'account-executive':
         # For account executives: Calculate win chart data for their clients only
-        quarterly_data = calculate_ae_win_chart_data(user_id, year)
+        quarterly_data = calculate_ae_win_chart_data(user.user_id, year)
     else:
         # For any other role, return zeros for all quarters
         quarterly_data = [
@@ -65,7 +202,6 @@ def get_win_chart_data():
         "win_chart_data": quarterly_data,
         "year": year
     }), 200
-
 
 def calculate_director_win_chart_data(director_id, year):
     """Calculate quarterly win chart data for a director based on all AEs under them"""
@@ -161,7 +297,7 @@ def get_kpi_cards():
     Based on user role (director or account executive) and year
     
     Query parameters:
-        - user_id: ID of the current user (required)
+        - username: Username of the current user (required)
         - year: Fiscal year (default: 2024)
     
     Returns:
@@ -170,25 +306,25 @@ def get_kpi_cards():
         - 404 Not Found if user doesn't exist
     """
     # Get query parameters
-    user_id = request.args.get('user_id', type=int)
+    username = request.args.get('username', type=str)
     year = request.args.get('year', 2024, type=int)
     
     # Validate required parameters
-    if not user_id:
-        return jsonify({"error": "Missing required parameter: user_id"}), 400
+    if not username:
+        return jsonify({"error": "Missing required parameter: username"}), 400
     
-    # Get user and validate
-    user = User.query.get(user_id)
+    # Get user by username and validate
+    user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"error": "User not found"}), 404
     
     # Calculate KPIs based on user role
     if user.role == 'director':
         # For directors: Calculate KPIs for all account executives under them
-        kpis = calculate_director_kpis(user_id, year)
+        kpis = calculate_director_kpis(user.user_id, year)
     elif user.role == 'account-executive':
         # For account executives: Calculate KPIs for their clients only
-        kpis = calculate_ae_kpis(user_id, year)
+        kpis = calculate_ae_kpis(user.user_id, year)
     else:
         # For any other role, return zeros
         kpis = {
