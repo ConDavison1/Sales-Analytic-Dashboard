@@ -95,3 +95,67 @@
   width: 100%;
   table-layout: fixed;
 }
+
+/* Responsive Layout & Table Fixes */
+@media (max-width: 768px) {
+  .revenue {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-container,
+  .gauge-container,
+  .table-container {
+    grid-column: 1 / -1;
+  }
+
+  /* Hide ARR and Time Period columns */
+  .table-container th:nth-child(4),
+  .table-container td:nth-child(4), /* ARR */
+
+  .table-container th:nth-child(5),
+  .table-container td:nth-child(5)  /* Time Period */ {
+    display: none;
+  }
+
+  /* Table formatting for smaller screens */
+  .table-container {
+    overflow-x: unset;
+  }
+
+  .table-container table {
+    min-width: unset;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  .table-container th,
+  .table-container td {
+    word-wrap: break-word;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 480px) {
+  .revenue {
+    grid-template-columns: 1fr;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container,
+  .gauge-container,
+  .table-container {
+    grid-column: 1 / -1;
+  }
+
+  .table-container th,
+  .table-container td {
+    font-size: 14px;
+  }
+}

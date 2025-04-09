@@ -1,199 +1,273 @@
 .executives {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px;
 }
 
 .cards {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    max-width: 100%;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 100%;
 }
 
 .card {
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    background-color: #ffffff;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .card h3 {
-    font-size: 18px;
-    margin-bottom: 12px;
-    font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 12px;
+  font-weight: bold;
 }
 
 .card p {
-    margin: 6px 0;
-    font-size: 16px;
+  margin: 6px 0;
+  font-size: 16px;
 }
 
 .card p:nth-child(3) {
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0.8;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .table-container {
-    grid-column: 1 / -1;
-    max-width: 100%;
-    margin: 0;
-    padding: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background-color: #ffffff;
+  grid-column: 1 / -1;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
 }
 
 .table-header {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .table-container table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .table-container th,
 .table-container td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 .table-container th {
-    background-color: #f7f7f7;
+  background-color: #f7f7f7;
 }
 
 .table-container tbody {
-    display: block;
-    max-height: 300px;
-    overflow-y: auto;
+  display: block;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .table-container tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .clickable-row {
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .clickable-row:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .expanded-row {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .executive-details {
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 100%;
-    box-sizing: border-box;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .executive-details h3 {
-    margin-bottom: 10px;
-    text-align: left;
+  margin-bottom: 10px;
+  text-align: left;
 }
 
 .grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
 }
 
 .grid-container div {
-    padding: 8px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .remove-executive {
-    margin-top: 15px;
-    padding: 8px 12px;
-    border: none;
-    background-color: #d9534f;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
-    display: block;
+  margin-top: 15px;
+  padding: 8px 12px;
+  border: none;
+  background-color: #d9534f;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  display: block;
 }
 
 .remove-executive:hover {
-    background-color: #c9302c;
+  background-color: #c9302c;
 }
 
-
 .chart-container {
-    grid-column: span 2;
-    max-width: 100%;
-    margin: 0;
-    padding: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background-color: #ffffff;
+  grid-column: span 2;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
 }
 
 .add-executive {
-    grid-column: 3 / 5;
-    max-width: 100%;
-    padding: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background-color: #ffffff;
-    display: flex;
-    justify-content: center;
+  grid-column: 3 / 5;
+  max-width: 100%;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .form-group input {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: #f9f9f9;
-    transition: border-color 0.3s ease-in-out;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease-in-out;
 }
 
 .submit-button {
-    margin-top: 12px;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
 }
-  
+
 .submit-button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .executives {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-container,
+  .table-container,
+  .add-executive {
+    grid-column: 1 / -1;
+  }
+
+  .add-executive {
+    flex-direction: column;
+  }
+
+  /* Hide Location and Email */
+  .table-container th:nth-child(3),
+    .table-container td:nth-child(3), /* Location */
+  
+    .table-container th:nth-child(5),
+    .table-container td:nth-child(5)  /* Email */ {
+    display: none;
+  }
+
+  /* Table formatting */
+  .table-container {
+    overflow-x: unset;
+  }
+
+  .table-container table {
+    min-width: unset;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  .table-container th,
+  .table-container td {
+    word-wrap: break-word;
+    white-space: normal;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .executives {
+    grid-template-columns: 1fr;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container,
+  .table-container,
+  .add-executive {
+    grid-column: 1 / -1;
+  }
+
+  .table-container th,
+  .table-container td {
+    font-size: 14px;
+  }
+
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
 }

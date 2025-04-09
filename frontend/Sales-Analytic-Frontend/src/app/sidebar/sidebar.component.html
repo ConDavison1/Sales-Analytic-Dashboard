@@ -1,4 +1,7 @@
-<div class="sidebar" [class.collapsed]="isSidebarCollapsed">
+<div
+  class="sidebar"
+  [ngClass]="{ collapsed: isSidebarCollapsed, show: isMobileSidebarVisible }"
+>
   <!-- Branding Section -->
   <div class="sidebar-brand">
     <h3 *ngIf="!isSidebarCollapsed">Sales Analytics</h3>
@@ -74,26 +77,19 @@
   <!-- Footer Section -->
   <div class="sidebar-footer">
     <a
-      [routerLink]="['/settings']"
+      (click)="onLogout()"
       [routerLinkActive]="'active'"
-      [class.active]="activeLink === 'settings'"
+      [class.active]="activeLink === 'logout'"
     >
-      <i class="material-icons">settings</i>
-      <span *ngIf="!isSidebarCollapsed">Settings</span>
+      <i class="material-icons">logout</i>
+      <span *ngIf="!isSidebarCollapsed">Logout</span>
     </a>
-    <a
-    (click)="onLogout()"  
-    [routerLinkActive]="'active'"
-    [class.active]="activeLink === 'logout'"
-  >
-    <i class="material-icons">logout</i>
-    <span *ngIf="!isSidebarCollapsed">Logout</span>
-  </a>
-  
   </div>
 </div>
 
 <!-- Toggle Button -->
 <button class="sidebar-toggle" (click)="toggleSidebar()">
-  <i class="material-icons">{{ isSidebarCollapsed ? 'menu' : 'close' }}</i>
+  <i class="material-icons">
+    {{ isMobileSidebarVisible || isSidebarCollapsed ? "menu" : "menu" }}
+  </i>
 </button>

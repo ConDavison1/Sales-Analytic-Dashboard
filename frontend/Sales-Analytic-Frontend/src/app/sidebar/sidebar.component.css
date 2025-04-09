@@ -1,26 +1,45 @@
 /* Sidebar Styling */
 .sidebar {
   position: fixed;
-  top: 60px; /* Ensure it's below the header */
+  top: 60px;
   left: 0;
-  width: 250px; /* Default width for expanded state */
-  height: calc(100vh - 60px); /* Adjust height considering the header */
-  background-color: #ffffff; /* White background */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  z-index: 900; /* Keeps it below the header */
-  transition: width 0.3s ease; /* Smooth transition for collapsing */
-  overflow-y: auto; /* Allow vertical scrolling */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  bottom: 0;
+  width: 250px;
+  background-color: #ffffff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 900;
+  transition: width 0.3s ease, transform 0.3s ease;
+  overflow-y: hidden;
+  overflow-x: hidden;
   box-sizing: border-box;
-  padding: 10px; /* Reduced padding to prevent overflow */
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .sidebar.collapsed {
-  width: 70px; /* Width when the sidebar is collapsed */
-  padding: 10px 5px; /* Reduced padding in collapsed state */
+  width: 70px;
+  padding: 10px 5px;
+}
+
+/* Show sidebar on mobile when toggled */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 250px;
+    z-index: 1000;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    left: 10px !important;
+    top: 15px;
+    z-index: 1100;
+  }
 }
 
 /* Sidebar Brand */
@@ -28,7 +47,7 @@
   padding: 15px 20px;
   font-size: 20px;
   font-weight: bold;
-  color: #5f6368; /* Explicitly set text color to black */
+  color: #5f6368;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -36,50 +55,50 @@
 .sidebar nav a {
   display: flex;
   align-items: center;
-  padding: 10px; /* Reduced padding to prevent overflow */
-  color: #5f6368; /* Gray Google-like text */
+  padding: 10px;
+  color: #5f6368;
   text-decoration: none;
   font-size: 14px;
-  gap: 10px; /* Space for icons and text */
-  border-left: 3px solid transparent; /* Active indicator */
+  gap: 10px;
+  border-left: 3px solid transparent;
   transition: all 0.3s ease;
   border-radius: 4px;
-  position: relative; /* Make the link a positioning context */
+  position: relative;
 }
 
 .sidebar nav a i {
-  font-size: 24px; /* Icon size */
-  min-width: 24px; /* Ensure icon has a fixed width */
-  text-align: center; /* Center the icon */
-  transition: margin-left 0.3s ease, font-size 0.3s ease; /* Smooth transition for icon movement and size */
+  font-size: 24px;
+  min-width: 24px;
+  text-align: center;
+  transition: margin-left 0.3s ease, font-size 0.3s ease;
 }
 
 .sidebar.collapsed nav a i {
-  margin-left: 0; /* Move icons to the left when collapsed */
-  font-size: 28px; /* Slightly larger icons in collapsed state */
+  margin-left: 0;
+  font-size: 28px;
 }
 
 .sidebar nav a span {
-  visibility: visible; /* Make text visible by default */
-  opacity: 1; /* Fully visible */
+  visibility: visible;
+  opacity: 1;
   transition: visibility 0.3s ease, opacity 0.3s ease;
-  margin-left: 10px; /* Add space between icon and text */
+  margin-left: 10px;
 }
 
 .sidebar.collapsed nav a span {
-  visibility: hidden; /* Hide the text when collapsed */
-  opacity: 0; /* Fade out text when collapsed */
+  visibility: hidden;
+  opacity: 0;
 }
 
 .sidebar nav a:hover,
 .sidebar nav a.active {
-  background-color: #e8f0fe; /* Light blue hover effect */
-  color: #1967d2; /* Google blue */
+  background-color: #e8f0fe;
+  color: #1967d2;
 }
 
 .sidebar nav a.active {
-  font-weight: 500; /* Emphasize active links */
-  border-left: 3px solid #1967d2; /* Matches Google blue */
+  font-weight: 500;
+  border-left: 3px solid #1967d2;
 }
 
 /* Sidebar Sections */
@@ -90,14 +109,14 @@
 .sidebar-section h3 {
   padding: 10px 20px;
   font-size: 14px;
-  color: #666; /* Subdued text color */
+  color: #666;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 /* Sidebar Footer */
 .sidebar-footer {
-  margin-top: auto; 
+  margin-top: auto;
   padding: 10px 0;
   border-top: 1px solid #e0e0e0;
   display: flex;
@@ -108,43 +127,41 @@
 .sidebar-footer a {
   display: flex;
   align-items: center;
-  padding: 10px; 
-  color: #5f6368; 
+  padding: 10px;
+  color: #5f6368;
   text-decoration: none;
   font-size: 14px;
   gap: 10px;
   border-radius: 4px;
   transition: all 0.3s ease;
-  cursor: pointer;  
+  cursor: pointer;
 }
 
 .sidebar-footer a i {
-  font-size: 24px; 
+  font-size: 24px;
 }
 
 .sidebar-footer a:hover {
-  background-color: #e8f0fe; 
-  color: #1967d2; 
+  background-color: #e8f0fe;
+  color: #1967d2;
 }
-
-
 
 /* Sidebar Toggle Button */
 .sidebar-toggle {
   position: fixed;
-  top: 75px; /* Positioned below the header (60px + 15px for spacing) */
-  left: 200px; /* Positioned inside the expanded sidebar */
-  z-index: 1001; /* Above the header and sidebar */
+  top: 75px;
+  left: 200px;
+  z-index: 1001;
   background: none;
   border: none;
   cursor: pointer;
   font-size: 24px;
-  color: #5f6368; /* Gray Google-like text */
+  color: #5f6368;
   transition: left 0.3s ease;
 }
 
 .sidebar.collapsed + .sidebar-toggle {
-  left: 30px; /* Adjusted position for collapsed state */
+  left: 30px;
 }
 
 /* Scrollbar Styling for the Sidebar */
@@ -159,19 +176,4 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: #c0c0c0;
-}
-
-/* Optional: Responsive Design for mobile devices */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-  }
-  .sidebar.collapsed {
-    width: 0; /* Hide sidebar on small screens */
-  }
-  .sidebar-toggle {
-    display: block;
-  }
 }

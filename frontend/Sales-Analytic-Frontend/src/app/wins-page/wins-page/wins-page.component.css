@@ -113,3 +113,61 @@
   border-radius: 8px;
   background-color: #ffffff;
 }
+
+@media (max-width: 768px) {
+  .wins-page {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-container,
+  .table-container {
+    grid-column: 1 / -1;
+  }
+
+  /* Hide Industry, Forecast, and Date of Win columns */
+  .custom-table th:nth-child(3),
+  .custom-table td:nth-child(3), /* Industry */
+
+  .custom-table th:nth-child(5),
+  .custom-table td:nth-child(5), /* Forecast */
+
+  .custom-table th:nth-child(6),
+  .custom-table td:nth-child(6)  /* Date of Win */ {
+    display: none;
+  }
+
+  /* Table formatting on small screens */
+  .custom-table {
+    table-layout: auto;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    word-wrap: break-word;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 480px) {
+  .wins-page {
+    grid-template-columns: 1fr;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container,
+  .table-container {
+    grid-column: 1 / -1;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    font-size: 14px;
+  }
+}

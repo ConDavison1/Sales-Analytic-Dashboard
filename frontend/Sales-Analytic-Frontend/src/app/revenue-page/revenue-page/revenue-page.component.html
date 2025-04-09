@@ -35,28 +35,30 @@
               <td>{{ row.time_period }}</td>
             </tr>
           </tbody>
-        </table>  
+        </table>
       </div>
 
       <!-- Charts Section -->
       <div class="chart-container" *ngIf="isDataLoaded">
-        <apx-chart 
-          [series]="barChart.series" 
-          [chart]="barChart.chart" 
+        <apx-chart
+          [series]="barChart.series"
+          [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors">
+          [colors]="barChart.colors"
+        >
         </apx-chart>
       </div>
 
       <!-- Revenue Target Gauge -->
       <div class="chart-container relative" *ngIf="isDataLoaded">
-        <apx-chart 
-          [series]="gaugeChart.series" 
+        <apx-chart
+          [series]="gaugeChart.series"
           [chart]="gaugeChart.chart"
           [plotOptions]="gaugeChart.plotOptions"
-          [fill]="gaugeChart.fill">
+          [fill]="gaugeChart.fill"
+        >
         </apx-chart>
       </div>
     </div>

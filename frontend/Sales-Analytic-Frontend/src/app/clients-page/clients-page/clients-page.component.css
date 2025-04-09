@@ -1,7 +1,7 @@
 .clients-page {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0px;
+  gap: 16px;
   margin: 20px;
 }
 
@@ -164,4 +164,59 @@
 
 .submit-button:hover {
   background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .clients-page {
+    grid-template-columns: repeat(2, 1fr); /* Switch to 2-column layout */
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+  }
+
+  #chart {
+    grid-column: 1 / -1; /* Chart spans full width */
+  }
+
+  .add-client {
+    grid-column: 1 / -1; /* Form spans full width */
+    flex-direction: column; /* Stack inputs vertically */
+  }
+}
+
+@media (max-width: 480px) {
+  .clients-page {
+    grid-template-columns: 1fr; /* Single column */
+  }
+
+  .cards {
+    grid-template-columns: 1fr; /* One card per row */
+  }
+
+  #chart {
+    grid-column: 1 / -1;
+  }
+
+  .add-client {
+    grid-column: 1 / -1;
+    flex-direction: column;
+  }
+}
+@media (max-width: 768px) {
+  /* Hide Industry, Location, Email, and Delete columns */
+  .custom-table th:nth-child(4),
+  .custom-table td:nth-child(4), /* Industry */
+
+  .custom-table th:nth-child(5),
+  .custom-table td:nth-child(5), /* Location */
+
+  .custom-table th:nth-child(6),
+  .custom-table td:nth-child(6), /* Email */
+
+  .custom-table th:nth-child(7),
+  .custom-table td:nth-child(7)  /* Delete */ {
+    display: none;
+  }
 }

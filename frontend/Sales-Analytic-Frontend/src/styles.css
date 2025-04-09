@@ -1,24 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-    --bg-color: #f8f8f8;
-    --card-bg: #2b2f48;
-    --primary: #0095ff;
-  }
-  
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--bg-color);
-    color: black;
-  }
-  
-  .container {
-    display: flex;
-  }
-  
-  .main-content {
-    flex: 1;
-    padding: 20px;
-    padding-top: 50px;
-  }
-  
+  --bg-color: #f8f8f8;
+  --card-bg: #2b2f48;
+  --primary: #0095ff;
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  background-color: var(--bg-color);
+  color: black;
+}
+
+.container {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 50px;
+}
