@@ -7,7 +7,12 @@
   <!-- Search Bar -->
   <div class="search-bar">
     <i class="fa fa-search"></i>
-    <input type="text" placeholder="Search..." />
+    <input
+      type="text"
+      placeholder="Ask AI anything..."
+      [(ngModel)]="aiQuery"
+      (keyup.enter)="submitAIQuery()"
+    />
   </div>
 
   <!-- Actions Section -->
@@ -17,3 +22,10 @@
     <img src="assets/logan.jpg" alt="Profile Picture" />
   </div>
 </div>
+
+<div *ngIf="aiInsight" class="ai-insight-box">
+  <button class="close-btn" (click)="aiInsight = null">×</button>
+  <strong>AI Insight:</strong>
+  <p>{{ aiInsight }}</p>
+</div>
+
