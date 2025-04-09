@@ -15,6 +15,13 @@
             <!--Pipeline Table-->
             <div class="table-container">
                 <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
+                <div class="filter-dropdown">
+                    <label for="filter">Filter By:</label>
+                    <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
+                        <option value="all">All</option>
+                        <option *ngFor="let option of filterOptions" [value]="option.value">{{ option.label }}</option>
+                    </select>
+                </div>
                 <table class="scrollable-table">
                     <thead>
                         <tr>

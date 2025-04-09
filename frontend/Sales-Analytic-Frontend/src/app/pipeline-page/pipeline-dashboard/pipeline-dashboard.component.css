@@ -91,3 +91,28 @@
     background-color: #ffffff;
 }
 
+.filter-dropdown {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-dropdown label {
+    font-weight: 500;
+    color: #333;
+}
+
+.filter-dropdown select {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: border-color 0.2s ease;
+}
+
+.filter-dropdown select:hover {
+    border-color: #007bff;
+    outline: none;
+}
+

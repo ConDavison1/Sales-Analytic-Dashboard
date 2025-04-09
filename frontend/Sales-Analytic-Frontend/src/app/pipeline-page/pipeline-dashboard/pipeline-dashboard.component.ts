@@ -6,6 +6,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
+import { FormsModule } from '@angular/forms';
 export type ChartOptions = {
   series: any[];
   chart: any;
@@ -21,11 +22,12 @@ export type ChartOptions = {
 
 @Component({
   selector: 'app-pipeline-dashboard',
-  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent],
+  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent, FormsModule],
   standalone: true,
   templateUrl: './pipeline-dashboard.component.html',
   styleUrl: './pipeline-dashboard.component.css',
   encapsulation: ViewEncapsulation.Emulated
+
 })
 export class PipelineDashboardComponent implements OnInit {
 
@@ -35,6 +37,12 @@ export class PipelineDashboardComponent implements OnInit {
   winsCount: number = 0;
 
   pipelineData: any[] = [];
+
+  pipelineDataAll: any[] = [];
+  selectedFilter: string = 'all';
+  filterOptions: { label: string, value: string }[] = [];
+
+  lastFilterKey: string = '';
 
   pipelineChartData: any[] = [];
   isDataLoaded: boolean = false;
@@ -68,11 +76,41 @@ export class PipelineDashboardComponent implements OnInit {
 
   fetchPipelineTable(): void {
     this.pipelineService.getPipelineTable().subscribe((data) => {
-      this.pipelineData = data;
+      this.pipelineDataAll = data;
+      this.pipelineData = [...data]; // initially show all
+  
+      const uniqueOptions = new Set<string>();
+  
+      data.forEach(row => {
+        if (row.stage) uniqueOptions.add(`stage:${row.stage}`);
+        if (row.forecast_category) uniqueOptions.add(`forecast_category:${row.forecast_category}`);
+        if (row.time_period) uniqueOptions.add(`time_period:${row.time_period}`);
+      });
+  
+      this.filterOptions = Array.from(uniqueOptions).map(opt => {
+        const [key, val] = opt.split(':');
+        const label = `${this.titleCase(key)}: ${val}`;
+        return { label, value: opt };
+      });
     });
   }
 
+  applyFilter(): void {
+    if (!this.selectedFilter) {
+      this.pipelineData = [...this.pipelineDataAll];
+      this.lastFilterKey = '';
+      return;
+    }
+  
+    const [key, value] = this.selectedFilter.split(':');
 
+    this.pipelineData = this.pipelineDataAll.filter(row => row[key] === value);
+    this.lastFilterKey = key;
+  }
+
+  titleCase(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1).replace('_', ' ');
+  }
 
   fetchPipelineChart(): void {
     this.pipelineService.getPipelineChart().subscribe((data) => {
