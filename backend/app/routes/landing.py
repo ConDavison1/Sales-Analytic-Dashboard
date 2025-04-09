@@ -7,7 +7,7 @@ particularly the Key Performance Indicators (KPIs) dashboard.
 from flask import Blueprint, jsonify, request
 from sqlalchemy import extract, func, case, and_, or_, text
 from ..models.models import (
-    db, Opportunity, Revenue, Signing, Win, Client, User,
+    db, Opportunity, Revenue, Signing, Win, Client, User, Product,
     DirectorAccountExecutive
 )
 from datetime import datetime
@@ -624,3 +624,374 @@ def calculate_wins_kpi(client_ids, year):
     except Exception as e:
         logging.error(f"Error in wins calculation: {str(e)}")
         return 0.0
+    
+
+@landing_bp.route('/pipeline-chart-data', methods=['GET'])
+def get_pipeline_chart_data():
+    """
+    Get Pipeline Chart Data for pie chart visualization
+
+    Returns the distribution of opportunities count by forecast category
+    for the specified fiscal year, to be displayed as a pie chart.
+
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (default: 2024)
+
+    Returns:
+    - 200 OK with forecast category distribution data in format:
+    {
+        "pipeline_chart_data": [
+            {"forecast_category": "pipeline", "count": 10, "percentage": 30.0},
+            {"forecast_category": "upside", "count": 7, "percentage": 20.0},
+            {"forecast_category": "commit", "count": 10, "percentage": 30.0},
+            {"forecast_category": "closed-won", "count": 7, "percentage": 20.0},
+            {"forecast_category": "omit", "count": 0, "percentage": 0.0}
+        ],
+        "year": 2024
+    }
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    """
+    try:
+        # Get query parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Calculate pipeline chart data based on user role
+        if user.role == 'director':
+            # For directors: Calculate pipeline chart data for all account executives under them
+            pipeline_data = calculate_director_pipeline_chart_data(user.user_id, year)
+        elif user.role == 'account-executive':
+            # For account executives: Calculate pipeline chart data for their clients only
+            pipeline_data = calculate_ae_pipeline_chart_data(user.user_id, year)
+        else:
+            # For any other role, return empty data
+            pipeline_data = []
+        
+        return jsonify({
+            "pipeline_chart_data": pipeline_data,
+            "year": year
+        }), 200
+        
+    except Exception as e:
+        # Print the full exception for easier debugging
+        print(f"Error in pipeline chart data: {str(e)}")
+        return jsonify({"error": f"Failed to calculate pipeline chart data: {str(e)}"}), 500
+
+
+def calculate_director_pipeline_chart_data(director_id, year):
+    """Calculate pipeline chart data for a director based on all AEs under them"""
+    try:
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=director_id).all()
+        
+        # If no AEs are found, return empty list
+        if not ae_relations:
+            return []
+            
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Get all clients managed by these account executives
+        client_ids = []
+        clients = Client.query.filter(Client.account_executive_id.in_(ae_ids)).all()
+        
+        # If no clients are found, return empty list
+        if not clients:
+            return []
+            
+        client_ids = [client.client_id for client in clients]
+        
+        # Calculate pipeline chart data using these client IDs
+        return calculate_pipeline_chart_data_for_clients(client_ids, year)
+        
+    except Exception as e:
+        print(f"Error calculating director pipeline chart data: {str(e)}")
+        return []
+
+
+def calculate_ae_pipeline_chart_data(ae_id, year):
+    """Calculate pipeline chart data for an account executive based on their clients"""
+    try:
+        # Get all clients managed by this account executive
+        clients = Client.query.filter_by(account_executive_id=ae_id).all()
+        
+        # If no clients are found, return empty list
+        if not clients:
+            return []
+            
+        client_ids = [client.client_id for client in clients]
+        
+        # Calculate pipeline chart data using these client IDs
+        return calculate_pipeline_chart_data_for_clients(client_ids, year)
+        
+    except Exception as e:
+        print(f"Error calculating AE pipeline chart data: {str(e)}")
+        return []
+
+
+def calculate_pipeline_chart_data_for_clients(client_ids, year):
+    """
+    Calculate pipeline chart data (count of opportunities by forecast category) for the specified clients
+    
+    Args:
+        client_ids: List of client IDs to filter by
+        year: The fiscal year to calculate for
+    
+    Returns:
+        List of dictionaries with forecast_category, count, and percentage values
+    """
+    try:
+        # If client_ids is an empty list, return empty list
+        if not client_ids:
+            return []
+            
+        # Use date range filtering for the year
+        start_date = f"{year}-01-01 00:00:00"
+        end_date = f"{year}-12-31 23:59:59"
+        
+        # All possible forecast categories
+        all_categories = ['pipeline', 'upside', 'commit', 'closed-won', 'omit']
+        
+        # Query to count opportunities grouped by forecast_category
+        pipeline_query = db.session.query(
+            Opportunity.forecast_category,
+            func.count(Opportunity.opportunity_id).label('count')
+        ).filter(
+            Opportunity.client_id.in_(client_ids),
+            Opportunity.created_date >= start_date,
+            Opportunity.created_date <= end_date
+        ).group_by(
+            Opportunity.forecast_category
+        )
+        
+        # Execute query
+        print(f"Pipeline chart query: {str(pipeline_query)}")
+        results = pipeline_query.all()
+        print(f"Pipeline chart raw results: {results}")
+        
+        # Convert results to dict for easier manipulation
+        category_counts = {category: 0 for category in all_categories}
+        for category, count in results:
+            if category in category_counts:
+                category_counts[category] = count
+        
+        # Calculate total count
+        total_count = sum(category_counts.values())
+        
+        # Calculate percentages (avoid division by zero)
+        if total_count > 0:
+            category_percentages = {
+                category: (count / total_count) * 100.0
+                for category, count in category_counts.items()
+            }
+        else:
+            category_percentages = {category: 0.0 for category in all_categories}
+        
+        # Format into list of dictionaries for the response
+        formatted_data = [
+            {
+                "forecast_category": category,
+                "count": count,
+                "percentage": round(category_percentages[category], 1)
+            }
+            for category, count in category_counts.items()
+        ]
+        
+        # Sort by forecast category for consistent output
+        return sorted(formatted_data, key=lambda x: x["forecast_category"])
+        
+    except Exception as e:
+        print(f"Error in calculate_pipeline_chart_data_for_clients: {str(e)}")
+        return []
+
+@landing_bp.route('/signings-chart-data', methods=['GET'])
+def get_signings_chart_data():
+    """
+    Get Signings Chart Data for pie chart visualization
+
+    Returns the distribution of signing counts by product category
+    for the specified fiscal year, to be displayed as a pie chart.
+
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (default: 2024)
+
+    Returns:
+    - 200 OK with product category distribution data in format:
+    {
+        "signings_chart_data": [
+            {"product_category": "gcp-core", "count": 8, "percentage": 40.0},
+            {"product_category": "data-analytics", "count": 6, "percentage": 30.0},
+            {"product_category": "cloud-security", "count": 4, "percentage": 20.0},
+            {"product_category": "app-modernization", "count": 2, "percentage": 10.0}
+        ],
+        "year": 2024
+    }
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    """
+    try:
+        # Get query parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Calculate signings chart data based on user role
+        if user.role == 'director':
+            # For directors: Calculate signings chart data for all account executives under them
+            signings_data = calculate_director_signings_chart_data(user.user_id, year)
+        elif user.role == 'account-executive':
+            # For account executives: Calculate signings chart data for their clients only
+            signings_data = calculate_ae_signings_chart_data(user.user_id, year)
+        else:
+            # For any other role, return empty data
+            signings_data = []
+        
+        return jsonify({
+            "signings_chart_data": signings_data,
+            "year": year
+        }), 200
+        
+    except Exception as e:
+        # Print the full exception for easier debugging
+        print(f"Error in signings chart data: {str(e)}")
+        return jsonify({"error": f"Failed to calculate signings chart data: {str(e)}"}), 500
+
+
+def calculate_director_signings_chart_data(director_id, year):
+    """Calculate signings chart data for a director based on all AEs under them"""
+    try:
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=director_id).all()
+        
+        # If no AEs are found, return empty list
+        if not ae_relations:
+            return []
+            
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Get all clients managed by these account executives
+        client_ids = []
+        clients = Client.query.filter(Client.account_executive_id.in_(ae_ids)).all()
+        
+        # If no clients are found, return empty list
+        if not clients:
+            return []
+            
+        client_ids = [client.client_id for client in clients]
+        
+        # Calculate signings chart data using these client IDs
+        return calculate_signings_chart_data_for_clients(client_ids, year)
+        
+    except Exception as e:
+        print(f"Error calculating director signings chart data: {str(e)}")
+        return []
+
+
+def calculate_ae_signings_chart_data(ae_id, year):
+    """Calculate signings chart data for an account executive based on their clients"""
+    try:
+        # Get all clients managed by this account executive
+        clients = Client.query.filter_by(account_executive_id=ae_id).all()
+        
+        # If no clients are found, return empty list
+        if not clients:
+            return []
+            
+        client_ids = [client.client_id for client in clients]
+        
+        # Calculate signings chart data using these client IDs
+        return calculate_signings_chart_data_for_clients(client_ids, year)
+        
+    except Exception as e:
+        print(f"Error calculating AE signings chart data: {str(e)}")
+        return []
+
+
+def calculate_signings_chart_data_for_clients(client_ids, year):
+    """
+    Calculate signings chart data (count of signings by product category) for the specified clients
+    
+    Args:
+        client_ids: List of client IDs to filter by
+        year: The fiscal year to calculate for
+    
+    Returns:
+        List of dictionaries with product_category, count, and percentage values
+    """
+    try:
+        # If client_ids is an empty list, return empty list with all categories
+        if not client_ids:
+            # Get all product categories from the database
+            all_categories = [category[0] for category in db.session.query(Product.product_category).distinct().all()]
+            return [{"product_category": category, "count": 0, "percentage": 0.0} for category in all_categories]
+        
+        # First, get all possible product categories from the database
+        all_categories_query = db.session.query(Product.product_category).distinct()
+        all_categories = [category[0] for category in all_categories_query.all()]
+        
+        print(f"All possible product categories: {all_categories}")
+        
+        # Query to count signings and get product categories
+        # We need to join with the Product table to get the product categories
+        signings_query = db.session.query(
+            Product.product_category,
+            func.count(Signing.signing_id).label('count')
+        ).join(
+            Product, Signing.product_id == Product.product_id
+        ).filter(
+            Signing.client_id.in_(client_ids),
+            Signing.fiscal_year == year
+        ).group_by(
+            Product.product_category
+        )
+        
+        # Execute query
+        print(f"Signings chart query: {str(signings_query)}")
+        results = signings_query.all()
+        print(f"Signings chart raw results: {results}")
+        
+        # Create a dictionary with all categories and zero counts
+        category_counts = {category: 0 for category in all_categories}
+        
+        # Update counts for categories that have signings
+        for category, count in results:
+            category_counts[category] = count
+        
+        # Calculate total signings
+        total_signings = sum(category_counts.values())
+        
+        # Create the final data structure with counts and percentages
+        category_data = []
+        for category, count in category_counts.items():
+            percentage = round((count / total_signings) * 100.0, 1) if total_signings > 0 else 0.0
+            category_data.append({
+                "product_category": category,
+                "count": count,
+                "percentage": percentage
+            })
+        
+        # Sort by product category for consistent output
+        return sorted(category_data, key=lambda x: x["product_category"])
+        
+    except Exception as e:
+        print(f"Error in calculate_signings_chart_data_for_clients: {str(e)}")
+        return []
