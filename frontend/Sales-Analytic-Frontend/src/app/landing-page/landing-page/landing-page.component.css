@@ -51,7 +51,7 @@
 #charttwo,
 #chartthree,
 #chartfour {
-  grid-column: span 2; /* Chart spans 2 columns */
+  grid-column: 1 / -1; /* Chart spans 2 columns */
   max-width: 100%; /* Ensure the chart takes full width of its container */
   overflow-x: hidden;
 
