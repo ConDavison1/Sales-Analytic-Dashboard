@@ -671,3 +671,198 @@ def get_stage_funnel_data(user, year):
     ]
     
     return stage_funnel_data
+
+@pipeline_bp.route('/product-forecast-heatmap-chart-data', methods=['GET'])
+def get_product_forecast_heatmap_data():
+    """
+    Get weighted opportunity values across product categories and forecast categories
+    
+    Returns data for a heatmap visualization showing the weighted opportunity values
+    (amount × probability/100) for each combination of product category and forecast category.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (optional, default: 2024)
+    
+    Response format:
+    {
+        "heatmap_data": [
+            {"product_category": "gcp-core", "forecast_category": "pipeline", "value": 250000.0, "count": 12},
+            {"product_category": "gcp-core", "forecast_category": "upside", "value": 180000.0, "count": 8},
+            {"product_category": "data-analytics", "forecast_category": "commit", "value": 300000.0, "count": 5},
+            ...
+        ],
+        "year": 2024
+    }
+    
+    Returns:
+    - 200 OK with heatmap data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if calculation fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get heatmap data based on user role
+        heatmap_data = get_product_forecast_heatmap_data(user, year)
+        
+        # Return response
+        return jsonify({
+            "heatmap_data": heatmap_data,
+            "year": year
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in product forecast heatmap data: {str(e)}")
+        return jsonify({"error": f"Failed to calculate product forecast heatmap data: {str(e)}"}), 500
+
+
+def get_product_forecast_heatmap_data(user, year):
+    """
+    Get weighted opportunity values for each combination of product category and forecast category.
+    
+    For directors, includes opportunities for all clients managed by account executives they manage.
+    For account executives, includes only opportunities for their clients.
+    
+    App-modernization is an aggregate category that includes:
+    mandiant, looker, apigee, maps, marketplace, and vertex-ai-platform.
+    
+    Args:
+        user: The User object
+        year: The fiscal year to filter by
+    
+    Returns:
+        List of dictionaries with product_category, forecast_category, value, and count
+    """
+    # Define the product categories we want to track
+    # Note: app-modernization is an aggregate category handled separately
+    standard_product_categories = [
+        "gcp-core", 
+        "data-analytics", 
+        "cloud-security"
+    ]
+    
+    # Define the categories that make up "app-modernization"
+    app_modernization_categories = [
+        "mandiant", 
+        "looker", 
+        "apigee", 
+        "maps", 
+        "marketplace", 
+        "vertex-ai-platform"
+    ]
+    
+    # Define the forecast categories
+    forecast_categories = [
+        "pipeline", 
+        "upside", 
+        "commit", 
+        "closed-won"
+    ]
+    
+    # Start building the base query
+    base_query = db.session.query(
+        Product.product_category,
+        Opportunity.forecast_category,
+        func.sum(Opportunity.amount * Opportunity.probability / 100.0).label('weighted_value'),
+        func.count(Opportunity.opportunity_id).label('count')
+    ).join(
+        Product, Opportunity.product_id == Product.product_id
+    ).join(
+        Client, Opportunity.client_id == Client.client_id
+    ).filter(
+        Opportunity.forecast_category.in_(forecast_categories),
+        extract('year', Opportunity.created_date) == year
+    )
+    
+    # Apply role-based filtering
+    if user.role == 'director':
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Filter by clients managed by these account executives
+        if ae_ids:
+            base_query = base_query.filter(Client.account_executive_id.in_(ae_ids))
+        else:
+            # If no AEs found, return empty result
+            return []
+    elif user.role == 'account-executive':
+        # Filter by this account executive's clients
+        base_query = base_query.filter(Client.account_executive_id == user.user_id)
+    
+    # Complete the query with grouping and execute
+    results = base_query.group_by(
+        Product.product_category,
+        Opportunity.forecast_category
+    ).all()
+    
+    # Process results to create the heatmap data
+    # We'll track totals for app-modernization while processing standard categories
+    heatmap_data = []
+    app_modernization_totals = {fc: {'value': 0.0, 'count': 0} for fc in forecast_categories}
+    
+    for product_category, forecast_category, weighted_value, count in results:
+        # Convert from potentially Decimal to float
+        weighted_value = float(weighted_value) if weighted_value is not None else 0.0
+        count = int(count) if count is not None else 0
+        
+        # Check if this belongs to app-modernization
+        if product_category in app_modernization_categories:
+            app_modernization_totals[forecast_category]['value'] += weighted_value
+            app_modernization_totals[forecast_category]['count'] += count
+        # Or if it's one of our standard categories
+        elif product_category in standard_product_categories:
+            heatmap_data.append({
+                'product_category': product_category,
+                'forecast_category': forecast_category,
+                'value': round(weighted_value, 2),
+                'count': count
+            })
+    
+    # Add app-modernization data
+    for forecast_category, totals in app_modernization_totals.items():
+        if totals['value'] > 0 or totals['count'] > 0:
+            heatmap_data.append({
+                'product_category': 'app-modernization',
+                'forecast_category': forecast_category,
+                'value': round(totals['value'], 2),
+                'count': totals['count']
+            })
+    
+    # Add zero entries for any missing combinations
+    all_product_categories = standard_product_categories + ['app-modernization']
+    existing_combinations = {
+        (item['product_category'], item['forecast_category']) 
+        for item in heatmap_data
+    }
+    
+    for product_category in all_product_categories:
+        for forecast_category in forecast_categories:
+            if (product_category, forecast_category) not in existing_combinations:
+                heatmap_data.append({
+                    'product_category': product_category,
+                    'forecast_category': forecast_category,
+                    'value': 0.0,
+                    'count': 0
+                })
+    
+    # Sort by product category and forecast category for consistency
+    heatmap_data.sort(key=lambda x: (
+        all_product_categories.index(x['product_category']),
+        forecast_categories.index(x['forecast_category'])
+    ))
+    
+    return heatmap_data
