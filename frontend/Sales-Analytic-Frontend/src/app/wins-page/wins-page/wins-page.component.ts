@@ -223,7 +223,7 @@ export class WinsPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fetchCardData();
+    // this.fetchCardData();
     this.fetchWins();
     this.fetchBarChart();
     this.fetchLineChart();
@@ -304,23 +304,23 @@ export class WinsPageComponent implements OnInit {
     });
   }
 
-  fetchCardData(): void {
-    this.dashboardService.getPipelineCount().subscribe((response) => {
-      this.pipelineCount = response.pipeline_count;
-    });
+  // fetchCardData(): void {
+  //   this.dashboardService.getPipelineCount().subscribe((response) => {
+  //     this.pipelineCount = response.pipeline_count;
+  //   });
 
-    this.dashboardService.getRevenueSum().subscribe((response) => {
-      this.revenueCount = response.revenue_sum;
-    });
+  //   this.dashboardService.getRevenueSum().subscribe((response) => {
+  //     this.revenueCount = response.revenue_sum;
+  //   });
 
-    this.dashboardService.getSigningsCount().subscribe((response) => {
-      this.signingsCount = response.signings_count;
-    });
+  //   this.dashboardService.getSigningsCount().subscribe((response) => {
+  //     this.signingsCount = response.signings_count;
+  //   });
 
-    this.dashboardService.getWinsCount().subscribe((response) => {
-      this.winsCount = response.wins_count;
-    });
-  }
+  //   this.dashboardService.getWinsCount().subscribe((response) => {
+  //     this.winsCount = response.wins_count;
+  //   });
+  // }
 
   get cards() {
     return [

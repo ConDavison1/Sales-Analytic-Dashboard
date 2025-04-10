@@ -4,6 +4,9 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { NgApexchartsModule, ApexResponsive } from 'ng-apexcharts';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+
+
 
 export type ChartOptions = {
   series: any[];
@@ -21,308 +24,118 @@ export type ChartOptions = {
 };
 
 @Component({
-  selector: 'app-landing-page',
   standalone: true,
+  selector: 'app-landing-page',
+  templateUrl: './landing-page.component.html',
+  styleUrls: ['./landing-page.component.css'],
   imports: [
-    HeaderComponent,
-    SidebarComponent,
     CommonModule,
     NgApexchartsModule,
-  ],
-  templateUrl: './landing-page.component.html',
-  styleUrl: './landing-page.component.css',
+    HeaderComponent,
+    SidebarComponent,
+  ]
 })
+
+
 export class LandingPageComponent implements OnInit {
-  pipelineCount: number = 0;
-  revenueCount: number = 0;
-  signingsCount: number = 0;
-  winsCount: number = 0;
+  username: string = '';
+  year: number = 2024;
 
-  accountExecutives: any[] = [];
-  isLoadingAccountExecutives: boolean = true;
-  isLoadingChartData: boolean = true;
+  isLoadingChartData = true;
 
-  chartOptionsOne!: Partial<ChartOptions>;
-  chartOptionsTwo!: Partial<ChartOptions>;
-  chartOptionsThree!: Partial<ChartOptions>;
-  chartOptionsFour!: Partial<ChartOptions>;
+  cards: any[] = [];
+  chartOptionsOne: any = {};
+  chartOptionsTwo: any = {};
+  chartOptionsThree: any = {};
+  chartOptionsFour: any = {};
 
-  constructor(private dashboardService: DashboardService) {
-    this.chartOptionsOne = {
-      series: [{ name: 'Pipeline', data: [] }],
-      responsive: [
-        {
-          breakpoint: 768,
-          options: {
-            chart: { width: "100%" }
-          }
-        }
-      ],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#1E88E5'],
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      fill: {
-        opacity: 1,
-        colors: ['#1E88E5'],
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Pipeline',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount ($)',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
-      legend: { show: true },
-    };
 
-    this.chartOptionsTwo = {
-      series: [{ name: 'Revenue', data: [] }],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#F4511E'],
-      fill: {
-        opacity: 1,
-        colors: ['#F4511E'],
-      },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Revenue',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount ($)',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
-      legend: { show: true },
-    };
 
-    this.chartOptionsThree = {
-      series: [{ name: 'Signings', data: [] }],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#43A047'],
-      fill: {
-        opacity: 1,
-        colors: ['#43A047'],
-      },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Signings',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount ($)',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
-      legend: { show: true },
-    };
-
-    this.chartOptionsFour = {
-      series: [{ name: 'Wins', data: [] }],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#FDD835'],
-      fill: {
-        opacity: 1,
-        colors: ['#FDD835'],
-      },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Count To Wins',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => val } },
-      legend: { show: true },
-    };
-  }
+  constructor(
+    private dashboardService: DashboardService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.fetchCardData();
-    this.fetchAccountExecutives();
-    this.fetchChartData();
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.username = user.username;
+      console.log('Logged in as:', this.username);
+  
+      this.loadKpiCards();
+      this.loadRevenueChart();
+      this.loadWinChart();
+      this.loadPipelineChart();
+      this.loadSigningsChart();
+    } else {
+      console.error('No user found in localStorage. Redirecting to login.');
+
+      this.router.navigate(['/login']);
+    }
+  }
+  
+
+  loadKpiCards(): void {
+    this.dashboardService.getKpiCards(this.username, this.year).subscribe(data => {
+      this.cards = [
+        { title: 'Pipeline', value: `$${data.pipeline}`, percentage: '' },
+        { title: 'Revenue', value: `$${data.revenue}`, percentage: '' },
+        { title: 'Signings', value: `$${data.signings}`, percentage: '' },
+        { title: 'Wins', value: `${data.wins}`, percentage: '' }
+      ];
+    });
   }
 
-  fetchCardData(): void {
-    this.dashboardService.getPipelineCount().subscribe((response) => {
-      this.pipelineCount = response.pipeline_count;
-    });
-
-    this.dashboardService.getRevenueSum().subscribe((response) => {
-      this.revenueCount = response.revenue_sum;
-    });
-
-    this.dashboardService.getSigningsCount().subscribe((response) => {
-      this.signingsCount = response.signings_count;
-    });
-
-    this.dashboardService.getWinsCount().subscribe((response) => {
-      this.winsCount = response.wins_count;
+  loadRevenueChart(): void {
+    this.dashboardService.getRevenueChartData(this.username, this.year).subscribe(data => {
+      this.chartOptionsOne = {
+        series: [{
+          name: 'Revenue',
+          data: data.revenue_chart_data.map((d: any) => d.revenue)
+        }],
+        chart: { type: 'bar', height: 350 },
+        xaxis: {
+          categories: data.revenue_chart_data.map((d: any) => `Month ${d.month}`)
+        }
+      };
+      this.isLoadingChartData = false;
     });
   }
 
-  fetchAccountExecutives(): void {
-    this.dashboardService.getAccountExecutives().subscribe(
-      (response) => {
-        console.log('API Response:', response); // Log the response here to see how the data is formatted
-        this.accountExecutives = response; // Assign the response to accountExecutives
-        this.isLoadingAccountExecutives = false; // Set loading flag to false after data is fetched
-      },
-      (error) => {
-        console.error('Error fetching account executives:', error); // Log any error to the console
-        this.isLoadingAccountExecutives = false; // Set loading flag to false even if there is an error
-      }
-    );
+  loadWinChart(): void {
+    this.dashboardService.getWinChartData(this.username, this.year).subscribe(data => {
+      this.chartOptionsTwo = {
+        series: [{
+          name: 'Wins',
+          data: data.win_chart_data.map((d: any) => d.win_count)
+        }],
+        chart: { type: 'bar', height: 350 },
+        xaxis: {
+          categories: data.win_chart_data.map((d: any) => `Q${d.quarter}`)
+        }
+      };
+    });
   }
 
-  fetchChartData(): void {
-    this.dashboardService.getChartData().subscribe(
-      (response) => {
-        this.chartOptionsOne.series = [
-          { name: 'Pipeline', data: response.pipeline },
-        ];
-        this.chartOptionsTwo.series = [
-          { name: 'Revenue', data: response.revenue },
-        ];
-        this.chartOptionsThree.series = [
-          { name: 'Signings', data: response.signings },
-        ];
-        this.chartOptionsFour.series = [{ name: 'Wins', data: response.wins }];
-        this.isLoadingChartData = false;
-      },
-      (error) => {
-        console.error('Error fetching chart data:', error);
-        this.isLoadingChartData = false;
-      }
-    );
+  loadPipelineChart(): void {
+    this.dashboardService.getPipelineChartData(this.username, this.year).subscribe(data => {
+      this.chartOptionsThree = {
+        series: data.pipeline_chart_data.map((d: any) => d.count),
+        chart: { type: 'pie' },
+        labels: data.pipeline_chart_data.map((d: any) => d.forecast_category)
+      };
+    });
   }
 
-  get cards() {
-    return [
-      {
-        title: 'Pipeline',
-        value: `$${this.pipelineCount}`,
-        percentage: '+55%',
-      },
-      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
-      {
-        title: 'Signings',
-        value: `$${this.signingsCount}`,
-        percentage: '+89%',
-      },
-      {
-        title: 'Count To Wins',
-        value: `${this.winsCount}`,
-        percentage: '-14%',
-      },
-    ];
+  loadSigningsChart(): void {
+    this.dashboardService.getSigningsChartData(this.username, this.year).subscribe(data => {
+      this.chartOptionsFour = {
+        series: data.signings_chart_data.map((d: any) => d.count),
+        chart: { type: 'pie' },
+        labels: data.signings_chart_data.map((d: any) => d.product_category)
+      };
+    });
   }
 }

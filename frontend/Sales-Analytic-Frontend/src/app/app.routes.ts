@@ -15,32 +15,32 @@ export const appRoutes: Routes = [
   {
     path: 'landing-page',
     component: LandingPageComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'revenue-page',
     component: RevenuePageComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'clients-page',
     component: ClientsPageComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'signings',
     component: SigningsDashboardComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'pipeline',
     component: PipelineDashboardComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'count-to-wins',
     component: WinsPageComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'account-executives',
