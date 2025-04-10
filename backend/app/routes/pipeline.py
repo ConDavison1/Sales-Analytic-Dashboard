@@ -264,7 +264,7 @@ def get_pipeline_quarterly_targets():
     Get quarterly accumulated weighted pipeline values and target achievement percentages
     
     For each quarter, calculates the accumulated weighted opportunity values and the percentage
-    of the user's quarterly target achieved. Only considers opportunities not in the 'omit' category.
+    of the quarterly target achieved. Only considers opportunities not in 'omit' or 'closed-won' categories.
     
     Query parameters:
     - username: Username of the current user (required)
@@ -276,32 +276,26 @@ def get_pipeline_quarterly_targets():
             {
                 "quarter": 1,
                 "accumulated_value": 12500.0,   // Accumulated weighted value through Q1
-                "achievement_percentage": 25.0   // Percentage of Q1 target achieved
+                "achievement_percentage": 50.0   // Percentage of Q1 target achieved
             },
             {
                 "quarter": 2,
-                "accumulated_value": 37500.0,   // Accumulated weighted value through Q2
-                "achievement_percentage": 37.5   // Percentage of Q1+Q2 target achieved
+                "accumulated_value": 25000.0,   // Accumulated weighted value through Q2
+                "achievement_percentage": 50.0   // Percentage of Q2 target achieved
             },
             {
                 "quarter": 3,
-                "accumulated_value": 75000.0,   // Accumulated weighted value through Q3
-                "achievement_percentage": 50.0   // Percentage of Q1+Q2+Q3 target achieved
+                "accumulated_value": 37500.0,   // Accumulated weighted value through Q3
+                "achievement_percentage": 50.0   // Percentage of Q3 target achieved
             },
             {
                 "quarter": 4,
-                "accumulated_value": 125000.0,  // Accumulated weighted value through Q4
-                "achievement_percentage": 62.5   // Percentage of annual target achieved
+                "accumulated_value": 50000.0,   // Accumulated weighted value through Q4
+                "achievement_percentage": 50.0   // Percentage of Q4 target achieved
             }
         ],
         "year": 2024,
-        "yearly_target": 200000.0,  // User's annual target amount
-        "quarterly_percentages": [
-            {"quarter": 1, "percentage": 25.0},
-            {"quarter": 2, "percentage": 25.0},
-            {"quarter": 3, "percentage": 25.0},
-            {"quarter": 4, "percentage": 25.0}
-        ]
+        "quarterly_percentages": [25.0, 25.0, 25.0, 25.0]  // Target percentages by quarter
     }
     
     Returns:
@@ -327,24 +321,20 @@ def get_pipeline_quarterly_targets():
         # Get all relevant opportunities
         opportunities = get_user_opportunities(user, year)
         
-        # Get the user's yearly target for signings
-        yearly_target, quarterly_percentages = get_user_targets(user.user_id, year)
+        # Get the user's quarterly target percentages
+        quarterly_percentages = get_user_targets(user.user_id, year)
+        
+        # Get the yearly target amount
+        yearly_target_amount = get_yearly_target_amount(user, year)
         
         # Calculate the quarterly accumulated values
-        quarterly_targets = calculate_quarterly_targets(opportunities, yearly_target, quarterly_percentages)
-        
-        # Format quarterly percentages for response
-        quarterly_percentages_formatted = [
-            {"quarter": quarter, "percentage": percentage}
-            for quarter, percentage in enumerate(quarterly_percentages, 1)
-        ]
+        quarterly_targets = calculate_quarterly_targets(opportunities, quarterly_percentages, yearly_target_amount)
         
         # Return response
         return jsonify({
             "quarterly_targets": quarterly_targets,
             "year": year,
-            "yearly_target": yearly_target,
-            "quarterly_percentages": quarterly_percentages_formatted
+            "quarterly_percentages": quarterly_percentages
         }), 200
         
     except Exception as e:
@@ -352,10 +342,59 @@ def get_pipeline_quarterly_targets():
         return jsonify({"error": f"Failed to calculate quarterly targets: {str(e)}"}), 500
 
 
+def get_yearly_target_amount(user, year):
+    """
+    Get the yearly target amount for a user.
+    
+    For directors, it's the sum of targets for account executives under them.
+    For account executives, it's their own target amount.
+    
+    Args:
+        user: The User object
+        year: The fiscal year
+    
+    Returns:
+        The yearly target amount as a float
+    """
+    if user.role == 'director':
+        # Calculate yearly target as sum of AE targets
+        yearly_amount = 0.0
+        
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # For each AE, get their yearly signing target and add to total
+        if ae_ids:
+            ae_targets = YearlyTarget.query.filter(
+                YearlyTarget.user_id.in_(ae_ids),
+                YearlyTarget.fiscal_year == year,
+                YearlyTarget.target_type == 'signings'
+            ).all()
+            
+            for target in ae_targets:
+                if target.amount is not None:
+                    yearly_amount += float(target.amount)
+                    
+        return yearly_amount
+    else:
+        # For account executives, get their own yearly target
+        yearly_target = YearlyTarget.query.filter_by(
+            user_id=user.user_id,
+            fiscal_year=year,
+            target_type='signings'
+        ).first()
+        
+        if yearly_target and yearly_target.amount is not None:
+            return float(yearly_target.amount)
+        else:
+            return 0.0
+        
+
 def get_user_opportunities(user, year):
     """
     Get all relevant opportunities for a user in the specified year,
-    excluding those in the 'omit' forecast category.
+    excluding those in the 'omit' and 'closed-won' forecast categories.
     
     For directors, gets opportunities from all account executives they manage.
     For account executives, gets only their opportunities.
@@ -374,6 +413,7 @@ def get_user_opportunities(user, year):
         Client, Opportunity.client_id == Client.client_id
     ).filter(
         Opportunity.forecast_category != 'omit',
+        Opportunity.forecast_category != 'closed-won',
         extract('year', Opportunity.created_date) == year
     )
     
@@ -428,123 +468,76 @@ def get_user_opportunities(user, year):
 
 def get_user_targets(user_id, year):
     """
-    Get a user's yearly target for signings and quarterly percentage breakdowns.
+    Get a user's quarterly target percentages.
     
-    For directors, the yearly target is the sum of the signing yearly targets 
-    of all account executives under them.
+    For directors, uses fixed percentages [10.0, 20.0, 25.0, 45.0].
+    For account executives, retrieves from database or uses defaults.
     
     Args:
         user_id: The user's ID
         year: The fiscal year
     
     Returns:
-        Tuple of (yearly_target_amount, [q1_percentage, q2_percentage, q3_percentage, q4_percentage])
+        List of percentages for each quarter [q1_percentage, q2_percentage, q3_percentage, q4_percentage]
     """
     # Get the user to check their role
     user = User.query.filter_by(user_id=user_id).first()
     
-    # Default quarterly percentages based on role
+    # For directors: use fixed percentages
     if user and user.role == 'director':
-        # Directors always have these quarterly percentages
-        default_percentages = [10.0, 20.0, 25.0, 45.0]
-    else:
-        # Default for account executives and other roles
-        default_percentages = [25.0, 25.0, 25.0, 25.0]
+        return [10.0, 20.0, 25.0, 45.0]
     
-    # Calculate yearly target amount based on role
-    if user and user.role == 'director':
-        # For directors: Sum up the yearly targets of all account executives under them
-        yearly_amount = 0.0
-        
-        # Get all account executives managed by this director
-        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user_id).all()
-        ae_ids = [relation.account_executive_id for relation in ae_relations]
-        
-        # For each AE, get their yearly signing target and add to total
-        if ae_ids:
-            ae_targets = YearlyTarget.query.filter(
-                YearlyTarget.user_id.in_(ae_ids),
-                YearlyTarget.fiscal_year == year,
-                YearlyTarget.target_type == 'signings'
-            ).all()
-            
-            for target in ae_targets:
-                if target.amount is not None:
-                    yearly_amount += float(target.amount)
-        
-        # Return calculated amount with director's quarterly percentages
-        return yearly_amount, default_percentages
-    else:
-        # For account executives and other roles: Get their own yearly target
-        yearly_target = YearlyTarget.query.filter_by(
+    # For account executives and other roles:
+    # Initialize with default values
+    quarterly_percentages = [10.0, 20.0, 25.0, 45.0]
+    
+    # Try to get quarterly targets from database
+    for quarter in range(1, 5):
+        quarterly_target = QuarterlyTarget.query.filter_by(
             user_id=user_id,
-            fiscal_year=year,
-            target_type='signings'
+            fiscal_quarter=quarter
         ).first()
         
-        if not yearly_target:
-            return 0.0, default_percentages
-        
-        # Convert from Decimal to float
-        yearly_amount = float(yearly_target.amount) if yearly_target.amount is not None else 0.0
-        
-        # Get quarterly percentages from database
-        quarterly_percentages = []
-        for quarter in range(1, 5):
-            quarterly_target = QuarterlyTarget.query.filter_by(
-                target_id=yearly_target.target_id,
-                fiscal_quarter=quarter
-            ).first()
-            
-            if quarterly_target and quarterly_target.percentage is not None:
-                # Convert from Decimal to float
-                quarterly_percentages.append(float(quarterly_target.percentage))
-            else:
-                quarterly_percentages.append(default_percentages[quarter-1])  # Use default if not specified
-        
-        # Normalize percentages to ensure they sum to 100
-        total_percentage = sum(quarterly_percentages)
-        if total_percentage > 0:
-            quarterly_percentages = [p * 100.0 / total_percentage for p in quarterly_percentages]
-        else:
-            quarterly_percentages = default_percentages  # Use defaults if sum is 0
-        
-        return yearly_amount, quarterly_percentages
+        if quarterly_target and quarterly_target.percentage is not None:
+            # Convert from Decimal to float
+            quarterly_percentages[quarter - 1] = float(quarterly_target.percentage)
+    
+    return quarterly_percentages
 
 
-def calculate_quarterly_targets(opportunities, yearly_target, quarterly_percentages):
+
+def calculate_quarterly_targets(opportunities, quarterly_percentages, yearly_target_amount):
     """
     Calculate quarterly accumulated values and achievement percentages.
     
     Args:
         opportunities: List of dictionaries with opportunity data
-        yearly_target: The yearly target amount
         quarterly_percentages: List of percentages for each quarter
+        yearly_target_amount: The yearly signing target amount for the user
     
     Returns:
         List of dictionaries with quarter, accumulated_value, and achievement_percentage
     """
     # Calculate total annual weighted value from all opportunities
-    total_annual_weighted_value = sum(opp['annual_weighted_value'] for opp in opportunities)
+    total_accumulated_value = sum(opp['annual_weighted_value'] for opp in opportunities)
     
-    # Calculate target amounts for each quarter
-    quarterly_target_amounts = []
-    accumulated_target = 0.0
-    for percentage in quarterly_percentages:
-        quarter_amount = yearly_target * percentage / 100.0
-        accumulated_target += quarter_amount
-        quarterly_target_amounts.append(accumulated_target)
-    
-    # Calculate accumulated values and percentages for each quarter
+    # Calculate quarterly targets
     quarterly_targets = []
+    
     for quarter in range(1, 5):
-        # Calculate accumulated value for this quarter (total * quarter/4)
-        accumulated_value = total_annual_weighted_value * quarter / 4.0
+        # Calculate accumulated value for this quarter based on proportion of year
+        accumulated_value = total_accumulated_value * (quarter / 4.0)
         
-        # Calculate achievement percentage
+        # Get the quarterly target percentage for this quarter
+        quarter_percentage = quarterly_percentages[quarter-1]
+        
+        # Calculate the absolute target for this quarter from the yearly target amount
+        absolute_target = yearly_target_amount * (quarter_percentage / 100.0)
+        
+        # Calculate achievement percentage (avoid division by zero)
         achievement_percentage = 0.0
-        if accumulated_target := quarterly_target_amounts[quarter-1]:
-            achievement_percentage = (accumulated_value / accumulated_target) * 100.0
+        if absolute_target > 0:
+            achievement_percentage = (accumulated_value / absolute_target) * 100.0
         
         quarterly_targets.append({
             "quarter": quarter,
