@@ -47,6 +47,7 @@
         </div>
         <apx-chart
           *ngIf="isWinsDataLoaded"
+          #barChartRef
           [series]="chartOptionsOne.series || []"
           [chart]="chartOptionsOne.chart"
           [xaxis]="chartOptionsOne.xaxis"
@@ -64,6 +65,7 @@
           Loading chart data...
         </div>
         <apx-chart
+          #lineChartRef
           [series]="chartOptionsTwo.series || []"
           [chart]="chartOptionsTwo.chart"
           [xaxis]="chartOptionsTwo.xaxis"

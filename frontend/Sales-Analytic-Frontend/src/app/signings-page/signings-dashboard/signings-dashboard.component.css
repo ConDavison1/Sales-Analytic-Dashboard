@@ -3,6 +3,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 20px;
+  color: var(--text-color);
 }
 
 .cards {
@@ -19,6 +20,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
   background-color: var(--card-bg);
+  color: var(--text-color);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -52,6 +54,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 .table-container table {
@@ -88,9 +91,24 @@
   max-width: 100%;
   margin: 0;
   padding: 16px;
-  border-radius: 8px;
   background-color: var(--card-bg);
+  border-radius: 8px;
+  color: var(--text-color);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar */
+.table-container tbody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container tbody::-webkit-scrollbar-thumb {
+  background-color: #5f606e;
+  border-radius: 4px;
+}
+
+.table-container tbody::-webkit-scrollbar-track {
+  background-color: var(--bg-color);
 }
 
 @media (max-width: 768px) {

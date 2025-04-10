@@ -3,9 +3,9 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 20px;
+  color: var(--text-color);
 }
 
-/* Cards Section */
 .cards {
   grid-column: 1 / -1;
   display: grid;
@@ -19,8 +19,9 @@
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
-  background-color: #ffffff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Smooth hover effect */
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .card:hover {
@@ -45,7 +46,6 @@
   opacity: 0.8;
 }
 
-/* Count to Wins Table */
 .table-container {
   grid-column: 1 / -1;
   max-width: 100%;
@@ -53,55 +53,36 @@
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
-.table-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-.scrollable-table {
-  max-height: 400px;
-  overflow-y: auto;
-  position: relative;
-}
-
-/* Custom Table */
-.custom-table {
+.table-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* Sticky Header */
-.custom-table thead {
-  position: sticky;
-  top: 0;
-  background-color: #f8f9fa; /* Keep header visible */
-  z-index: 10; /* Ensure it stays on top */
-}
-
-.custom-table th,
-.custom-table td {
+.table-container th,
+.table-container td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #dee2e6;
-  font-family: Arial, Helvetica, sans-serif;
+  border-bottom: 1px solid var(--table-border);
 }
 
-.custom-table th {
-  background-color: #f8f9fa;
-  font-weight: bold;
+.table-container th {
+  background-color: var(--card-bg);
 }
 
-.sort-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  margin-left: 5px;
-  padding: 2px;
+.table-container tbody {
+  display: block;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.table-container tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .chart-container {
@@ -109,11 +90,27 @@
   max-width: 100%;
   margin: 0;
   padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
   border-radius: 8px;
-  background-color: #ffffff;
+  color: var(--text-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Scrollbar */
+.table-container tbody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container tbody::-webkit-scrollbar-thumb {
+  background-color: #5f606e;
+  border-radius: 4px;
+}
+
+.table-container tbody::-webkit-scrollbar-track {
+  background-color: var(--bg-color);
+}
+
+/* Responsive Layout */
 @media (max-width: 768px) {
   .wins-page {
     grid-template-columns: repeat(2, 1fr);
@@ -128,19 +125,15 @@
     grid-column: 1 / -1;
   }
 
-  /* Hide Industry, Forecast, and Date of Win columns */
   .custom-table th:nth-child(3),
-  .custom-table td:nth-child(3), /* Industry */
-
+  .custom-table td:nth-child(3),
   .custom-table th:nth-child(5),
-  .custom-table td:nth-child(5), /* Forecast */
-
+  .custom-table td:nth-child(5),
   .custom-table th:nth-child(6),
-  .custom-table td:nth-child(6)  /* Date of Win */ {
+  .custom-table td:nth-child(6) {
     display: none;
   }
 
-  /* Table formatting on small screens */
   .custom-table {
     table-layout: auto;
   }
