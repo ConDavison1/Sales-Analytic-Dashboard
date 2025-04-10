@@ -928,7 +928,13 @@ def calculate_ae_signings_chart_data(ae_id, year):
 
 def calculate_signings_chart_data_for_clients(client_ids, year):
     """
-    Calculate signings chart data (count of signings by product category) for the specified clients
+    Calculate signings chart data (count of signings by product category) for the specified clients.
+    
+    Only includes the following product categories:
+    - gcp-core
+    - data-analytics
+    - cloud-security
+    - app-modernization (aggregate of: mandiant, looker, apigee, maps, marketplace, and vertex-ai-platform)
     
     Args:
         client_ids: List of client IDs to filter by
@@ -938,17 +944,18 @@ def calculate_signings_chart_data_for_clients(client_ids, year):
         List of dictionaries with product_category, count, and percentage values
     """
     try:
-        # If client_ids is an empty list, return empty list with all categories
+        # Define standard product categories we want to include
+        standard_categories = ["gcp-core", "data-analytics", "cloud-security"]
+        
+        # Define categories that should be aggregated as "app-modernization"
+        app_modernization_categories = ["mandiant", "looker", "apigee", "maps", "marketplace", "vertex-ai-platform"]
+        
+        # All categories we care about (for returning empty results)
+        all_display_categories = standard_categories + ["app-modernization"]
+        
+        # If client_ids is an empty list, return empty list with standard categories
         if not client_ids:
-            # Get all product categories from the database
-            all_categories = [category[0] for category in db.session.query(Product.product_category).distinct().all()]
-            return [{"product_category": category, "count": 0, "percentage": 0.0} for category in all_categories]
-        
-        # First, get all possible product categories from the database
-        all_categories_query = db.session.query(Product.product_category).distinct()
-        all_categories = [category[0] for category in all_categories_query.all()]
-        
-        print(f"All possible product categories: {all_categories}")
+            return [{"product_category": category, "count": 0, "percentage": 0.0} for category in all_display_categories]
         
         # Query to count signings and get product categories
         # We need to join with the Product table to get the product categories
@@ -965,18 +972,27 @@ def calculate_signings_chart_data_for_clients(client_ids, year):
         )
         
         # Execute query
-        print(f"Signings chart query: {str(signings_query)}")
         results = signings_query.all()
-        print(f"Signings chart raw results: {results}")
         
-        # Create a dictionary with all categories and zero counts
-        category_counts = {category: 0 for category in all_categories}
+        # Initialize counting dictionaries
+        category_counts = {
+            "gcp-core": 0,
+            "data-analytics": 0, 
+            "cloud-security": 0,
+            "app-modernization": 0  # This will hold the aggregated count
+        }
         
-        # Update counts for categories that have signings
+        # Process results and aggregate categories
         for category, count in results:
-            category_counts[category] = count
+            if category in standard_categories:
+                # Standard category - add directly
+                category_counts[category] += count
+            elif category in app_modernization_categories:
+                # App modernization category - add to that aggregate
+                category_counts["app-modernization"] += count
+            # Ignore any categories not in our defined lists
         
-        # Calculate total signings
+        # Calculate total signings (only counting categories we care about)
         total_signings = sum(category_counts.values())
         
         # Create the final data structure with counts and percentages
