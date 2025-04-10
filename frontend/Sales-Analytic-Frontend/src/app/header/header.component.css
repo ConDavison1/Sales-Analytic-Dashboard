@@ -2,22 +2,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px; /* Add horizontal padding */
-  background-color: var(--bg-color); /* #ffffff;  Google white */
-  color: #333; /* Darker text color for contrast */
+  padding: 10px 20px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Ensure full width */
-  height: 60px; /* Adjust height as needed */
-  z-index: 1000; /* Keeps it above other content */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
-  box-sizing: border-box; /* Include padding in width calculation */
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .logo img {
   width: 81%;
-  height: 44px; /* Keep a consistent height */
+  height: 44px;
   object-fit: contain;
 }
 
@@ -25,13 +25,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: #f1f3f4; /* Subtle gray background for the search bar */
+  background-color: #f1f3f4;
   padding: 5px 10px;
   border-radius: 5px;
   color: #333;
-  flex-grow: 1; /* Allows the search bar to expand */
-  max-width: 600px; /* Prevents it from becoming too large */
-  margin: 0 20px; /* Space between sections */
+  flex-grow: 1;
+  max-width: 600px;
+  margin: 0 20px;
 }
 
 .search-bar input {
@@ -39,8 +39,14 @@
   outline: none;
   flex-grow: 1;
   font-size: 14px;
-  background: transparent; /* Matches search bar background */
+  background: transparent;
   color: #333;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .actions img {
@@ -50,11 +56,77 @@
   object-fit: cover;
 }
 
-.dark-toggle-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
+/* Toggle Slider */
+.toggle-switch {
+  position: relative;
+  width: 60px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
   cursor: pointer;
-  margin-right: 10px;
-  color: var(--text-color);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  font-size: 14px;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* Icons */
+.slider .icon {
+  z-index: 2;
+  color: #fff;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+input:checked + .slider .sun {
+  opacity: 1;
+}
+
+input:not(:checked) + .slider .moon {
+  opacity: 1;
+}
+
+input:checked + .slider .moon {
+  opacity: 0.5;
+}
+
+input:not(:checked) + .slider .sun {
+  opacity: 0.5;
+}
+
+input:checked + .slider::before {
+  transform: translateX(32px);
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
 }
