@@ -2,12 +2,13 @@ import {
   Component,
   OnInit,
   AfterViewInit,
+  AfterViewChecked,
+  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import { ApexChart } from 'ng-apexcharts';
+import { NgApexchartsModule, ChartComponent, ApexChart } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { RevenueService } from '../../services/revenue-services/revenue.service';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
@@ -27,12 +28,23 @@ export type ChartOptions = {
 
 @Component({
   selector: 'app-revenue-page',
-  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent],
+  imports: [
+    NgApexchartsModule,
+    CommonModule,
+    SidebarComponent,
+    HeaderComponent,
+  ],
   standalone: true,
   templateUrl: './revenue-page.component.html',
   styleUrls: ['./revenue-page.component.css'],
+  encapsulation: ViewEncapsulation.Emulated,
 })
-export class RevenuePageComponent implements OnInit {
+export class RevenuePageComponent
+  implements OnInit, AfterViewInit, AfterViewChecked
+{
+  @ViewChild('barChartRef') barChartRef!: ChartComponent;
+  @ViewChild('gaugeChartRef') gaugeChartRef!: ChartComponent;
+
   pipelineCount: number = 0;
   revenueCount: number = 0;
   signingsCount: number = 0;
@@ -51,6 +63,66 @@ export class RevenuePageComponent implements OnInit {
     this.fetchDashboardData();
     this.fetchRevenueClients();
     this.fetchRevenueChart();
+  }
+
+  ngAfterViewInit(): void {
+    this.toggleChartTheme(); // Initial check
+  }
+
+  ngAfterViewChecked(): void {
+    this.toggleChartTheme(); // Re-check on return to page
+  }
+
+  toggleChartTheme(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+    const labelColor = isDark ? '#ffffff' : '#333333';
+
+    this.barChartRef?.updateOptions(
+      {
+        theme: {
+          mode: isDark ? 'dark' : 'light',
+        },
+        chart: {
+          foreColor: 'var(--text-color)',
+        },
+        grid: {
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+        },
+        tooltip: {
+          theme: isDark ? 'dark' : 'light',
+        },
+      },
+      false,
+      true
+    );
+
+    this.gaugeChartRef?.updateOptions(
+      {
+        theme: {
+          mode: isDark ? 'dark' : 'light',
+        },
+        chart: {
+          foreColor: 'var(--text-color)',
+        },
+        plotOptions: {
+          radialBar: {
+            dataLabels: {
+              name: {
+                color: labelColor,
+              },
+              value: {
+                color: labelColor,
+              },
+            },
+          },
+        },
+        tooltip: {
+          theme: isDark ? 'dark' : 'light',
+        },
+      },
+      false,
+      true
+    );
   }
 
   fetchDashboardData(): void {
@@ -94,7 +166,6 @@ export class RevenuePageComponent implements OnInit {
   }
 
   updateBarChartData(): void {
-    // Check if data exists before updating
     if (this.revenueChartData.length > 0) {
       this.barChart.series[0].data = this.revenueChartData.map(
         (item) => item.count
@@ -122,9 +193,13 @@ export class RevenuePageComponent implements OnInit {
     ];
   }
 
-  // Define types for the bar chart
   barChart = {
-    chart: { type: 'bar' as ApexChart['type'], height: 350 },
+    chart: {
+      type: 'bar' as ApexChart['type'],
+      height: 350,
+      background: 'transparent',
+      foreColor: 'var(--text-color)',
+    },
     series: [{ name: 'Clients', data: [] as number[] }],
     xaxis: { categories: [] as string[] },
     plotOptions: {
@@ -134,13 +209,22 @@ export class RevenuePageComponent implements OnInit {
     colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560'],
     tooltip: {
       enabled: true,
+      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
       y: { formatter: (val: number) => `${val} Clients` },
+    },
+    theme: {
+      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
     },
   };
 
   gaugeChart = {
     series: [81],
-    chart: { type: 'radialBar' as ApexChart['type'], height: 350 },
+    chart: {
+      type: 'radialBar' as ApexChart['type'],
+      height: 350,
+      background: 'transparent',
+      foreColor: 'var(--text-color)',
+    },
     plotOptions: {
       radialBar: {
         startAngle: -90,
@@ -158,6 +242,7 @@ export class RevenuePageComponent implements OnInit {
             fontSize: '24px',
             show: true,
             offsetY: -10,
+            color: '#333',
             formatter: (val: number) => `${Math.round((val / 100) * 60)}M`,
           },
         },
@@ -165,5 +250,12 @@ export class RevenuePageComponent implements OnInit {
     },
     fill: { colors: ['#4CAF50'] },
     yaxis: { min: 0, max: 60 },
+    tooltip: {
+      enabled: true,
+      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+    },
+    theme: {
+      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+    },
   };
 }

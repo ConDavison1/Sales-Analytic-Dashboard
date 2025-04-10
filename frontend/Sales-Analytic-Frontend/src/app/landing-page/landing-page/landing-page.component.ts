@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
-import { NgApexchartsModule, ApexResponsive } from 'ng-apexcharts';
+import {
+  NgApexchartsModule,
+  ApexResponsive,
+  ChartComponent,
+} from 'ng-apexcharts';
 import { CommonModule } from '@angular/common';
 
 export type ChartOptions = {
@@ -18,6 +22,7 @@ export type ChartOptions = {
   legend: any;
   colors: any;
   responsive: ApexResponsive[];
+  theme: any;
 };
 
 @Component({
@@ -32,7 +37,12 @@ export type ChartOptions = {
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css',
 })
-export class LandingPageComponent implements OnInit {
+export class LandingPageComponent implements OnInit, AfterViewInit {
+  @ViewChild('chartOneRef') chartOne!: ChartComponent;
+  @ViewChild('chartTwoRef') chartTwo!: ChartComponent;
+  @ViewChild('chartThreeRef') chartThree!: ChartComponent;
+  @ViewChild('chartFourRef') chartFour!: ChartComponent;
+
   pipelineCount: number = 0;
   revenueCount: number = 0;
   signingsCount: number = 0;
@@ -47,208 +57,144 @@ export class LandingPageComponent implements OnInit {
   chartOptionsThree!: Partial<ChartOptions>;
   chartOptionsFour!: Partial<ChartOptions>;
 
-  constructor(private dashboardService: DashboardService) {
-    this.chartOptionsOne = {
-      series: [{ name: 'Pipeline', data: [] }],
+  constructor(private dashboardService: DashboardService) {}
+
+  ngOnInit(): void {
+    this.chartOptionsOne = this.getBaseChartOptions('Pipeline', '#1E88E5');
+    this.chartOptionsTwo = this.getBaseChartOptions('Revenue', '#F4511E');
+    this.chartOptionsThree = this.getBaseChartOptions('Signings', '#43A047');
+    this.chartOptionsFour = this.getBaseChartOptions(
+      'Count To Wins',
+      '#FDD835'
+    );
+
+    this.fetchCardData();
+    this.fetchAccountExecutives();
+    this.fetchChartData();
+  }
+
+  ngAfterViewInit(): void {
+    const observer = new MutationObserver(() => {
+      this.toggleChartThemes();
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  toggleChartThemes(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+
+    const newTheme = {
+      theme: {
+        mode: isDark ? 'dark' : 'light',
+      },
+    };
+
+    this.chartOne?.updateOptions(newTheme, false, true);
+    this.chartTwo?.updateOptions(newTheme, false, true);
+    this.chartThree?.updateOptions(newTheme, false, true);
+    this.chartFour?.updateOptions(newTheme, false, true);
+  }
+
+  getBaseChartOptions(title: string, color: string): Partial<ChartOptions> {
+    return {
+      series: [{ name: title, data: [] }],
+      chart: {
+        type: 'bar',
+        height: 350,
+        background: 'transparent',
+        foreColor: 'var(--text-color)',
+      },
+      theme: {
+        mode: 'light',
+      },
+      colors: [color],
+      fill: {
+        opacity: 1,
+        colors: [color],
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '55%',
+          borderRadius: 8,
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent'],
+      },
+      xaxis: {
+        title: {
+          text: title,
+          style: {
+            color: 'var(--text-color)',
+            fontFamily: 'Arial, sans-serif',
+          },
+        },
+        labels: {
+          style: {
+            colors: 'var(--text-color)',
+            fontFamily: 'Arial, sans-serif',
+          },
+        },
+        categories: [
+          'J',
+          'F',
+          'M',
+          'A',
+          'M',
+          'J',
+          'J',
+          'A',
+          'S',
+          'O',
+          'N',
+          'D',
+        ],
+      },
+      yaxis: {
+        title: {
+          text: 'Amount ($)',
+          style: {
+            color: 'var(--text-color)',
+            fontFamily: 'Arial, sans-serif',
+          },
+        },
+        labels: {
+          style: {
+            colors: 'var(--text-color)',
+            fontFamily: 'Arial, sans-serif',
+          },
+        },
+      },
+      legend: {
+        labels: {
+          colors: 'var(--text-color)',
+        },
+      },
+      tooltip: {
+        theme: 'dark',
+        y: {
+          formatter: (val: number) => '$ ' + val,
+        },
+      },
       responsive: [
         {
           breakpoint: 768,
           options: {
-            chart: { width: "100%" }
-          }
-        }
+            chart: { width: '100%' },
+          },
+        },
       ],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#1E88E5'],
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      fill: {
-        opacity: 1,
-        colors: ['#1E88E5'],
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Pipeline',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount ($)',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
-      legend: { show: true },
     };
-
-    this.chartOptionsTwo = {
-      series: [{ name: 'Revenue', data: [] }],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#F4511E'],
-      fill: {
-        opacity: 1,
-        colors: ['#F4511E'],
-      },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Revenue',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount ($)',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
-      legend: { show: true },
-    };
-
-    this.chartOptionsThree = {
-      series: [{ name: 'Signings', data: [] }],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#43A047'],
-      fill: {
-        opacity: 1,
-        colors: ['#43A047'],
-      },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Signings',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount ($)',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => '$ ' + val } },
-      legend: { show: true },
-    };
-
-    this.chartOptionsFour = {
-      series: [{ name: 'Wins', data: [] }],
-      chart: { type: 'bar', height: 350 },
-      colors: ['#FDD835'],
-      fill: {
-        opacity: 1,
-        colors: ['#FDD835'],
-      },
-      plotOptions: {
-        bar: { horizontal: false, columnWidth: '55%', borderRadius: 8 },
-      },
-      dataLabels: { enabled: false },
-      stroke: { show: true, width: 2, colors: ['transparent'] },
-      xaxis: {
-        title: {
-          text: 'Count To Wins',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      yaxis: {
-        title: {
-          text: 'Amount',
-          style: {
-            fontFamily: 'Arial, Helvetica, sans-serif',
-          },
-        },
-      },
-      tooltip: { y: { formatter: (val: number) => val } },
-      legend: { show: true },
-    };
-  }
-
-  ngOnInit(): void {
-    this.fetchCardData();
-    this.fetchAccountExecutives();
-    this.fetchChartData();
   }
 
   fetchCardData(): void {
@@ -272,13 +218,12 @@ export class LandingPageComponent implements OnInit {
   fetchAccountExecutives(): void {
     this.dashboardService.getAccountExecutives().subscribe(
       (response) => {
-        console.log('API Response:', response); // Log the response here to see how the data is formatted
-        this.accountExecutives = response; // Assign the response to accountExecutives
-        this.isLoadingAccountExecutives = false; // Set loading flag to false after data is fetched
+        this.accountExecutives = response;
+        this.isLoadingAccountExecutives = false;
       },
       (error) => {
-        console.error('Error fetching account executives:', error); // Log any error to the console
-        this.isLoadingAccountExecutives = false; // Set loading flag to false even if there is an error
+        console.error('Error fetching account executives:', error);
+        this.isLoadingAccountExecutives = false;
       }
     );
   }

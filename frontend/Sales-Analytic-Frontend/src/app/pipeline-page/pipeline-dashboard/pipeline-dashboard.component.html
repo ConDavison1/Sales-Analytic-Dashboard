@@ -44,6 +44,7 @@
       <!--Charts Section-->
       <div class="chart-container">
         <apx-chart
+          #barChartRef
           [series]="barChart.series"
           [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
@@ -58,6 +59,7 @@
       <!--Pipeline Target Gauge-->
       <div class="chart-container relative">
         <apx-chart
+          #gaugeChartRef
           [series]="gaugeChart.series"
           [chart]="gaugeChart.chart"
           [plotOptions]="gaugeChart.plotOptions"

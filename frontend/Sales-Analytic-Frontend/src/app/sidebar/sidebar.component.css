@@ -5,10 +5,12 @@
   left: 0;
   bottom: 0;
   width: 250px;
-  background-color: #ffffff;
+  background-color: var(--bg-color); /* 🔄 updated */
+  color: var(--text-color); /* 🔄 updated */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   z-index: 900;
-  transition: width 0.3s ease, transform 0.3s ease;
+  transition: width 0.3s ease, transform 0.3s ease, background-color 0.3s ease,
+    color 0.3s ease;
   overflow-y: hidden;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -47,8 +49,8 @@
   padding: 15px 20px;
   font-size: 20px;
   font-weight: bold;
-  color: #5f6368;
-  border-bottom: 1px solid #e0e0e0;
+  color: var(--text-color); /* 🔄 updated */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* subtle border for dark */
 }
 
 /* Navigation Links */
@@ -56,7 +58,7 @@
   display: flex;
   align-items: center;
   padding: 10px;
-  color: #5f6368;
+  color: var(--text-color); /* 🔄 updated */
   text-decoration: none;
   font-size: 14px;
   gap: 10px;
@@ -90,15 +92,16 @@
   opacity: 0;
 }
 
+/* Hover & Active */
 .sidebar nav a:hover,
 .sidebar nav a.active {
-  background-color: #e8f0fe;
-  color: #1967d2;
+  background-color: rgba(100, 149, 237, 0.2); /* bluish hover */
+  color: var(--primary); /* dynamic primary color */
 }
 
 .sidebar nav a.active {
   font-weight: 500;
-  border-left: 3px solid #1967d2;
+  border-left: 3px solid var(--primary);
 }
 
 /* Sidebar Sections */
@@ -109,7 +112,7 @@
 .sidebar-section h3 {
   padding: 10px 20px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-color);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -118,7 +121,7 @@
 .sidebar-footer {
   margin-top: auto;
   padding: 10px 0;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -128,7 +131,7 @@
   display: flex;
   align-items: center;
   padding: 10px;
-  color: #5f6368;
+  color: var(--text-color);
   text-decoration: none;
   font-size: 14px;
   gap: 10px;
@@ -142,8 +145,8 @@
 }
 
 .sidebar-footer a:hover {
-  background-color: #e8f0fe;
-  color: #1967d2;
+  background-color: rgba(100, 149, 237, 0.2);
+  color: var(--primary);
 }
 
 /* Sidebar Toggle Button */
@@ -156,7 +159,7 @@
   border: none;
   cursor: pointer;
   font-size: 24px;
-  color: #5f6368;
+  color: var(--text-color); /* 🔄 updated */
   transition: left 0.3s ease;
 }
 
@@ -170,10 +173,10 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
+  background: #555;
   border-radius: 3px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: #c0c0c0;
+  background: #777;
 }

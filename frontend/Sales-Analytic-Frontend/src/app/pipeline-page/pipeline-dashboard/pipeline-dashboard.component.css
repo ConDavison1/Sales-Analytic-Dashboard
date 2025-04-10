@@ -3,6 +3,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 20px;
+  color: var(--text-color);
 }
 
 .cards {
@@ -18,7 +19,8 @@
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -51,7 +53,8 @@
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 .table-container table {
@@ -63,11 +66,11 @@
 .table-container td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--table-border);
 }
 
 .table-container th {
-  background-color: #f7f7f7;
+  background-color: var(--card-bg);
 }
 
 .table-container tbody {
@@ -88,9 +91,24 @@
   max-width: 100%;
   margin: 0;
   padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
   border-radius: 8px;
-  background-color: #ffffff;
+  color: var(--text-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar */
+.table-container tbody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container tbody::-webkit-scrollbar-thumb {
+  background-color: #5f606e;
+  border-radius: 4px;
+}
+
+.table-container tbody::-webkit-scrollbar-track {
+  background-color: var(--bg-color);
 }
 
 /* Responsive Layout & Table Fixes */
@@ -109,7 +127,6 @@
     grid-column: 1 / -1;
   }
 
-  /* Hide unnecessary columns: Opportunity ID, Forecast Category, Probability, Time Period */
   .table-container th:nth-child(2),
   .table-container td:nth-child(2),
   .table-container th:nth-child(4),
@@ -121,7 +138,6 @@
     display: none;
   }
 
-  /* Ensure table fits and wraps without scrolling */
   .table-container {
     overflow-x: unset;
   }

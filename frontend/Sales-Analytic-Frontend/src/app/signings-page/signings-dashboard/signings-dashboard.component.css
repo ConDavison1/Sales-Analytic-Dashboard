@@ -18,7 +18,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -51,7 +51,7 @@
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
 }
 
 .table-container table {
@@ -63,11 +63,11 @@
 .table-container td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--table-border);
 }
 
 .table-container th {
-  background-color: #f7f7f7;
+  background-color: var(--card-bg);
 }
 
 .table-container tbody {
@@ -82,24 +82,15 @@
   table-layout: fixed;
 }
 
-.gauge-container {
-  grid-column: span 2;
-  max-width: 100%;
-  margin: 0;
-  padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background-color: #ffffff;
-}
-
+.gauge-container,
 .chart-container {
   grid-column: span 2;
   max-width: 100%;
   margin: 0;
   padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -117,25 +108,20 @@
     grid-column: 1 / -1;
   }
 
-  /* Hide unnecessary columns: Opportunity ID, Forecast, Probability, Signing Date, Time Period */
+  /* Hide certain table columns on smaller screens */
   .table-container th:nth-child(2),
-  .table-container td:nth-child(2), /* Opportunity ID */
-
+  .table-container td:nth-child(2),
   .table-container th:nth-child(4),
-  .table-container td:nth-child(4), /* Forecast Category */
-
+  .table-container td:nth-child(4),
   .table-container th:nth-child(5),
-  .table-container td:nth-child(5), /* Probability */
-
+  .table-container td:nth-child(5),
   .table-container th:nth-child(7),
-  .table-container td:nth-child(7), /* Signing Date */
-
+  .table-container td:nth-child(7),
   .table-container th:nth-child(8),
-  .table-container td:nth-child(8)  /* Time Period */ {
+  .table-container td:nth-child(8) {
     display: none;
   }
 
-  /* Make table fit on small screens */
   .table-container {
     overflow-x: unset;
   }

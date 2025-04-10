@@ -1,47 +1,49 @@
-/* dashboard.component.css */
 .dashboard {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columns for the cards */
-  gap: 16px; /* Space between cards and chart */
-  margin: 20px; /* Add space around the grid */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px;
+  color: var(--text-color); /* text adapts to theme */
 }
 
 /* Cards Section */
 .cards {
-  grid-column: 1 / -1; /* Cards span all 4 columns */
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 cards in a row */
-  gap: 16px; /* Space between cards */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   max-width: 100%;
 }
 
 .card {
-  padding: 16px; /* Inner padding */
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
-  text-align: center; /* Center text */
-  background-color: #ffffff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Smooth hover effect */
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  background-color: var(--card-bg); /* 🔄 dynamic */
+  color: var(--text-color); /* 🔄 dynamic */
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px); /* Lift up the card on hover */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* More shadow on hover */
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .card h3 {
   font-size: 18px;
-  margin-bottom: 12px; /* Spacing below title */
+  margin-bottom: 12px;
   font-weight: bold;
 }
 
 .card p {
-  margin: 6px 0; /* Spacing between values */
+  margin: 6px 0;
   font-size: 16px;
 }
 
 .card p:nth-child(3) {
-  font-size: 14px; /* Smaller size for percentage */
+  font-size: 14px;
   font-weight: 500;
   opacity: 0.8;
 }
@@ -51,51 +53,49 @@
 #charttwo,
 #chartthree,
 #chartfour {
-  grid-column: span 2; /* Chart spans 2 columns */
-  max-width: 100%; /* Ensure the chart takes full width of its container */
+  grid-column: span 2;
+  max-width: 100%;
   overflow-x: hidden;
-
   padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg); /* 🔄 dynamic */
+  color: var(--text-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .loading-message {
   text-align: center;
   padding: 20px;
   font-family: Arial, Helvetica, sans-serif;
-  color: #888;
+  color: var(--text-color); /* 🔄 dynamic */
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on smaller screens */
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .cards {
-    grid-template-columns: repeat(
-      2,
-      1fr
-    ); /* 2 cards per row on smaller screens */
+    grid-template-columns: repeat(2, 1fr);
   }
 
   #chart {
-    grid-column: span 2; /* Chart spans 2 columns on smaller screens */
+    grid-column: span 2;
   }
 }
 
 @media (max-width: 480px) {
   .dashboard {
-    grid-template-columns: 1fr; /* 1 column on very small screens */
+    grid-template-columns: 1fr;
   }
 
   .cards {
-    grid-template-columns: 1fr; /* 1 card per row on very small screens */
+    grid-template-columns: 1fr;
   }
 
   #chart {
-    grid-column: span 1; /* Chart spans 1 column on very small screens */
+    grid-column: span 1;
   }
 }

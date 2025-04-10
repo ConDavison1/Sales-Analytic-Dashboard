@@ -1,11 +1,22 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  AfterViewChecked,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { AccountExecService } from '../../services/account-exec-services/account-exec.service';
 import { first } from 'rxjs';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import { ApexChart } from 'ng-apexcharts';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ChartComponent, NgApexchartsModule, ApexChart } from 'ng-apexcharts';
+import {
+  FormGroup,
+  FormBuilder,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 
 export type ChartOptions = {
   series: any[];
@@ -19,35 +30,36 @@ export type ChartOptions = {
   tooltip: any;
   legend: any;
 };
+
 interface ChartData {
   category: string;
   count: number;
 }
+
 @Component({
   selector: 'app-account-exec-dashboard',
   imports: [CommonModule, NgApexchartsModule, ReactiveFormsModule],
   standalone: true,
   templateUrl: './account-exec-dashboard.component.html',
   styleUrl: './account-exec-dashboard.component.css',
-  encapsulation: ViewEncapsulation.Emulated
+  encapsulation: ViewEncapsulation.Emulated,
 })
-export class AccountExecDashboardComponent {
+export class AccountExecDashboardComponent
+  implements OnInit, AfterViewInit, AfterViewChecked
+{
+  @ViewChild('barChartRef') chartComponent!: ChartComponent;
 
-  pipelineCount: number = 0;
-  revenueCount: number = 0;
-  signingsCount: number = 0;
-  winsCount: number = 0;
+  pipelineCount = 0;
+  revenueCount = 0;
+  signingsCount = 0;
+  winsCount = 0;
   addExecutiveForm: FormGroup;
 
   accountExecData: any[] = [];
   selectedExecutive: any = null;
   topExecutivesChartData: ChartData[] = [];
 
-  isDataLoaded: boolean = false;
-
-  accountExecutives: any[] = [];
-  isLoadingAccountExecutives: boolean = true;
-  
+  isDataLoaded = false;
 
   constructor(
     private dashboardService: DashboardService,
@@ -66,7 +78,6 @@ export class AccountExecDashboardComponent {
     this.fetchAccountExecData();
     this.fetchTopExecutivesChart();
 
-    // Static Testing Data for the account executives table
     this.accountExecData = [
       {
         executive_id: 1,
@@ -76,7 +87,11 @@ export class AccountExecDashboardComponent {
         location: 'Calgary',
         performance: '$50000',
         status: 'Active',
-        assigned_accounts: ["Sigma Strategies", "Beta Biotech", "Alpha Agencies"]
+        assigned_accounts: [
+          'Sigma Strategies',
+          'Beta Biotech',
+          'Alpha Agencies',
+        ],
       },
       {
         executive_id: 2,
@@ -86,46 +101,66 @@ export class AccountExecDashboardComponent {
         location: 'Toronto',
         performance: '$70000',
         status: 'Active',
-        assigned_accounts: [1, 2, 17, 67, 68, 71]
-      }
-    ]
-    // Static Testing Data for the bar chart
+        assigned_accounts: [1, 2, 17, 67, 68, 71],
+      },
+    ];
+
     this.topExecutivesChartData = [
       { category: 'John Doe', count: 50000 },
       { category: 'Jane Doe', count: 70000 },
       { category: 'Emily Johnson', count: 80000 },
       { category: 'Michael Brown', count: 75000 },
-      { category: 'Steven White', count: 100},
-      { category: 'Sarah Black', count: 90000}
+      { category: 'Steven White', count: 100 },
+      { category: 'Sarah Black', count: 90000 },
     ];
 
     this.updateBarChartData();
   }
 
+  ngAfterViewInit(): void {
+    this.toggleChartTheme();
+  }
+
+  ngAfterViewChecked(): void {
+    this.toggleChartTheme();
+  }
+
+  toggleChartTheme(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+
+    this.chartComponent?.updateOptions(
+      {
+        theme: {
+          mode: isDark ? 'dark' : 'light',
+        },
+        chart: {
+          foreColor: 'var(--text-color)',
+        },
+        grid: {
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+        },
+        tooltip: {
+          theme: isDark ? 'dark' : 'light',
+        },
+      },
+      false,
+      true
+    );
+  }
+
   fetchDashboardData(): void {
-    this.dashboardService
-      .getPipelineCount()
-      .subscribe((response: { pipeline_count: number }) => {
-        this.pipelineCount = response.pipeline_count;
-      });
-    
-    this.dashboardService
-      .getRevenueSum()
-      .subscribe((response: { revenue_sum: number }) => {
-        this.revenueCount = response.revenue_sum;
-      });
-    
-    this.dashboardService
-      .getSigningsCount()
-      .subscribe((response: { signings_count: number }) => {
-        this.signingsCount = response.signings_count;
-      });
-    
-    this.dashboardService
-      .getWinsCount()
-      .subscribe((response: { wins_count: number }) => {
-        this.winsCount = response.wins_count;
-      });
+    this.dashboardService.getPipelineCount().subscribe((res) => {
+      this.pipelineCount = res.pipeline_count;
+    });
+    this.dashboardService.getRevenueSum().subscribe((res) => {
+      this.revenueCount = res.revenue_sum;
+    });
+    this.dashboardService.getSigningsCount().subscribe((res) => {
+      this.signingsCount = res.signings_count;
+    });
+    this.dashboardService.getWinsCount().subscribe((res) => {
+      this.winsCount = res.wins_count;
+    });
   }
 
   fetchAccountExecData(): void {
@@ -135,11 +170,7 @@ export class AccountExecDashboardComponent {
       .subscribe((data: any[]) => {
         this.accountExecData = data;
         this.isDataLoaded = true;
-      })
-  }
-
-  toggleExecutive(executive: any): void {
-    this.selectedExecutive = this.selectedExecutive === executive ? null : executive;
+      });
   }
 
   fetchTopExecutivesChart(): void {
@@ -149,12 +180,18 @@ export class AccountExecDashboardComponent {
       this.updateBarChartData();
     });
   }
+
+  toggleExecutive(executive: any): void {
+    this.selectedExecutive =
+      this.selectedExecutive === executive ? null : executive;
+  }
+
   updateBarChartData(): void {
     if (this.topExecutivesChartData.length > 0) {
       const top5Executives = this.topExecutivesChartData
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
-  
+
       this.barChart = {
         ...this.barChart,
         series: [
@@ -177,28 +214,22 @@ export class AccountExecDashboardComponent {
         value: `$${this.pipelineCount}`,
         percentage: '+55%',
       },
-      {
-        title: 'Revenue',
-        value: `$${this.revenueCount}`,
-        percentage: '+5%',
-      },
-      {
-        title: 'Signings',
-        value: `$${this.signingsCount}`,
-        percentage: '+8%',
-      },
+      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
+      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+8%' },
       {
         title: 'Count To Wins',
         value: `$${this.winsCount}`,
         percentage: '-14%',
-      }
-    ]
+      },
+    ];
   }
-  
+
   barChart = {
     chart: {
       type: 'bar' as ApexChart['type'],
       height: 350,
+      background: 'transparent',
+      foreColor: 'var(--text-color)',
     },
     series: [
       {
@@ -217,6 +248,7 @@ export class AccountExecDashboardComponent {
     colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560'],
     tooltip: {
       enabled: true,
+      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
       y: { formatter: (val: number) => `${val} Sales` },
     },
     legend: {
@@ -225,35 +257,19 @@ export class AccountExecDashboardComponent {
     xaxis: {
       categories: [] as string[],
     },
+    theme: {
+      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+    },
   };
 
-  // addExecutive(): void {
-  //   if (this.addExecutiveForm.valid) {
-  //     this.accountExecService.addExecutive(this.addExecutiveForm.value).subscribe({
-  //       next: (response) => {
-  //         alert('New Executive Added');
-  //         this.accountExecutives.push(response);
-  //         this.addExecutiveForm.reset();
-  //       },
-  //       error: (error) => {
-  //         console.error('Error Adding new Executive:', error);
-  //         alert('Failed to Add New Executive. Please check your input.');
-  //       }
-  //     })
-  //   } else {
-  //     alert('Please fill in all required fields');
-  //   }
-  // }
-
-  // Add Executive Functionality for Mock Data
   addExecutive(): void {
     if (this.addExecutiveForm.valid) {
       const newExecutive = {
-        executive_id: this.accountExecData.length + 1, // Generate a simple ID
+        executive_id: this.accountExecData.length + 1,
         ...this.addExecutiveForm.value,
       };
-  
-      this.accountExecData.push(newExecutive); // Add to static data
+
+      this.accountExecData.push(newExecutive);
       alert('New Executive Added');
       console.log('Updated Executives:', this.accountExecData);
       this.addExecutiveForm.reset();
@@ -262,22 +278,6 @@ export class AccountExecDashboardComponent {
     }
   }
 
-  // Remove Executive Functionality for Database
-  // removeExecutive(executiveId: number): void {
-  //   if (confirm('Are you sure you want to delete this executive?')) {
-  //     this.accountExecService.removeExecutive(executiveId).subscribe({
-  //       next: () => {
-  //         this.accountExecutives = this.accountExecutives.filter((executive) => executive.executive_id !== executiveId);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error Deleting Executive:', error);
-  //         alert('Error Deleting Executive. Please try again.');
-  //       }
-  //     })
-  //   }
-  // }
-
-  // Remove Executive Functionality for Mock Data
   removeExecutive(executiveId: number): void {
     if (confirm('Are you sure you want to delete this executive?')) {
       this.accountExecData = this.accountExecData.filter(

@@ -1,11 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-header',
-  imports: [],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css',
+  styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  isDarkMode = false;
 
+  ngOnInit(): void {
+    const savedMode = localStorage.getItem('dark-mode');
+    this.isDarkMode = savedMode === 'true';
+    document.body.classList.toggle('dark-mode', this.isDarkMode);
+  }
+
+  toggleDarkMode(): void {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle('dark-mode', this.isDarkMode);
+    localStorage.setItem('dark-mode', this.isDarkMode.toString());
+  }
 }

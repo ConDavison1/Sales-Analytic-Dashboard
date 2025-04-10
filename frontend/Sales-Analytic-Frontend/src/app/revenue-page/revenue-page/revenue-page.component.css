@@ -1,9 +1,9 @@
-/*revenue.component.css*/
 .revenue {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 20px;
+  color: var(--text-color);
 }
 
 /* Cards Section */
@@ -20,7 +20,8 @@
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -52,13 +53,10 @@
   max-width: 100%;
   margin: 0;
   padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
   border-radius: 8px;
-  background-color: #ffffff;
-}
-
-.table-container thead {
-  background-color: #f7f7f7;
+  color: var(--text-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .table-container {
@@ -68,8 +66,13 @@
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   overflow: hidden;
+}
+
+.table-container thead {
+  background-color: var(--card-bg);
 }
 
 .table-container table {
@@ -81,9 +84,10 @@
 .table-container td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--table-border);
 }
 
+/* Scrollable Table */
 .table-container tbody {
   display: block;
   max-height: 300px;
@@ -94,6 +98,18 @@
   display: table;
   width: 100%;
   table-layout: fixed;
+}
+
+/* Scrollbar */
+.table-container tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.table-container tbody::-webkit-scrollbar-thumb {
+  background-color: #5f606e;
+  border-radius: 4px;
+}
+.table-container tbody::-webkit-scrollbar-track {
+  background-color: var(--bg-color);
 }
 
 /* Responsive Layout & Table Fixes */
@@ -112,16 +128,13 @@
     grid-column: 1 / -1;
   }
 
-  /* Hide ARR and Time Period columns */
   .table-container th:nth-child(4),
-  .table-container td:nth-child(4), /* ARR */
-
+  .table-container td:nth-child(4),
   .table-container th:nth-child(5),
-  .table-container td:nth-child(5)  /* Time Period */ {
+  .table-container td:nth-child(5) {
     display: none;
   }
 
-  /* Table formatting for smaller screens */
   .table-container {
     overflow-x: unset;
   }

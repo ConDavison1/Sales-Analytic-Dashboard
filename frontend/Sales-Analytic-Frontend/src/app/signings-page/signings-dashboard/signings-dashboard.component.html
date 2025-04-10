@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <!--Signings Estimates Table-->
+      <!-- Signings Estimates Table -->
       <div class="table-container">
         <h2 class="text-xl font-semibold mb-4">Signings Estimates</h2>
         <table class="scrollable-table">
@@ -43,9 +43,10 @@
         </table>
       </div>
 
-      <!--Charts Section-->
+      <!-- Charts Section -->
       <div class="chart-container">
         <apx-chart
+          #barChartRef
           [series]="barChart.series"
           [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
@@ -56,9 +57,10 @@
         </apx-chart>
       </div>
 
-      <!--Signings Target Gauge-->
+      <!-- Signings Target Gauge -->
       <div class="chart-container relative">
         <apx-chart
+          #gaugeChartRef
           [series]="gaugeChart.series"
           [chart]="gaugeChart.chart"
           [plotOptions]="gaugeChart.plotOptions"

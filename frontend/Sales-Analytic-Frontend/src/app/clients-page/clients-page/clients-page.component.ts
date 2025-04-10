@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClientService } from './../../services/client-services/client.service';
 import { HeaderComponent } from '../../header/header.component';
@@ -27,6 +27,7 @@ export type ChartOptions = {
   stroke: ApexStroke;
   fill: ApexFill;
   responsive: ApexResponsive[];
+  theme?: any;
 };
 
 @Component({
@@ -42,13 +43,18 @@ export type ChartOptions = {
   templateUrl: './clients-page.component.html',
   styleUrl: './clients-page.component.css',
 })
-export class ClientsPageComponent implements OnInit {
+export class ClientsPageComponent implements OnInit, AfterViewInit {
   @ViewChild('chart') chart?: ChartComponent;
 
   public chartOptions: ChartOptions = {
-    series: [],
+    series: [8, 6, 10, 9, 7, 11, 10],
     chart: {
       type: 'polarArea',
+      foreColor: 'var(--text-color)',
+      background: 'transparent',
+    },
+    theme: {
+      mode: 'light',
     },
     stroke: {
       show: true,
@@ -59,8 +65,20 @@ export class ClientsPageComponent implements OnInit {
       opacity: 0.8,
       type: 'solid',
     },
-    labels: [],
-    responsive: [],
+    labels: ['Emily', 'Michael', 'Sophia', 'David', 'Olivia', 'James', 'Ava'],
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200,
+          },
+          legend: {
+            position: 'bottom',
+          },
+        },
+      },
+    ],
   };
 
   clients: any[] = [];
@@ -87,41 +105,36 @@ export class ClientsPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.initializeChart();
     this.fetchCardData();
     this.fetchClients();
   }
 
-  initializeChart(): void {
-    this.chartOptions = {
-      series: [8, 6, 10, 9, 7, 11, 10],
-      chart: {
-        type: 'polarArea',
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ['#fff'],
-      },
-      fill: {
-        opacity: 0.8,
-        type: 'solid',
-      },
-      labels: ['Emily', 'Michael', 'Sophia', 'David', 'Olivia', 'James', 'Ava'],
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 200,
-            },
-            legend: {
-              position: 'bottom',
-            },
-          },
+  ngAfterViewInit(): void {
+    const observer = new MutationObserver(() => {
+      this.toggleChartTheme();
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  toggleChartTheme(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+
+    this.chart?.updateOptions(
+      {
+        theme: {
+          mode: isDark ? 'dark' : 'light',
         },
-      ],
-    };
+        chart: {
+          foreColor: 'var(--text-color)',
+        },
+      },
+      false,
+      true
+    );
   }
 
   fetchCardData(): void {

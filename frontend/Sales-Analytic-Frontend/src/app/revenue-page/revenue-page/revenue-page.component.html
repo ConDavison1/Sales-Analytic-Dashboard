@@ -41,6 +41,7 @@
       <!-- Charts Section -->
       <div class="chart-container" *ngIf="isDataLoaded">
         <apx-chart
+          #barChartRef
           [series]="barChart.series"
           [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
@@ -54,6 +55,7 @@
       <!-- Revenue Target Gauge -->
       <div class="chart-container relative" *ngIf="isDataLoaded">
         <apx-chart
+          #gaugeChartRef
           [series]="gaugeChart.series"
           [chart]="gaugeChart.chart"
           [plotOptions]="gaugeChart.plotOptions"

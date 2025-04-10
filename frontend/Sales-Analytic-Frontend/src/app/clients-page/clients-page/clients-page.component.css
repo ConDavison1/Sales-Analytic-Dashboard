@@ -3,6 +3,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 20px;
+  color: var(--text-color);
 }
 
 /* Cards Section */
@@ -19,7 +20,8 @@
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -53,13 +55,15 @@
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 .table-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
+  color: var(--text-color);
 }
 
 .scrollable-table {
@@ -72,13 +76,14 @@
 .custom-table {
   width: 100%;
   border-collapse: collapse;
+  color: var(--text-color);
 }
 
 /* Sticky Header */
 .custom-table thead {
   position: sticky;
   top: 0;
-  background-color: #f8f9fa;
+  background-color: var(--card-bg);
   z-index: 10;
 }
 
@@ -86,12 +91,12 @@
 .custom-table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--table-border);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .custom-table th {
-  background-color: #f8f9fa;
+  background-color: var(--card-bg);
   font-weight: bold;
 }
 
@@ -113,15 +118,18 @@
   text-align: center;
   padding: 20px;
   font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-color);
 }
 
+/* Chart Section */
 #chart {
   grid-column: 1 / 3;
   max-width: 100%;
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 /* Add Client Form */
@@ -131,9 +139,11 @@
   padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   display: flex;
 }
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -146,14 +156,15 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
-  background-color: #f9f9f9;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   transition: border-color 0.3s ease-in-out;
 }
 
 .submit-button {
   margin-top: 12px;
   padding: 12px;
-  background-color: #007bff;
+  background-color: var(--primary);
   color: white;
   border: none;
   border-radius: 5px;
@@ -169,30 +180,11 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .clients-page {
-    grid-template-columns: repeat(2, 1fr); /* Switch to 2-column layout */
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .cards {
-    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
-  }
-
-  #chart {
-    grid-column: 1 / -1; /* Chart spans full width */
-  }
-
-  .add-client {
-    grid-column: 1 / -1; /* Form spans full width */
-    flex-direction: column; /* Stack inputs vertically */
-  }
-}
-
-@media (max-width: 480px) {
-  .clients-page {
-    grid-template-columns: 1fr; /* Single column */
-  }
-
-  .cards {
-    grid-template-columns: 1fr; /* One card per row */
+    grid-template-columns: repeat(2, 1fr);
   }
 
   #chart {
@@ -204,19 +196,53 @@
     flex-direction: column;
   }
 }
+
+@media (max-width: 480px) {
+  .clients-page {
+    grid-template-columns: 1fr;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  #chart {
+    grid-column: 1 / -1;
+  }
+
+  .add-client {
+    grid-column: 1 / -1;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 768px) {
-  /* Hide Industry, Location, Email, and Delete columns */
   .custom-table th:nth-child(4),
-  .custom-table td:nth-child(4), /* Industry */
-
+  .custom-table td:nth-child(4),
   .custom-table th:nth-child(5),
-  .custom-table td:nth-child(5), /* Location */
-
+  .custom-table td:nth-child(5),
   .custom-table th:nth-child(6),
-  .custom-table td:nth-child(6), /* Email */
-
+  .custom-table td:nth-child(6),
   .custom-table th:nth-child(7),
-  .custom-table td:nth-child(7)  /* Delete */ {
+  .custom-table td:nth-child(7) {
     display: none;
   }
+}
+/* Custom Scrollbar Styling */
+.scrollable-table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable-table::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+.scrollable-table::-webkit-scrollbar-thumb {
+  background-color: #5f606e; /* a muted gray to match dark mode */
+  border-radius: 4px;
+}
+
+.scrollable-table::-webkit-scrollbar-thumb:hover {
+  background-color: #787a8d;
 }

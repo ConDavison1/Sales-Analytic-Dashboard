@@ -25,7 +25,12 @@ interface ChartData {
 }
 @Component({
   selector: 'app-signings-dashboard',
-  imports: [NgApexchartsModule, CommonModule, SidebarComponent, HeaderComponent],
+  imports: [
+    NgApexchartsModule,
+    CommonModule,
+    SidebarComponent,
+    HeaderComponent,
+  ],
   standalone: true,
   templateUrl: './signings-dashboard.component.html',
   styleUrls: ['./signings-dashboard.component.css'],

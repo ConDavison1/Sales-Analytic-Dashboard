@@ -1,97 +1,130 @@
 <div class="executives">
-
-    <!--Cards Section-->
-    <div class="cards">
-        <div *ngFor="let card of cards" class="card">
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.value }}</p>
-            <span>{{ card.percentage }}</span>
-        </div>
+  <!--Cards Section-->
+  <div class="cards">
+    <div *ngFor="let card of cards" class="card">
+      <h3>{{ card.title }}</h3>
+      <p>{{ card.value }}</p>
+      <span>{{ card.percentage }}</span>
     </div>
+  </div>
 
-    <!--Account Executives Table-->
-    <div class="table-container">
-        <h2 class="table-header">Account Executives</h2>
-        <table class="scrollable-table">
-            <thead>
-                <tr>
-                    <th>Executive ID</th>
-                    <th>Name</th>
-                    <th>Location</th>
-                    <th>Performance</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                <ng-container *ngFor="let row of accountExecData">
-                <tr (click)="toggleExecutive(row)" class="clickable-row">
-                    <td>{{ row.executive_id }}</td>
-                    <td>{{ row.first_name }} {{ row.last_name }}</td>
-                    <td>{{ row.location }}</td>
-                    <td>{{ row.performance }}</td>
-                    <td>{{ row.email }}</td>
-                </tr>
-                <tr *ngIf="selectedExecutive === row" class="expanded-row">
-                    <td colspan="5">
-                        <div class="executive-details">
-                            <h3>Executive Details</h3>
-                            <div class="grid-container">
-                                <div><strong>ID:</strong> {{ selectedExecutive.executive_id }}</div>
-                                <div><strong>Name:</strong> {{ selectedExecutive.first_name }} {{ selectedExecutive.last_name }}</div>
-                                <div><strong>Email:</strong> {{ selectedExecutive.email }}</div>
-                                <div><strong>Location:</strong> {{ selectedExecutive.location }}</div>
-                                <div><strong>Performance:</strong> {{ selectedExecutive.performance }}</div>
-                                <div><strong>Status:</strong> {{ selectedExecutive.status }}</div>
-                                <div><strong>Assigned Accounts:</strong> {{ selectedExecutive.assigned_accounts }}</div>
-                            </div>
-                            <button (click)="removeExecutive(selectedExecutive.executive_id)" class="remove-executive">Remove Executive</button>
-                        </div>
-                    </td>
-                </tr>
-                </ng-container>
-            </tbody>
-        </table>
-    </div>
+  <!--Account Executives Table-->
+  <div class="table-container">
+    <h2 class="table-header">Account Executives</h2>
+    <table class="scrollable-table">
+      <thead>
+        <tr>
+          <th>Executive ID</th>
+          <th>Name</th>
+          <th>Location</th>
+          <th>Performance</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let row of accountExecData">
+          <tr (click)="toggleExecutive(row)" class="clickable-row">
+            <td>{{ row.executive_id }}</td>
+            <td>{{ row.first_name }} {{ row.last_name }}</td>
+            <td>{{ row.location }}</td>
+            <td>{{ row.performance }}</td>
+            <td>{{ row.email }}</td>
+          </tr>
+          <tr *ngIf="selectedExecutive === row" class="expanded-row">
+            <td colspan="5">
+              <div class="executive-details">
+                <h3>Executive Details</h3>
+                <div class="grid-container">
+                  <div>
+                    <strong>ID:</strong> {{ selectedExecutive.executive_id }}
+                  </div>
+                  <div>
+                    <strong>Name:</strong> {{ selectedExecutive.first_name }}
+                    {{ selectedExecutive.last_name }}
+                  </div>
+                  <div>
+                    <strong>Email:</strong> {{ selectedExecutive.email }}
+                  </div>
+                  <div>
+                    <strong>Location:</strong> {{ selectedExecutive.location }}
+                  </div>
+                  <div>
+                    <strong>Performance:</strong>
+                    {{ selectedExecutive.performance }}
+                  </div>
+                  <div>
+                    <strong>Status:</strong> {{ selectedExecutive.status }}
+                  </div>
+                  <div>
+                    <strong>Assigned Accounts:</strong>
+                    {{ selectedExecutive.assigned_accounts }}
+                  </div>
+                </div>
+                <button
+                  (click)="removeExecutive(selectedExecutive.executive_id)"
+                  class="remove-executive"
+                >
+                  Remove Executive
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
 
-    <!--Top Executives Chart-->
-    <div class="chart-container">
-        <h2>Top Performing Executives</h2>
-        <apx-chart 
-          [series]="barChart.series" 
-          [chart]="barChart.chart" 
-          [xaxis]="barChart.xaxis"
-          [plotOptions]="barChart.plotOptions"
-          [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors">
-        </apx-chart>
-    </div>
+  <!--Top Executives Chart-->
+  <div class="chart-container">
+    <h2>Top Performing Executives</h2>
+    <apx-chart
+      #barChartRef
+      [series]="barChart.series"
+      [chart]="barChart.chart"
+      [xaxis]="barChart.xaxis"
+      [plotOptions]="barChart.plotOptions"
+      [dataLabels]="barChart.dataLabels"
+      [colors]="barChart.colors"
+    >
+    </apx-chart>
+  </div>
 
-    <!--Add New Executive-->
-    <div class="add-executive">
-        <form [formGroup]="addExecutiveForm" (ngSubmit)="addExecutive()">
-            <h2>Add Executive</h2>
+  <!--Add New Executive-->
+  <div class="add-executive">
+    <form [formGroup]="addExecutiveForm" (ngSubmit)="addExecutive()">
+      <h2>Add Executive</h2>
 
-            <div class="form-group">
-                <label for="first_name">First Name</label>
-                <input type="text" id="first_name"  formControlName="first_name" required />
-            </div>
+      <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input
+          type="text"
+          id="first_name"
+          formControlName="first_name"
+          required
+        />
+      </div>
 
-            <div class="form-group">
-                <label for="last_name">Last Name</label>
-                <input type="text" id="last_name" formControlName="last_name" required />
-            </div>
+      <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input
+          type="text"
+          id="last_name"
+          formControlName="last_name"
+          required
+        />
+      </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" formControlName="email" required />
-            </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" required />
+      </div>
 
-            <div class="form-group">
-                <label for="location">Location</label>
-                <input type="text" id="location" formControlName="location" required />
-            </div>
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" formControlName="location" required />
+      </div>
 
-            <button type="submit" class="submit-button">Add Executive</button>
-        </form>
-    </div>
+      <button type="submit" class="submit-button">Add Executive</button>
+    </form>
+  </div>
 </div>
