@@ -31,7 +31,7 @@ def get_opportunities():
     - forecast_categories: Comma-separated list of forecast categories to filter by (optional)
       Values: 'omit', 'pipeline', 'upside', 'commit', 'closed-won'
     - product_categories: Comma-separated list of product categories to filter by (optional)
-      Values: 'gcp-core', 'data-analytics', 'cloud-security', 'app-modernization', etc.
+      Values: 'gcp-core', 'data-analytics', 'cloud-security', 'mandiant', 'looker', 'apigee', 'maps', 'marketplace', 'vertex-ai-platform'
     - opportunity_name: Text to search in opportunity name (optional, case-insensitive partial match)
     - limit: Maximum number of results to return (optional, default: 100)
     
