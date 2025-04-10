@@ -444,14 +444,29 @@ def get_user_targets(user_id, year):
         target_type='signings'
     ).first()
     
-    # Default values if no targets found
+    # Get the user to check their role
+    user = User.query.filter_by(user_id=user_id).first()
+    
+    # Default values if no targets found or based on role
+    if user and user.role == 'director':
+        # Directors always have these quarterly percentages
+        default_percentages = [10.0, 20.0, 25.0, 45.0]
+    else:
+        # Default for account executives and other roles
+        default_percentages = [25.0, 25.0, 25.0, 25.0]
+    
+    # Return defaults if no yearly target found
     if not yearly_target:
-        return 0.0, [25.0, 25.0, 25.0, 25.0]  # Default to equal distribution
+        return 0.0, default_percentages
     
     # Convert from Decimal to float
     yearly_amount = float(yearly_target.amount) if yearly_target.amount is not None else 0.0
     
-    # Get quarterly percentages
+    # For directors, always use the specified distribution
+    if user and user.role == 'director':
+        return yearly_amount, default_percentages
+    
+    # For other roles, try to get the quarterly percentages from the database
     quarterly_percentages = []
     for quarter in range(1, 5):
         quarterly_target = QuarterlyTarget.query.filter_by(
@@ -463,14 +478,14 @@ def get_user_targets(user_id, year):
             # Convert from Decimal to float
             quarterly_percentages.append(float(quarterly_target.percentage))
         else:
-            quarterly_percentages.append(25.0)  # Default to 25% if not specified
+            quarterly_percentages.append(default_percentages[quarter-1])  # Use default if not specified
     
     # Normalize percentages to ensure they sum to 100
     total_percentage = sum(quarterly_percentages)
     if total_percentage > 0:
         quarterly_percentages = [p * 100.0 / total_percentage for p in quarterly_percentages]
     else:
-        quarterly_percentages = [25.0, 25.0, 25.0, 25.0]  # Default to equal distribution
+        quarterly_percentages = default_percentages  # Use defaults if sum is 0
     
     return yearly_amount, quarterly_percentages
 
