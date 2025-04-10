@@ -546,3 +546,128 @@ def calculate_quarterly_targets(opportunities, quarterly_percentages, yearly_tar
         })
     
     return quarterly_targets
+
+@pipeline_bp.route('/stage-funnel-chart-data', methods=['GET'])
+def get_stage_funnel_chart_data():
+    """
+    Get opportunity count by sales stage for funnel chart visualization
+    
+    Returns the count of opportunities at each sales stage for the specified year.
+    Only includes opportunities that are not in the 'omit' forecast category.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (optional, default: 2024)
+    
+    Response format:
+    {
+        "stage_funnel_data": [
+            {"stage": "qualify", "count": 25},
+            {"stage": "refine", "count": 18},
+            {"stage": "tech-eval/soln-dev", "count": 12},
+            {"stage": "proposal/negotiation", "count": 8},
+            {"stage": "migrate", "count": 4}
+        ],
+        "year": 2024
+    }
+    
+    Returns:
+    - 200 OK with stage funnel data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if calculation fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get stage funnel data based on user role
+        stage_funnel_data = get_stage_funnel_data(user, year)
+        
+        # Return response
+        return jsonify({
+            "stage_funnel_data": stage_funnel_data,
+            "year": year
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in stage funnel chart data: {str(e)}")
+        return jsonify({"error": f"Failed to calculate stage funnel data: {str(e)}"}), 500
+
+
+def get_stage_funnel_data(user, year):
+    """
+    Get the count of opportunities at each sales stage.
+    
+    For directors, counts opportunities for all clients managed by account executives they manage.
+    For account executives, counts opportunities for only their clients.
+    
+    Args:
+        user: The User object
+        year: The fiscal year to filter by
+    
+    Returns:
+        List of dictionaries with stage and count
+    """
+    # Define the stages in the correct order for the funnel
+    stages = [
+        "qualify", 
+        "refine", 
+        "tech-eval/soln-dev", 
+        "proposal/negotiation", 
+        "migrate"
+    ]
+    
+    # Start building the base query to count opportunities by stage
+    base_query = db.session.query(
+        Opportunity.sales_stage,
+        func.count(Opportunity.opportunity_id).label('count')
+    ).join(
+        Client, Opportunity.client_id == Client.client_id
+    ).filter(
+        Opportunity.forecast_category != 'omit',
+        extract('year', Opportunity.created_date) == year
+    )
+    
+    # Apply role-based filtering
+    if user.role == 'director':
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Filter by clients managed by these account executives
+        if ae_ids:
+            base_query = base_query.filter(Client.account_executive_id.in_(ae_ids))
+        else:
+            # If no AEs found, return empty result with zero counts
+            return [{"stage": stage, "count": 0} for stage in stages]
+    elif user.role == 'account-executive':
+        # Filter by this account executive's clients
+        base_query = base_query.filter(Client.account_executive_id == user.user_id)
+    
+    # Complete the query with grouping and execute
+    results = base_query.group_by(Opportunity.sales_stage).all()
+    
+    # Convert results to a dictionary for easier lookup
+    stage_counts = {stage: 0 for stage in stages}
+    for stage, count in results:
+        if stage in stage_counts:  # Only include valid stages
+            stage_counts[stage] = count
+    
+    # Format into the expected response structure, maintaining stage order
+    stage_funnel_data = [
+        {"stage": stage, "count": count}
+        for stage, count in stage_counts.items()
+    ]
+    
+    return stage_funnel_data
