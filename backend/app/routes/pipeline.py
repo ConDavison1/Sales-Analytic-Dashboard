@@ -26,13 +26,12 @@ def get_opportunities():
     
     Query parameters:
     - username: Username of the current user (required)
-    - year: Fiscal year (optional, default: 2024)
     - sales_stages: Comma-separated list of sales stages to filter by (optional)
       Values: 'qualify', 'refine', 'tech-eval/soln-dev', 'proposal/negotiation', 'migrate'
     - forecast_categories: Comma-separated list of forecast categories to filter by (optional)
       Values: 'omit', 'pipeline', 'upside', 'commit', 'closed-won'
     - product_categories: Comma-separated list of product categories to filter by (optional)
-      Values: 'gcp-core', 'data-analytics', 'cloud-security', 'mandiant', 'looker', 'apigee', 'maps', 'marketplace', 'vertex-ai-platform'
+      Values: 'gcp-core', 'data-analytics', 'cloud-security', 'app-modernization', etc.
     - opportunity_name: Text to search in opportunity name (optional, case-insensitive partial match)
     - limit: Maximum number of results to return (optional, default: 100)
     
@@ -55,7 +54,6 @@ def get_opportunities():
             ...
         ],
         "total_count": 45,  // Total number of matching opportunities before applying limit
-        "year": 2024,       // The year used for filtering
         "applied_filters": {
             // Only includes filters that were actually applied
             "sales_stages": ["qualify", "refine"],
@@ -91,7 +89,6 @@ def get_opportunities():
         return jsonify({
             'opportunities': opportunities,
             'total_count': total_count,
-            'year': params['year'],
             'applied_filters': params['applied_filters']
         }), 200
         
@@ -116,7 +113,6 @@ def get_validated_params():
     
     params['username'] = username
     params['user'] = user
-    params['year'] = request.args.get('year', 2024, type=int)
     params['limit'] = request.args.get('limit', 100, type=int)
     
     # Parse filter parameters
@@ -168,7 +164,6 @@ def build_opportunity_query(params):
     """Build the query with all necessary joins and filters"""
     # Extract parameters
     user = params['user']
-    year = params['year']
     filters = params['filters']
     
     # Start building the query - core table joins
@@ -185,9 +180,6 @@ def build_opportunity_query(params):
     
     # Apply role-based access control
     query = apply_role_based_filter(query, user)
-    
-    # Apply year filter
-    query = query.filter(extract('year', Opportunity.close_date) == year)
     
     # Apply all other filters
     query = apply_opportunity_filters(query, filters)
