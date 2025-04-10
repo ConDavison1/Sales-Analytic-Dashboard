@@ -42,29 +42,29 @@ export class PipelineDashboardComponent implements OnInit {
   constructor(private dashboardService: DashboardService, private pipelineService: PipelineService) { }
 
   ngOnInit() {
-    this.fetchDashboardData();
+    // this.fetchDashboardData();
     this.fetchPipelineTable();
     this.fetchPipelineChart();
 
   }
 
-  fetchDashboardData(): void {
-    this.dashboardService.getPipelineCount().subscribe((response: { pipeline_count: number; }) => {
-      this.pipelineCount = response.pipeline_count;
-    });
+  // fetchDashboardData(): void {
+  //   this.dashboardService.getPipelineCount().subscribe((response: { pipeline_count: number; }) => {
+  //     this.pipelineCount = response.pipeline_count;
+  //   });
 
-    this.dashboardService.getRevenueSum().subscribe((response: { revenue_sum: number; }) => {
-      this.revenueCount = response.revenue_sum;
-    });
+  //   this.dashboardService.getRevenueSum().subscribe((response: { revenue_sum: number; }) => {
+  //     this.revenueCount = response.revenue_sum;
+  //   });
 
-    this.dashboardService.getSigningsCount().subscribe((response: { signings_count: number; }) => {
-      this.signingsCount = response.signings_count;
-    });
+  //   this.dashboardService.getSigningsCount().subscribe((response: { signings_count: number; }) => {
+  //     this.signingsCount = response.signings_count;
+  //   });
 
-    this.dashboardService.getWinsCount().subscribe((response: { wins_count: number; }) => {
-      this.winsCount = response.wins_count;
-    });
-  }
+  //   this.dashboardService.getWinsCount().subscribe((response: { wins_count: number; }) => {
+  //     this.winsCount = response.wins_count;
+  //   });
+  // }
 
   fetchPipelineTable(): void {
     this.pipelineService.getPipelineTable().subscribe((data) => {
