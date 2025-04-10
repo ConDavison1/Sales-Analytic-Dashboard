@@ -430,6 +430,9 @@ def get_user_targets(user_id, year):
     """
     Get a user's yearly target for signings and quarterly percentage breakdowns.
     
+    For directors, the yearly target is the sum of the signing yearly targets 
+    of all account executives under them.
+    
     Args:
         user_id: The user's ID
         year: The fiscal year
@@ -437,17 +440,10 @@ def get_user_targets(user_id, year):
     Returns:
         Tuple of (yearly_target_amount, [q1_percentage, q2_percentage, q3_percentage, q4_percentage])
     """
-    # Try to find the user's yearly target for signings
-    yearly_target = YearlyTarget.query.filter_by(
-        user_id=user_id,
-        fiscal_year=year,
-        target_type='signings'
-    ).first()
-    
     # Get the user to check their role
     user = User.query.filter_by(user_id=user_id).first()
     
-    # Default values if no targets found or based on role
+    # Default quarterly percentages based on role
     if user and user.role == 'director':
         # Directors always have these quarterly percentages
         default_percentages = [10.0, 20.0, 25.0, 45.0]
@@ -455,39 +451,65 @@ def get_user_targets(user_id, year):
         # Default for account executives and other roles
         default_percentages = [25.0, 25.0, 25.0, 25.0]
     
-    # Return defaults if no yearly target found
-    if not yearly_target:
-        return 0.0, default_percentages
-    
-    # Convert from Decimal to float
-    yearly_amount = float(yearly_target.amount) if yearly_target.amount is not None else 0.0
-    
-    # For directors, always use the specified distribution
+    # Calculate yearly target amount based on role
     if user and user.role == 'director':
+        # For directors: Sum up the yearly targets of all account executives under them
+        yearly_amount = 0.0
+        
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # For each AE, get their yearly signing target and add to total
+        if ae_ids:
+            ae_targets = YearlyTarget.query.filter(
+                YearlyTarget.user_id.in_(ae_ids),
+                YearlyTarget.fiscal_year == year,
+                YearlyTarget.target_type == 'signings'
+            ).all()
+            
+            for target in ae_targets:
+                if target.amount is not None:
+                    yearly_amount += float(target.amount)
+        
+        # Return calculated amount with director's quarterly percentages
         return yearly_amount, default_percentages
-    
-    # For other roles, try to get the quarterly percentages from the database
-    quarterly_percentages = []
-    for quarter in range(1, 5):
-        quarterly_target = QuarterlyTarget.query.filter_by(
-            target_id=yearly_target.target_id,
-            fiscal_quarter=quarter
+    else:
+        # For account executives and other roles: Get their own yearly target
+        yearly_target = YearlyTarget.query.filter_by(
+            user_id=user_id,
+            fiscal_year=year,
+            target_type='signings'
         ).first()
         
-        if quarterly_target and quarterly_target.percentage is not None:
-            # Convert from Decimal to float
-            quarterly_percentages.append(float(quarterly_target.percentage))
+        if not yearly_target:
+            return 0.0, default_percentages
+        
+        # Convert from Decimal to float
+        yearly_amount = float(yearly_target.amount) if yearly_target.amount is not None else 0.0
+        
+        # Get quarterly percentages from database
+        quarterly_percentages = []
+        for quarter in range(1, 5):
+            quarterly_target = QuarterlyTarget.query.filter_by(
+                target_id=yearly_target.target_id,
+                fiscal_quarter=quarter
+            ).first()
+            
+            if quarterly_target and quarterly_target.percentage is not None:
+                # Convert from Decimal to float
+                quarterly_percentages.append(float(quarterly_target.percentage))
+            else:
+                quarterly_percentages.append(default_percentages[quarter-1])  # Use default if not specified
+        
+        # Normalize percentages to ensure they sum to 100
+        total_percentage = sum(quarterly_percentages)
+        if total_percentage > 0:
+            quarterly_percentages = [p * 100.0 / total_percentage for p in quarterly_percentages]
         else:
-            quarterly_percentages.append(default_percentages[quarter-1])  # Use default if not specified
-    
-    # Normalize percentages to ensure they sum to 100
-    total_percentage = sum(quarterly_percentages)
-    if total_percentage > 0:
-        quarterly_percentages = [p * 100.0 / total_percentage for p in quarterly_percentages]
-    else:
-        quarterly_percentages = default_percentages  # Use defaults if sum is 0
-    
-    return yearly_amount, quarterly_percentages
+            quarterly_percentages = default_percentages  # Use defaults if sum is 0
+        
+        return yearly_amount, quarterly_percentages
 
 
 def calculate_quarterly_targets(opportunities, yearly_target, quarterly_percentages):
