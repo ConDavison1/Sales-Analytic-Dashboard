@@ -227,3 +227,132 @@ def format_signings_results(results):
         })
     
     return signings
+
+
+@signings_bp.route('/industry-acv-chart-data', methods=['GET'])
+def get_industry_acv_chart_data():
+    """
+    Get industry ACV histogram data
+    
+    Returns data for a histogram showing the distribution of the sum of incremental ACV
+    values for the top 4 industries with signings.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Year of the signing date (optional, default: 2024)
+    
+    Response format:
+    {
+        "industry_acv_data": [
+            {"industry": "Financial Services", "incremental_acv": 750000.0},
+            {"industry": "Healthcare", "incremental_acv": 500000.0},
+            {"industry": "Manufacturing", "incremental_acv": 350000.0},
+            {"industry": "Retail", "incremental_acv": 250000.0}
+        ],
+        "year": 2024
+    }
+    
+    Returns:
+    - 200 OK with industry ACV histogram data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if query execution fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get industry ACV data based on user role
+        industry_acv_data = get_industry_acv_data(user, year)
+        
+        # Return formatted response
+        return jsonify({
+            "industry_acv_data": industry_acv_data,
+            "year": year
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in get_industry_acv_histogram: {str(e)}")
+        return jsonify({"error": f"Failed to calculate industry ACV histogram data: {str(e)}"}), 500
+
+
+def get_industry_acv_data(user, year):
+    """
+    Get industry ACV data for the top 4 industries.
+    
+    For directors, includes signings for all clients managed by account executives they manage.
+    For account executives, includes only signings for their clients.
+    
+    Args:
+        user: The User object
+        year: The fiscal year to filter by
+    
+    Returns:
+        List of dictionaries with industry and incremental_acv values for top 4 industries
+    """
+    # Start building the base query to get sum of incremental_acv by industry
+    query = db.session.query(
+        Client.industry,
+        func.sum(Signing.incremental_acv).label('incremental_acv')
+    ).join(
+        Signing, Client.client_id == Signing.client_id
+    ).filter(
+        Signing.fiscal_year == year
+    ).group_by(
+        Client.industry
+    )
+    
+    # Apply role-based filtering
+    if user.role == 'director':
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Filter by clients managed by these account executives
+        if ae_ids:
+            query = query.filter(Client.account_executive_id.in_(ae_ids))
+        else:
+            # If no AEs found, return empty list
+            return []
+    elif user.role == 'account-executive':
+        # Filter by this account executive's clients
+        query = query.filter(Client.account_executive_id == user.user_id)
+    
+    # Order by incremental_acv in descending order and limit to top 4
+    query = query.order_by(func.sum(Signing.incremental_acv).desc()).limit(4)
+    
+    # Execute query
+    results = query.all()
+    
+    # Format the results
+    industry_acv_data = []
+    for industry, incremental_acv in results:
+        # Skip if industry is None or empty
+        if not industry:
+            continue
+            
+        industry_acv_data.append({
+            "industry": industry,
+            "incremental_acv": float(incremental_acv) if incremental_acv is not None else 0.0
+        })
+    
+    # Ensure we have exactly 4 industries (or fewer if not enough data)
+    while len(industry_acv_data) < 4:
+        # Add placeholder dummy data if we have fewer than 4 industries
+        # This is just to maintain the expected format, can be removed if not needed
+        industry_acv_data.append({
+            "industry": f"Other {len(industry_acv_data) + 1}",
+            "incremental_acv": 0.0
+        })
+    
+    return industry_acv_data
