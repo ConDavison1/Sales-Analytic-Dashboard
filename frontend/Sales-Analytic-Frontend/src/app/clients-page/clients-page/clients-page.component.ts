@@ -105,7 +105,7 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.initializeChart();
+    // this.initializeChart();
     // this.fetchCardData();
     // this.fetchClients();
   }
