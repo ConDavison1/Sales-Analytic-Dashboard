@@ -3,8 +3,9 @@
   <div class="main-content">
     <div class="revenue">
       <app-header></app-header>
-      <!-- Cards Section -->
-      <div *ngIf="isDataLoaded" class="cards">
+
+      <!-- Revenue Target Cards -->
+      <div class="cards" *ngIf="isDataLoaded && cards.length > 0">
         <div *ngFor="let card of cards" class="card">
           <h3>{{ card.title }}</h3>
           <p>{{ card.value }}</p>
@@ -12,34 +13,41 @@
         </div>
       </div>
 
-      <!-- Revenue Estimates Table -->
-      <div class="table-container" *ngIf="isDataLoaded">
-        <h2 class="text-xl font-semibold mb-4">Revenue Estimates</h2>
+      <!-- Revenue Table -->
+      <div class="table-container" *ngIf="isDataLoaded && revenueData.length > 0">
+        <h2 class="text-xl font-semibold mb-4">Revenue Records</h2>
         <table class="scrollable-table">
           <thead>
             <tr>
-              <th>Account Name</th>
-              <th>Revenue Type</th>
-              <th>Total Revenue ($)</th>
+              <th>Client</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Total ($)</th>
               <th>ARR ($)</th>
-              <th>Time Period</th>
+              <th>Month</th>
+              <th>Quarter</th>
+              <th>FY</th>
             </tr>
           </thead>
           <tbody>
-            <!-- Data -->
             <tr *ngFor="let row of revenueData">
-              <td>{{ row.account_name }}</td>
-              <td>{{ row.revenue_type }}</td>
-              <td>{{ row.total_revenue | currency }}</td>
+              <td>{{ row.client_name }}</td>
+              <td>{{ row.product_name }}</td>
+              <td>{{ row.product_category }}</td>
+              <td>{{ row.amount | currency }}</td>
               <td>{{ row.iacv | currency }}</td>
-              <td>{{ row.time_period }}</td>
+              <td>{{ row.month }}</td>
+              <td>{{ row.fiscal_quarter }}</td>
+              <td>{{ row.fiscal_year }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Charts Section -->
-      <div class="chart-container" *ngIf="isDataLoaded">
+      <!-- Product Distribution Chart -->
+      <div class="chart-container" *ngIf="isDataLoaded && barChart.series.length > 0">
+
+        <h3>Product Distribution</h3>
         <apx-chart
           #barChartRef
           [series]="barChart.series"
@@ -52,14 +60,18 @@
         </apx-chart>
       </div>
 
-      <!-- Revenue Target Gauge -->
-      <div class="chart-container relative" *ngIf="isDataLoaded">
+      <!-- Industry Revenue -->
+      <div class="chart-container" *ngIf="isDataLoaded && areaChart && areaChart.series && areaChart.series.length > 0">
+        <h3>Industry Revenue</h3>
         <apx-chart
-          #gaugeChartRef
-          [series]="gaugeChart.series"
-          [chart]="gaugeChart.chart"
-          [plotOptions]="gaugeChart.plotOptions"
-          [fill]="gaugeChart.fill"
+          #areaChartRef
+          [series]="areaChart.series"
+          [chart]="areaChart.chart"
+          [xaxis]="areaChart.xaxis"
+          [stroke]="areaChart.stroke"
+          [fill]="areaChart.fill"
+          [dataLabels]="areaChart.dataLabels"
+          [colors]="areaChart.colors"
         >
         </apx-chart>
       </div>

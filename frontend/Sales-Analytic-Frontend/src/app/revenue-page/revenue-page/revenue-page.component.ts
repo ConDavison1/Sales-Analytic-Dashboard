@@ -11,20 +11,6 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { NgApexchartsModule, ChartComponent, ApexChart } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { RevenueService } from '../../services/revenue-services/revenue.service';
-import { DashboardService } from '../../services/dashboard-services/dashboard.service';
-
-export type ChartOptions = {
-  series: any[];
-  chart: any;
-  plotOptions: any;
-  dataLabels: any;
-  stroke: any;
-  xaxis: any;
-  yaxis: any;
-  fill: any;
-  tooltip: any;
-  legend: any;
-};
 
 @Component({
   selector: 'app-revenue-page',
@@ -44,33 +30,44 @@ export class RevenuePageComponent
 {
   @ViewChild('barChartRef') barChartRef!: ChartComponent;
   @ViewChild('gaugeChartRef') gaugeChartRef!: ChartComponent;
-
-  pipelineCount: number = 0;
-  revenueCount: number = 0;
-  signingsCount: number = 0;
-  winsCount: number = 0;
+  @ViewChild('areaChartRef') areaChartRef!: ChartComponent;
 
   revenueData: any[] = [];
   revenueChartData: any[] = [];
+  cards: any[] = [];
   isDataLoaded: boolean = false;
 
-  constructor(
-    private dashboardService: DashboardService,
-    private revenueService: RevenueService
-  ) {}
+  private username: string = '';
+  private loadCount = 0;
+  private totalLoadsNeeded = 4;
+
+  constructor(private revenueService: RevenueService) {}
 
   ngOnInit(): void {
-    // this.fetchDashboardData();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.username = user.username;
+
+    if (!this.username) return;
+
     this.fetchRevenueClients();
     this.fetchRevenueChart();
+    this.fetchQuarterlyTargets();
+    this.fetchIndustryRevenueAreaChart();
   }
 
   ngAfterViewInit(): void {
-    this.toggleChartTheme(); // Initial check
+    this.toggleChartTheme();
   }
 
   ngAfterViewChecked(): void {
-    this.toggleChartTheme(); // Re-check on return to page
+    this.toggleChartTheme();
+  }
+
+  private markLoaded(): void {
+    this.loadCount++;
+    if (this.loadCount >= this.totalLoadsNeeded) {
+      this.isDataLoaded = true;
+    }
   }
 
   toggleChartTheme(): void {
@@ -79,18 +76,12 @@ export class RevenuePageComponent
 
     this.barChartRef?.updateOptions(
       {
-        theme: {
-          mode: isDark ? 'dark' : 'light',
-        },
-        chart: {
-          foreColor: 'var(--text-color)',
-        },
+        theme: { mode: isDark ? 'dark' : 'light' },
+        chart: { foreColor: 'var(--text-color)' },
         grid: {
           borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
         },
-        tooltip: {
-          theme: isDark ? 'dark' : 'light',
-        },
+        tooltip: { theme: isDark ? 'dark' : 'light' },
       },
       false,
       true
@@ -98,100 +89,112 @@ export class RevenuePageComponent
 
     this.gaugeChartRef?.updateOptions(
       {
-        theme: {
-          mode: isDark ? 'dark' : 'light',
-        },
-        chart: {
-          foreColor: 'var(--text-color)',
-        },
+        theme: { mode: isDark ? 'dark' : 'light' },
+        chart: { foreColor: 'var(--text-color)' },
         plotOptions: {
           radialBar: {
             dataLabels: {
-              name: {
-                color: labelColor,
-              },
-              value: {
-                color: labelColor,
-              },
+              name: { color: labelColor },
+              value: { color: labelColor },
             },
           },
         },
-        tooltip: {
-          theme: isDark ? 'dark' : 'light',
-        },
+        tooltip: { theme: isDark ? 'dark' : 'light' },
+      },
+      false,
+      true
+    );
+
+    this.areaChartRef?.updateOptions(
+      {
+        theme: { mode: isDark ? 'dark' : 'light' },
+        chart: { foreColor: 'var(--text-color)' },
+        tooltip: { theme: isDark ? 'dark' : 'light' },
       },
       false,
       true
     );
   }
 
-  // fetchDashboardData(): void {
-  //   this.dashboardService
-  //     .getPipelineCount()
-  //     .subscribe((response: { pipeline_count: number }) => {
-  //       this.pipelineCount = response.pipeline_count;
-  //     });
-
-  //   this.dashboardService
-  //     .getRevenueSum()
-  //     .subscribe((response: { revenue_sum: number }) => {
-  //       this.revenueCount = response.revenue_sum;
-  //     });
-
-  //   this.dashboardService
-  //     .getSigningsCount()
-  //     .subscribe((response: { signings_count: number }) => {
-  //       this.signingsCount = response.signings_count;
-  //     });
-
-  //   this.dashboardService
-  //     .getWinsCount()
-  //     .subscribe((response: { wins_count: number }) => {
-  //       this.winsCount = response.wins_count;
-  //     });
-  // }
-
   fetchRevenueClients(): void {
-    this.revenueService.getRevenueClients().subscribe((data) => {
-      this.revenueData = data;
+    this.revenueService.getRevenue(this.username).subscribe({
+      next: (res) => {
+        this.revenueData = res.revenue;
+        this.markLoaded();
+      },
+      error: (err) => {
+        console.error('Revenue fetch error:', err);
+        this.markLoaded();
+      },
     });
   }
 
   fetchRevenueChart(): void {
-    this.revenueService.getRevenueChart().subscribe((data) => {
-      this.revenueChartData = data;
-      this.isDataLoaded = true;
-      this.updateBarChartData();
+    this.revenueService.getRevenueProductDistribution(this.username).subscribe({
+      next: (res) => {  
+        this.revenueChartData = res.bubble_data.map((item: any) => ({
+          category: item.product_category,
+          data: item.data,
+        }));
+
+        const categories = ['Q1', 'Q2', 'Q3', 'Q4'];
+        const series = this.revenueChartData.map((item) => ({
+          name: item.category,
+          data: item.data.map((entry: number[]) => entry[1]), 
+        }));
+  
+        this.barChart.series = series;
+        this.barChart.xaxis.categories = categories;
+  
+        this.markLoaded();
+      },
+      error: (err) => {
+        console.error('Revenue chart error:', err);
+        this.markLoaded();
+      },
+    });
+  }
+  
+
+  fetchQuarterlyTargets(): void {
+    this.revenueService.getRevenueQuarterlyTargets(this.username).subscribe({
+      next: (res) => {
+        const quarters = res.quarterly_targets;
+
+        this.cards = quarters.map((q: any) => ({
+          title: `Q${q.quarter} Target`,
+          value: `$${q.accumulated_value.toLocaleString()}`,
+          percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`,
+        }));
+
+        const latestQuarter = quarters.at(-1);
+        this.gaugeChart.series = [latestQuarter.achievement_percentage];
+        this.markLoaded();
+      },
+      error: (err) => {
+        console.error('Quarterly targets error:', err);
+        this.markLoaded();
+      },
     });
   }
 
-  updateBarChartData(): void {
-    if (this.revenueChartData.length > 0) {
-      this.barChart.series[0].data = this.revenueChartData.map(
-        (item) => item.count
-      );
-      this.barChart.xaxis.categories = this.revenueChartData.map(
-        (item) => item.category
-      );
-    }
-  }
-
-  get cards() {
-    return [
-      {
-        title: 'Pipeline',
-        value: `$${this.pipelineCount}`,
-        percentage: '+55%',
+  fetchIndustryRevenueAreaChart(): void {
+    this.revenueService.getIndustryRevenueAreaChart(this.username).subscribe({
+      next: (res) => {
+        this.areaChart.series = res.industry_data.map((item: any) => ({
+          name: item.industry,
+          data: item.data,
+        }));
+        this.areaChart.xaxis.categories = res.quarters.map((q: number) => `Q${q}`);
+        this.markLoaded();
       },
-      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
-      { title: 'Signings', value: `$${this.signingsCount}`, percentage: '+8%' },
-      {
-        title: 'Count To Wins',
-        value: `${this.winsCount}`,
-        percentage: '-14%',
+      error: (err) => {
+        console.error('🌐 Industry Revenue area chart error:', err);
+        this.markLoaded();
       },
-    ];
+    });
   }
+  
 
   barChart = {
     chart: {
@@ -200,7 +203,7 @@ export class RevenuePageComponent
       background: 'transparent',
       foreColor: 'var(--text-color)',
     },
-    series: [{ name: 'Clients', data: [] as number[] }],
+    series: [] as { name: string; data: number[] }[], 
     xaxis: { categories: [] as string[] },
     plotOptions: {
       bar: { horizontal: false, columnWidth: '50%', distributed: true },
@@ -216,9 +219,10 @@ export class RevenuePageComponent
       mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
     },
   };
+  
 
   gaugeChart = {
-    series: [81],
+    series: [0],
     chart: {
       type: 'radialBar' as ApexChart['type'],
       height: 350,
@@ -249,9 +253,44 @@ export class RevenuePageComponent
       },
     },
     fill: { colors: ['#4CAF50'] },
-    yaxis: { min: 0, max: 60 },
+    yaxis: { min: 0, max: 100 },
     tooltip: {
       enabled: true,
+      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+    },
+    theme: {
+      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+    },
+  };
+
+  areaChart = {
+    series: [] as any[],
+    chart: {
+      type: 'area' as ApexChart['type'],
+      height: 350,
+      background: 'transparent',
+      foreColor: 'var(--text-color)',
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: 'smooth' as const,
+    },
+    
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.1,
+      },
+    },
+    xaxis: {
+      categories: [] as string[],
+    },
+    colors: ['#00E396'],
+    tooltip: {
       theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
     },
     theme: {
