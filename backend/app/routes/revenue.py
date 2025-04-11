@@ -398,3 +398,244 @@ def get_industry_revenue_data(user, year):
     except Exception as e:
         print(f"Error in get_industry_revenue_data: {str(e)}")
         return []
+
+@revenue_bp.route('/revenue', methods=['GET'])
+def get_revenue():
+    """
+    Query revenue data with flexible filtering
+    
+    Returns revenue entries filtered by various criteria and based on user role.
+    Directors can see revenue for all account executives they manage.
+    Account executives can only see revenue for their clients.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (optional, default: 2024)
+    - quarters: Comma-separated list of quarters to filter by (optional)
+      Example: quarters=1,2,3
+    - product_categories: Comma-separated list of product categories to filter by (optional)
+      Values: 'gcp-core', 'data-analytics', 'cloud-security', 'app-modernization'
+      Example: product_categories=gcp-core,data-analytics
+      Note: 'app-modernization' includes: mandiant, looker, apigee, maps, marketplace, vertex-ai-platform
+    
+    Response format:
+    {
+        "revenue": [
+            {
+                "revenue_id": 1,
+                "client_name": "Acme Corp",
+                "client_industry": "Financial Services",
+                "account_executive": "John Smith",
+                "account_executive_id": 5,
+                "product_name": "Compute Engine",
+                "product_category": "gcp-core",
+                "fiscal_year": 2024,
+                "fiscal_quarter": 1,
+                "month": 2,
+                "amount": 12500.00
+            },
+            ...
+        ],
+        "total_count": 42,
+        "total_amount": 850000.00,
+        "applied_filters": {
+            "year": 2024,
+            "quarters": [1, 2],
+            "product_categories": ["gcp-core", "data-analytics"]
+        }
+    }
+    
+    Returns:
+    - 200 OK with filtered revenue data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if query execution fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        quarters_param = request.args.get('quarters', type=str)
+        product_categories_param = request.args.get('product_categories', type=str)
+        
+        # Parse comma-separated quarters
+        quarters = []
+        if quarters_param:
+            try:
+                quarters = [int(q.strip()) for q in quarters_param.split(',') if q.strip()]
+                # Validate all quarters are between 1 and 4
+                if not all(1 <= q <= 4 for q in quarters):
+                    return jsonify({"error": "All quarters must be between 1 and 4"}), 400
+            except ValueError:
+                return jsonify({"error": "Invalid quarters format. Must be comma-separated integers."}), 400
+        
+        # Parse comma-separated product categories
+        product_categories = []
+        valid_product_categories = ['gcp-core', 'data-analytics', 'cloud-security', 'app-modernization']
+        if product_categories_param:
+            product_categories = [p.strip() for p in product_categories_param.split(',') if p.strip()]
+            # Validate all product categories are valid
+            invalid_categories = [p for p in product_categories if p not in valid_product_categories]
+            if invalid_categories:
+                return jsonify({"error": f"Invalid product categories: {', '.join(invalid_categories)}. Valid values are: {', '.join(valid_product_categories)}"}), 400
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Build the query based on user role and filters
+        query, applied_filters = build_revenue_query(user, year, quarters, product_categories)
+        
+        # Get total count for metadata
+        total_count = query.count()
+        
+        # Calculate total amount as a separate query
+        amount_query = query.with_entities(func.sum(Revenue.amount))
+        total_amount = amount_query.scalar() or 0.0
+        
+        # Execute query and get results with pagination
+        # Limit to 1000 records for performance
+        results = query.order_by(
+            Revenue.fiscal_year, 
+            Revenue.fiscal_quarter, 
+            Revenue.month
+        ).limit(1000).all()
+        
+        # Format the results
+        revenue_data = format_revenue_results(results)
+        
+        # Return formatted response
+        return jsonify({
+            "revenue": revenue_data,
+            "total_count": total_count,
+            "total_amount": float(total_amount),
+            "applied_filters": applied_filters
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in get_revenue: {str(e)}")
+        return jsonify({"error": f"Failed to query revenue: {str(e)}"}), 500
+
+
+def build_revenue_query(user, year, quarters, product_categories):
+    """
+    Build the query for revenue based on user role and filters
+    
+    Args:
+        user: The User object
+        year: The fiscal year to filter by
+        quarters: List of fiscal quarters to filter by (optional)
+        product_categories: List of product categories to filter by (optional)
+    
+    Returns:
+        Tuple of (query, applied_filters)
+    """
+    # Start building the base query
+    query = db.session.query(
+        Revenue,
+        Client.client_name,
+        Client.industry,
+        User.first_name,
+        User.last_name,
+        User.user_id,
+        Product.product_name,
+        Product.product_category
+    ).join(
+        Client, Revenue.client_id == Client.client_id
+    ).join(
+        User, Client.account_executive_id == User.user_id
+    ).join(
+        Product, Revenue.product_id == Product.product_id
+    )
+    
+    # Initialize applied filters dictionary
+    applied_filters = {"year": year}
+    
+    # Apply role-based filtering
+    if user.role == 'director':
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Filter by clients managed by these account executives
+        if ae_ids:
+            query = query.filter(Client.account_executive_id.in_(ae_ids))
+        else:
+            # If no AEs found, return no results
+            query = query.filter(False)
+    elif user.role == 'account-executive':
+        # Filter by this account executive's clients
+        query = query.filter(Client.account_executive_id == user.user_id)
+    
+    # Apply year filter
+    query = query.filter(Revenue.fiscal_year == year)
+    
+    # Apply quarters filter if provided
+    if quarters:
+        query = query.filter(Revenue.fiscal_quarter.in_(quarters))
+        applied_filters["quarters"] = quarters
+    
+    # Apply product categories filter if provided
+    if product_categories:
+        # Prepare all product categories we need to filter by, including app-modernization subcategories
+        db_product_categories = []
+        for category in product_categories:
+            if category == 'app-modernization':
+                # Include all app-modernization subcategories
+                db_product_categories.extend([
+                    'looker', 'apigee', 'maps', 'marketplace', 
+                    'vertex-ai-platform', 'mandiant'
+                ])
+            else:
+                db_product_categories.append(category)
+        
+        # Filter by the expanded list of categories
+        query = query.filter(Product.product_category.in_(db_product_categories))
+        applied_filters["product_categories"] = product_categories
+    
+    return query, applied_filters
+
+
+def format_revenue_results(results):
+    """
+    Format the query results into the desired output structure
+    
+    Args:
+        results: List of tuples from the query
+    
+    Returns:
+        List of dictionaries with revenue data
+    """
+    revenue_data = []
+    
+    for revenue, client_name, industry, ae_first_name, ae_last_name, ae_id, product_name, product_category in results:
+        # For app-modernization categories, standardize the category name for display
+        if product_category in ['looker', 'apigee', 'maps', 'marketplace', 'vertex-ai-platform', 'mandiant']:
+            display_category = 'app-modernization'
+        else:
+            display_category = product_category
+            
+        # Format the account executive name
+        account_executive = f"{ae_first_name} {ae_last_name}" if ae_first_name and ae_last_name else ""
+        account_executive = account_executive.strip()
+            
+        revenue_data.append({
+            "revenue_id": revenue.revenue_id,
+            "client_name": client_name,
+            "client_industry": industry,
+            "account_executive": account_executive,
+            "account_executive_id": ae_id,
+            "product_name": product_name,
+            "product_category": display_category,
+            "fiscal_year": revenue.fiscal_year,
+            "fiscal_quarter": revenue.fiscal_quarter,
+            "month": revenue.month,
+            "amount": float(revenue.amount) if revenue.amount else 0.0
+        })
+    
+    return revenue_data
