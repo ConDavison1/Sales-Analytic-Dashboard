@@ -1,59 +1,73 @@
 <div class="container">
     <app-sidebar></app-sidebar>
     <div class="main-content">
-        <div class="pipeline">
-            <app-header></app-header>
-            <!--Cards Section-->
-            <div class="cards">
-                <div *ngFor="let card of cards" class="card">
-                    <h3>{{ card.title }}</h3>
-                    <p>{{ card.value }}</p>
-                    <span>{{ card.percentage }}</span>
-                </div>
-            </div>
-
-            <!--Pipeline Table-->
-            <div class="table-container">
-                <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
-                <table class="scrollable-table">
-                    <thead>
-                        <tr>
-                            <th>Account Name</th>
-                            <th>Opportunity ID</th>
-                            <th>Stage</th>
-                            <th>Forecast Category</th>
-                            <th>Probability</th>
-                            <th>Value</th>
-                            <th>Time Period</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let row of pipelineData">
-                            <td>{{ row.account_name }}</td>
-                            <td>{{ row.opportunity_id }}</td>
-                            <td>{{ row.stage }}</td>
-                            <td>{{ row.forecast_category }}</td>
-                            <td>{{ row.probability }}</td>
-                            <td>{{ row.opportunity_value }}</td>
-                            <td>{{ row.time_period }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!--Charts Section-->
-            <div class="chart-container">
-                <apx-chart [series]="barChart.series" [chart]="barChart.chart" [xaxis]="barChart.xaxis" [yaxis]="barChart.yaxis"
-                    [plotOptions]="barChart.plotOptions" [dataLabels]="barChart.dataLabels" [colors]="barChart.colors">
-                </apx-chart>
-            </div>
-
-            <!--Pipeline Target Gauge-->
-            <div class="chart-container relative">
-                <apx-chart [series]="gaugeChart.series" [chart]="gaugeChart.chart" [plotOptions]="gaugeChart.plotOptions"
-                    [fill]="gaugeChart.fill">
-                </apx-chart>
-            </div>
+      <div class="pipeline">
+        <app-header></app-header>
+  
+        <!-- Cards Section -->
+        <div class="cards">
+          <div *ngFor="let card of cards" class="card">
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.value }}</p>
+            <span>{{ card.percentage }}</span>
+          </div>
         </div>
+  
+        <!-- Pipeline Table -->
+        <div class="table-container">
+          <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
+          <table class="scrollable-table">
+            <thead>
+              <tr>
+                <th>Account Name</th>
+                <th>Opportunity ID</th>
+                <th>Stage</th>
+                <th>Forecast Category</th>
+                <th>Probability</th>
+                <th>Value</th>
+                <th>Time Period</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of pipelineData">
+                <td>{{ row.account_name }}</td>
+                <td>{{ row.opportunity_id }}</td>
+                <td>{{ row.stage }}</td>
+                <td>{{ row.forecast_category }}</td>
+                <td>{{ row.probability }}</td>
+                <td>{{ row.opportunity_value }}</td>
+                <td>{{ row.time_period }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <!-- Funnel Chart Section -->
+        <div class="chart-container" *ngIf="funnelChart.series">
+          <h3>Sales Stages</h3>
+          <apx-chart
+            [series]="funnelChart.series"
+            [chart]="funnelChart.chart"
+            [xaxis]="funnelChart.xaxis"
+            [plotOptions]="funnelChart.plotOptions"
+            [dataLabels]="funnelChart.dataLabels"
+            [colors]="funnelChart.colors">
+          </apx-chart>
+        </div>
+  
+        <!-- Product Forecast Heatmap Chart -->
+        <div class="chart-container" *ngIf="heatmapChart.series">
+          <h3>Product Forecast </h3>
+          <apx-chart
+            [series]="heatmapChart.series"
+            [chart]="heatmapChart.chart"
+            [xaxis]="heatmapChart.xaxis"
+            [dataLabels]="heatmapChart.dataLabels"
+            [colors]="heatmapChart.colors">
+          </apx-chart>
+        </div>
+        
+      </div>
     </div>
-</div>
+  </div>
+  
