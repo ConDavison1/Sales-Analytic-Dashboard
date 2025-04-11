@@ -23,9 +23,23 @@ export class PipelineDashboardComponent implements OnInit {
 
   cards: any[] = [];
   pipelineData: any[] = [];
+  allOpportunities: any[] = [];
 
   funnelChart: any = {};
   heatmapChart: any = {};
+
+  showFilterOverlay: boolean = false;
+
+  selectedFilters: {
+    stage: Set<string>;
+    forecast_category: Set<string>;
+  } = {
+    stage: new Set<string>(),
+    forecast_category: new Set<string>()
+  };
+
+  uniqueStages: string[] = [];
+  uniqueForecastCategories: string[] = [];
 
   constructor(private pipelineService: PipelineService) {}
 
@@ -62,7 +76,7 @@ export class PipelineDashboardComponent implements OnInit {
 
   loadOpportunities(): void {
     this.pipelineService.getOpportunities(this.username).subscribe((res) => {
-      this.pipelineData = res.opportunities.map((opp: any) => ({
+      const formattedData = res.opportunities.map((opp: any) => ({
         account_name: opp.client_name,
         opportunity_id: opp.opportunity_id,
         stage: opp.sales_stage,
@@ -71,7 +85,44 @@ export class PipelineDashboardComponent implements OnInit {
         opportunity_value: `$${opp.amount.toLocaleString()}`,
         time_period: opp.close_date,
       }));
+
+      this.allOpportunities = formattedData;
+      this.pipelineData = [...formattedData];
+
+      this.uniqueForecastCategories = [...new Set<string>(
+        formattedData.map((row: any) => row.forecast_category as string)
+      )];
+      this.uniqueStages = Array.from(new Set<string>(
+        formattedData.map((row: any) => row.stage)
+      ));
     });
+  }
+
+  toggleFilter(category: keyof typeof this.selectedFilters, value: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
+    }
+  }
+
+  applyFilters(): void {
+    this.pipelineData = this.pipelineData.filter(row =>
+      (!this.selectedFilters.stage.size || this.selectedFilters.stage.has(row.stage)) &&
+      (!this.selectedFilters.forecast_category.size || this.selectedFilters.forecast_category.has(row.forecast_category))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.stage.clear();
+    this.selectedFilters.forecast_category.clear();
+    this.pipelineData = [...this.allOpportunities];
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
   }
 
   loadStageFunnel(): void {
