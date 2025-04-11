@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import extract, func, and_, or_
 from ..models.models import (
     db, Win, Client, User, Product,
-    DirectorAccountExecutive
+    DirectorAccountExecutive, YearlyTarget, QuarterlyTarget
 )
 from datetime import datetime
 
@@ -550,3 +550,290 @@ def format_wins_results(results):
         })
     
     return wins_data
+
+@wins_bp.route('/wins-quarterly-targets', methods=['GET'])
+def get_wins_quarterly_targets():
+    """
+    Get quarterly accumulated win values and target achievement percentages
+    
+    For each quarter, calculates the accumulated win count (sum of win multipliers) and the percentage
+    of the quarterly target achieved. Accumulated values represent the total from Q1 through the specified quarter.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (optional, default: 2024)
+    
+    Response format:
+    {
+        "quarterly_targets": [
+            {
+                "quarter": 1,
+                "accumulated_value": 1.5,   // Accumulated value through Q1
+                "achievement_percentage": 37.5   // Percentage of Q1 target achieved
+            },
+            {
+                "quarter": 2,
+                "accumulated_value": 4.0,   // Accumulated value through Q2
+                "achievement_percentage": 50.0   // Percentage of Q2 target achieved
+            },
+            {
+                "quarter": 3,
+                "accumulated_value": 7.5,   // Accumulated value through Q3
+                "achievement_percentage": 62.5   // Percentage of Q3 target achieved
+            },
+            {
+                "quarter": 4,
+                "accumulated_value": 12.0,   // Accumulated value through Q4
+                "achievement_percentage": 75.0   // Percentage of Q4 target achieved
+            }
+        ],
+        "year": 2024,
+        "quarterly_percentages": [25.0, 25.0, 25.0, 25.0]  // Target percentages by quarter
+    }
+    
+    Returns:
+    - 200 OK with quarterly target data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if calculation fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get all relevant wins
+        wins_data = get_user_wins(user, year)
+        
+        # Get the user's quarterly target percentages
+        quarterly_percentages = get_user_win_targets(user.user_id, year)
+        
+        # Get the yearly target amount
+        yearly_target_amount = get_yearly_win_target_amount(user, year)
+        
+        # Calculate the quarterly accumulated values and achievement percentages
+        quarterly_targets = calculate_quarterly_win_targets(wins_data, quarterly_percentages, yearly_target_amount)
+        
+        # Return response
+        return jsonify({
+            "quarterly_targets": quarterly_targets,
+            "year": year,
+            "quarterly_percentages": quarterly_percentages
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in wins quarterly targets: {str(e)}")
+        return jsonify({"error": f"Failed to calculate quarterly targets: {str(e)}"}), 500
+
+
+def get_yearly_win_target_amount(user, year):
+    """
+    Get the yearly win target amount for a user.
+    
+    For directors, it's the sum of targets for account executives under them.
+    For account executives, it's their own target amount.
+    
+    Args:
+        user: The User object
+        year: The fiscal year
+    
+    Returns:
+        The yearly target amount as a float
+    """
+    if user.role == 'director':
+        # Calculate yearly target as sum of AE targets
+        yearly_amount = 0.0
+        
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # For each AE, get their yearly win target and add to total
+        if ae_ids:
+            ae_targets = YearlyTarget.query.filter(
+                YearlyTarget.user_id.in_(ae_ids),
+                YearlyTarget.fiscal_year == year,
+                YearlyTarget.target_type == 'wins'
+            ).all()
+            
+            for target in ae_targets:
+                if target.amount is not None:
+                    yearly_amount += float(target.amount)
+                    
+        return yearly_amount
+    else:
+        # For account executives, get their own yearly target
+        yearly_target = YearlyTarget.query.filter_by(
+            user_id=user.user_id,
+            fiscal_year=year,
+            target_type='wins'
+        ).first()
+        
+        if yearly_target and yearly_target.amount is not None:
+            return float(yearly_target.amount)
+        else:
+            return 10.0
+
+
+def get_user_wins(user, year):
+    """
+    Get all relevant wins data for a user in the specified year.
+    
+    For directors, gets wins from all account executives they manage.
+    For account executives, gets only their wins.
+    
+    Args:
+        user: The User object
+        year: The fiscal year to filter by
+    
+    Returns:
+        List of dictionaries with win data
+    """
+    # Start building the query to get wins
+    query = db.session.query(
+        Win.fiscal_quarter,
+        Win.win_multiplier,
+        Client.account_executive_id
+    ).join(
+        Client, Win.client_id == Client.client_id
+    ).filter(
+        Win.fiscal_year == year
+    )
+    
+    # Apply role-based filtering
+    if user.role == 'director':
+        # Get all account executives under this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Filter by clients managed by these account executives
+        if ae_ids:
+            query = query.filter(Client.account_executive_id.in_(ae_ids))
+        else:
+            # If no AEs found, return empty list
+            return []
+    elif user.role == 'account-executive':
+        # Filter by this account executive's clients
+        query = query.filter(Client.account_executive_id == user.user_id)
+    
+    # Execute query
+    results = query.all()
+    
+    # Process results into list of dictionaries
+    wins_data = []
+    for quarter, win_multiplier, ae_id in results:
+        if win_multiplier is not None:
+            wins_data.append({
+                'quarter': quarter,
+                'win_multiplier': float(win_multiplier),
+                'account_executive_id': ae_id
+            })
+    
+    return wins_data
+
+
+def get_user_win_targets(user_id, year):
+    """
+    Get a user's quarterly target percentages for wins.
+    
+    For directors, uses fixed percentages [10.0, 20.0, 25.0, 45.0].
+    For account executives, retrieves from database or uses defaults.
+    
+    Args:
+        user_id: The user's ID
+        year: The fiscal year
+    
+    Returns:
+        List of percentages for each quarter [q1_percentage, q2_percentage, q3_percentage, q4_percentage]
+    """
+    # Get the user to check their role
+    user = User.query.filter_by(user_id=user_id).first()
+    
+    # For directors: use fixed percentages
+    if user and user.role == 'director':
+        return [10.0, 20.0, 25.0, 45.0]
+    
+    # For account executives and other roles:
+    # Initialize with default values
+    quarterly_percentages = [10.0, 20.0, 25.0, 45.0]
+    
+    # Try to get the user's yearly target for wins
+    yearly_target = YearlyTarget.query.filter_by(
+        user_id=user_id,
+        fiscal_year=year,
+        target_type='wins'
+    ).first()
+    
+    if yearly_target:
+        # Try to get quarterly targets from database
+        for quarter in range(1, 5):
+            quarterly_target = QuarterlyTarget.query.filter_by(
+                target_id=yearly_target.target_id,
+                fiscal_quarter=quarter
+            ).first()
+            
+            if quarterly_target and quarterly_target.percentage is not None:
+                # Convert from Decimal to float
+                quarterly_percentages[quarter - 1] = float(quarterly_target.percentage)
+    
+    return quarterly_percentages
+
+
+def calculate_quarterly_win_targets(wins_data, quarterly_percentages, yearly_target_amount):
+    """
+    Calculate quarterly accumulated values and achievement percentages for wins.
+    
+    Args:
+        wins_data: List of dictionaries with win data
+        quarterly_percentages: List of percentages for each quarter
+        yearly_target_amount: The yearly win target amount for the user
+    
+    Returns:
+        List of dictionaries with quarter, accumulated_value, and achievement_percentage
+    """
+    # Initialize accumulated values for each quarter
+    accumulated_values = [0.0, 0.0, 0.0, 0.0]
+    
+    # Calculate accumulated value for each quarter
+    for win in wins_data:
+        quarter = win['quarter']
+        win_multiplier = win['win_multiplier']
+        
+        # Add this win's multiplier to this quarter and all subsequent quarters
+        for q in range(quarter - 1, 4):
+            accumulated_values[q] += win_multiplier
+    
+    # Calculate quarterly targets
+    quarterly_targets = []
+    
+    for quarter in range(1, 5):
+        # Get the accumulated value for this quarter
+        accumulated_value = accumulated_values[quarter - 1]
+        
+        # Get the quarterly target percentage for this quarter
+        quarter_percentage = quarterly_percentages[quarter - 1]
+        
+        # Calculate the absolute target for this quarter from the yearly target amount
+        absolute_target = yearly_target_amount * (quarter_percentage / 100.0)
+        
+        # Calculate achievement percentage (avoid division by zero)
+        achievement_percentage = 0.0
+        if absolute_target > 0:
+            achievement_percentage = (accumulated_value / absolute_target) * 100.0
+        
+        quarterly_targets.append({
+            "quarter": quarter,
+            "accumulated_value": round(accumulated_value, 2),
+            "achievement_percentage": round(achievement_percentage, 1)
+        })
+    
+    return quarterly_targets
