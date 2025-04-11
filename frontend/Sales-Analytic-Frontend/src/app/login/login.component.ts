@@ -40,36 +40,41 @@ export class LoginComponent {
     });
   }
 
+  showPassword = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
   onLogin() {
     const payload = { username: this.username, password: this.password };
-  
-    this.http.post('http://localhost:5000/login', payload).subscribe({
+
+    console.log('Sending login request with payload:', payload);  // Add log to check payload
+
+    this.http.post('http://localhost:5000/api/auth/login', payload).subscribe({
       next: (response: any) => {
-        if (!response.token) {
-          this.message = "Login failed: No token received!";
+        console.log('Login response:', response);  // Log the full response
+        
+        if (!response.user) {
+          this.message = "Login failed: No user data received!";
+          console.log(this.message);  // Log the failure message
           return;
         }
-  
-        const token = `Bearer ${response.token}`;
-        localStorage.setItem('token', token);
-        
-        console.log('JWT Token:', token);
-  
-        try {
-          const payloadBase64 = token.split('.')[1];  
-          const decodedPayload = JSON.parse(atob(payloadBase64));
-          console.log('Decoded JWT Payload:', decodedPayload);
-        } catch (error) {
-          console.error("Failed to decode JWT token:", error);
-        }
-  
+
+        // Optional: store user data in localStorage or a service
+        localStorage.setItem('user', JSON.stringify(response.user));
+        console.log('User Info:', response.user);  // Log user data
+
+        // Redirect to landing page
         this.router.navigate(['/landing-page']);
       },
       error: (error) => {
         console.error("Login Error:", error);
-        this.message = error.error.message || 'Login failed!';
+        this.message = error.error.error || 'Login failed!';
       }
     });
-  }
+}
+
+  
   
 }

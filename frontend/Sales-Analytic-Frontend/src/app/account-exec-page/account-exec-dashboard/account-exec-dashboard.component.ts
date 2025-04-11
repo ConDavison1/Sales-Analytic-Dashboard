@@ -74,7 +74,7 @@ export class AccountExecDashboardComponent
   }
 
   ngOnInit(): void {
-    this.fetchDashboardData();
+    // this.fetchDashboardData();
     this.fetchAccountExecData();
     this.fetchTopExecutivesChart();
 
@@ -148,20 +148,31 @@ export class AccountExecDashboardComponent
     );
   }
 
-  fetchDashboardData(): void {
-    this.dashboardService.getPipelineCount().subscribe((res) => {
-      this.pipelineCount = res.pipeline_count;
-    });
-    this.dashboardService.getRevenueSum().subscribe((res) => {
-      this.revenueCount = res.revenue_sum;
-    });
-    this.dashboardService.getSigningsCount().subscribe((res) => {
-      this.signingsCount = res.signings_count;
-    });
-    this.dashboardService.getWinsCount().subscribe((res) => {
-      this.winsCount = res.wins_count;
-    });
-  }
+  // fetchDashboardData(): void {
+  //   this.dashboardService
+  //     .getPipelineCount()
+  //     .subscribe((response: { pipeline_count: number }) => {
+  //       this.pipelineCount = response.pipeline_count;
+  //     });
+
+  //   this.dashboardService
+  //     .getRevenueSum()
+  //     .subscribe((response: { revenue_sum: number }) => {
+  //       this.revenueCount = response.revenue_sum;
+  //     });
+
+  //   this.dashboardService
+  //     .getSigningsCount()
+  //     .subscribe((response: { signings_count: number }) => {
+  //       this.signingsCount = response.signings_count;
+  //     });
+
+  //   this.dashboardService
+  //     .getWinsCount()
+  //     .subscribe((response: { wins_count: number }) => {
+  //       this.winsCount = response.wins_count;
+  //     });
+  // }
 
   fetchAccountExecData(): void {
     this.accountExecService

@@ -37,39 +37,39 @@ export class ClientService {
 
   constructor(private http: HttpClient, private router: Router) {} 
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.warn("No JWT token found Redirecting to login.");
-      this.router.navigate(['/login']); 
-      return new HttpHeaders();
-    }
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,  
-      'Content-Type': 'application/json'
-    });
-  }
+  // private getAuthHeaders(): HttpHeaders {
+  //   const token = localStorage.getItem('token');
+  //   if (!token) {
+  //     console.warn("No JWT token found Redirecting to login.");
+  //     this.router.navigate(['/login']); 
+  //     return new HttpHeaders();
+  //   }
+  //   return new HttpHeaders({
+  //     'Authorization': `Bearer ${token}`,  
+  //     'Content-Type': 'application/json'
+  //   });
+  // }
 
-  // Revenue API Calls
-  getRevenueSum(): Observable<RevenueSumResponse> {
-    return this.http.get<RevenueSumResponse>(`${this.baseUrl}/revenue-sum`, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // // Revenue API Calls
+  // getRevenueSum(): Observable<RevenueSumResponse> {
+  //   return this.http.get<RevenueSumResponse>(`${this.baseUrl}/revenue-sum`, { headers: this.getAuthHeaders() })
+  //     .pipe(catchError(this.handleError));
+  // }
 
-  getPipelineCount(): Observable<PipelineCountResponse> {
-    return this.http.get<PipelineCountResponse>(`${this.baseUrl}/pipeline-count`, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // getPipelineCount(): Observable<PipelineCountResponse> {
+  //   return this.http.get<PipelineCountResponse>(`${this.baseUrl}/pipeline-count`, { headers: this.getAuthHeaders() })
+  //     .pipe(catchError(this.handleError));
+  // }
 
-  getSigningsCount(): Observable<SigningsCountResponse> {
-    return this.http.get<SigningsCountResponse>(`${this.baseUrl}/signings-count`, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // getSigningsCount(): Observable<SigningsCountResponse> {
+  //   return this.http.get<SigningsCountResponse>(`${this.baseUrl}/signings-count`, { headers: this.getAuthHeaders() })
+  //     .pipe(catchError(this.handleError));
+  // }
 
-  getWinsCount(): Observable<WinsCountResponse> {
-    return this.http.get<WinsCountResponse>(`${this.baseUrl}/wins-count`, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // getWinsCount(): Observable<WinsCountResponse> {
+  //   return this.http.get<WinsCountResponse>(`${this.baseUrl}/wins-count`, {})
+  //     .pipe(catchError(this.handleError));
+  // }
 
   getClients(): Observable<any> {
     let token = localStorage.getItem('token');
@@ -104,15 +104,15 @@ export class ClientService {
   
   
 
-  deleteClient(clientId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/clients/${clientId}`, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // deleteClient(clientId: number): Observable<void> {
+  //   return this.http.delete<void>(`${this.baseUrl}/clients/${clientId}`, { headers: this.getAuthHeaders() })
+  //     .pipe(catchError(this.handleError));
+  // }
 
-  addClient(client: Clients): Observable<Clients> {
-    return this.http.post<Clients>(`${this.baseUrl}/clients`, client, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
-  }
+  // addClient(client: Clients): Observable<Clients> {
+  //   return this.http.post<Clients>(`${this.baseUrl}/clients`, client, { headers: this.getAuthHeaders() })
+  //     .pipe(catchError(this.handleError));
+  // }
 
   private handleError(error: any): Observable<never> {
     console.error("API Error:", error);

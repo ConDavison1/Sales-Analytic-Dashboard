@@ -105,8 +105,9 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.fetchCardData();
-    this.fetchClients();
+    this.initializeChart();
+    // this.fetchCardData();
+    // this.fetchClients();
   }
 
   ngAfterViewInit(): void {
@@ -137,23 +138,23 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
     );
   }
 
-  fetchCardData(): void {
-    this.clientService.getPipelineCount().subscribe((response) => {
-      this.pipelineCount = response.pipeline_count;
-    });
+  // fetchCardData(): void {
+  //   this.clientService.getPipelineCount().subscribe((response) => {
+  //     this.pipelineCount = response.pipeline_count;
+  //   });
 
-    this.clientService.getRevenueSum().subscribe((response) => {
-      this.revenueCount = response.revenue_sum;
-    });
+  //   this.clientService.getRevenueSum().subscribe((response) => {
+  //     this.revenueCount = response.revenue_sum;
+  //   });
 
-    this.clientService.getSigningsCount().subscribe((response) => {
-      this.signingsCount = response.signings_count;
-    });
+  //   this.clientService.getSigningsCount().subscribe((response) => {
+  //     this.signingsCount = response.signings_count;
+  //   });
 
-    this.clientService.getWinsCount().subscribe((response) => {
-      this.winsCount = response.wins_count;
-    });
-  }
+  //   this.clientService.getWinsCount().subscribe((response) => {
+  //     this.winsCount = response.wins_count;
+  //   });
+  // }
 
   get cards() {
     return [
@@ -176,52 +177,52 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
     ];
   }
 
-  fetchClients(): void {
-    this.clientService.getClients().subscribe({
-      next: (data) => {
-        this.clients = data;
-      },
-      error: (err) => {
-        console.error('Error fetching clients:', err);
-        if (err.status === 401) {
-          alert('Unauthorized! Redirecting to login...');
-          this.router.navigate(['/login']);
-        }
-      },
-    });
-  }
+  // fetchClients(): void {
+  //   this.clientService.getClients().subscribe({
+  //     next: (data) => {
+  //       this.clients = data;
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching clients:', err);
+  //       if (err.status === 401) {
+  //         alert('Unauthorized! Redirecting to login...');
+  //         this.router.navigate(['/login']);
+  //       }
+  //     },
+  //   });
+  // }
 
-  deleteClient(clientId: number): void {
-    if (confirm('Are you sure you want to delete this client?')) {
-      this.clientService.deleteClient(clientId).subscribe({
-        next: () => {
-          this.clients = this.clients.filter(
-            (client) => client.client_id !== clientId
-          );
-        },
-        error: (err) => {
-          console.error('Error deleting client:', err);
-          alert('Error deleting client. Please try again.');
-        },
-      });
-    }
-  }
+  // deleteClient(clientId: number): void {
+  //   if (confirm('Are you sure you want to delete this client?')) {
+  //     this.clientService.deleteClient(clientId).subscribe({
+  //       next: () => {
+  //         this.clients = this.clients.filter(
+  //           (client) => client.client_id !== clientId
+  //         );
+  //       },
+  //       error: (err) => {
+  //         console.error('Error deleting client:', err);
+  //         alert('Error deleting client. Please try again.');
+  //       },
+  //     });
+  //   }
+  // }
 
-  addClient(): void {
-    if (this.addClientForm.valid) {
-      this.clientService.addClient(this.addClientForm.value).subscribe({
-        next: (response) => {
-          alert('Client added successfully');
-          this.clients.push(response);
-          this.addClientForm.reset();
-        },
-        error: (err) => {
-          console.error('Error adding client', err);
-          alert('Failed to add client. Please check your input.');
-        },
-      });
-    } else {
-      alert('Please fill in all required fields');
-    }
-  }
+  // addClient(): void {
+  //   if (this.addClientForm.valid) {
+  //     this.clientService.addClient(this.addClientForm.value).subscribe({
+  //       next: (response) => {
+  //         alert('Client added successfully');
+  //         this.clients.push(response);
+  //         this.addClientForm.reset();
+  //       },
+  //       error: (err) => {
+  //         console.error('Error adding client', err);
+  //         alert('Failed to add client. Please check your input.');
+  //       },
+  //     });
+  //   } else {
+  //     alert('Please fill in all required fields');
+  //   }
+  // }
 }

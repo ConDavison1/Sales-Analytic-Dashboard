@@ -1,275 +1,171 @@
-import {
-  Component,
-  OnInit,
-  ViewEncapsulation,
-  ViewChild,
-  AfterViewInit,
-  AfterViewChecked,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgApexchartsModule, ChartComponent, ApexChart } from 'ng-apexcharts';
+import { NgApexchartsModule } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
-import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
 
-export type ChartOptions = {
-  series: any[];
-  chart: any;
-  plotOptions: any;
-  dataLabels: any;
-  stroke: any;
-  xaxis: any;
-  yaxis: any;
-  fill: any;
-  tooltip: any;
-  legend: any;
-};
-
 @Component({
+  standalone: true,
   selector: 'app-pipeline-dashboard',
+  templateUrl: './pipeline-dashboard.component.html',
+  styleUrls: ['./pipeline-dashboard.component.css'],
   imports: [
-    NgApexchartsModule,
     CommonModule,
+    NgApexchartsModule,
     SidebarComponent,
     HeaderComponent,
   ],
-  standalone: true,
-  templateUrl: './pipeline-dashboard.component.html',
-  styleUrl: './pipeline-dashboard.component.css',
-  encapsulation: ViewEncapsulation.Emulated,
 })
-export class PipelineDashboardComponent
-  implements OnInit, AfterViewInit, AfterViewChecked
-{
-  @ViewChild('barChartRef') barChartRef!: ChartComponent;
-  @ViewChild('gaugeChartRef') gaugeChartRef!: ChartComponent;
+export class PipelineDashboardComponent implements OnInit {
+  username = '';
+  year = 2024;
 
-  pipelineCount = 0;
-  revenueCount = 0;
-  signingsCount = 0;
-  winsCount = 0;
-
+  cards: any[] = [];
   pipelineData: any[] = [];
-  pipelineChartData: any[] = [];
-  isDataLoaded = false;
 
-  constructor(
-    private dashboardService: DashboardService,
-    private pipelineService: PipelineService
-  ) {}
+  funnelChart: any = {};
+  heatmapChart: any = {};
 
-  ngOnInit() {
-    this.fetchDashboardData();
-    this.fetchPipelineTable();
-    this.fetchPipelineChart();
+  constructor(private pipelineService: PipelineService) {}
+
+  ngOnInit(): void {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.username = user.username || '';
+
+    if (this.username) {
+      this.loadOpportunities();
+      this.loadStageFunnel();
+      this.loadHeatmapChart();
+      this.loadQuarterlyCards();
+    }
   }
 
-  ngAfterViewInit(): void {
-    this.toggleChartTheme();
+  loadQuarterlyCards(): void {
+    this.pipelineService
+      .getQuarterlyTargets(this.username, this.year)
+      .subscribe((res) => {
+        const quarters = res.quarterly_targets;
+
+        if (!quarters || quarters.length === 0) {
+          console.warn('No quarterly targets available');
+          return;
+        }
+
+        this.cards = quarters.map((q: any) => ({
+          title: `Q${q.quarter} Target`,
+          value: `$${q.accumulated_value.toLocaleString()}`,
+          percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`,
+        }));
+      });
   }
 
-  ngAfterViewChecked(): void {
-    this.toggleChartTheme();
+  loadOpportunities(): void {
+    this.pipelineService.getOpportunities(this.username).subscribe((res) => {
+      this.pipelineData = res.opportunities.map((opp: any) => ({
+        account_name: opp.client_name,
+        opportunity_id: opp.opportunity_id,
+        stage: opp.sales_stage,
+        forecast_category: opp.forecast_category,
+        probability: `${opp.probability}%`,
+        opportunity_value: `$${opp.amount.toLocaleString()}`,
+        time_period: opp.close_date,
+      }));
+    });
   }
 
-  toggleChartTheme(): void {
-    const isDark = document.body.classList.contains('dark-mode');
-    const labelColor = isDark ? '#ffffff' : '#333333';
+  loadStageFunnel(): void {
+    this.pipelineService
+      .getStageFunnelData(this.username, this.year)
+      .subscribe((res) => {
+        const sortedData = res.stage_funnel_data.sort(
+          (a: any, b: any) => b.count - a.count
+        );
+        const funnelStages = sortedData.map((d: any) => d.stage);
+        const funnelCounts = sortedData.map((d: any) => d.count);
 
-    this.barChartRef?.updateOptions(
-      {
-        theme: {
-          mode: isDark ? 'dark' : 'light',
-        },
-        chart: {
-          foreColor: 'var(--text-color)',
-        },
-        grid: {
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-        },
-        tooltip: {
-          theme: isDark ? 'dark' : 'light',
-        },
-      },
-      false,
-      true
-    );
-
-    this.gaugeChartRef?.updateOptions(
-      {
-        theme: {
-          mode: isDark ? 'dark' : 'light',
-        },
-        chart: {
-          foreColor: 'var(--text-color)',
-        },
-        plotOptions: {
-          radialBar: {
-            dataLabels: {
-              name: {
-                color: labelColor,
-              },
-              value: {
-                color: labelColor,
-              },
+        this.funnelChart = {
+          series: [
+            {
+              name: 'Funnel Series',
+              data: funnelCounts,
+            },
+          ],
+          chart: {
+            type: 'bar',
+            height: 400,
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              barHeight: '80%',
+              borderRadius: 0,
+              distributed: true,
+              // @ts-ignore: Allow unofficial funnel support
+              isFunnel: true,
             },
           },
-        },
-        tooltip: {
-          theme: isDark ? 'dark' : 'light',
-        },
-      },
-      false,
-      true
-    );
-  }
-
-  fetchDashboardData(): void {
-    this.dashboardService.getPipelineCount().subscribe((res) => {
-      this.pipelineCount = res.pipeline_count;
-    });
-    this.dashboardService.getRevenueSum().subscribe((res) => {
-      this.revenueCount = res.revenue_sum;
-    });
-    this.dashboardService.getSigningsCount().subscribe((res) => {
-      this.signingsCount = res.signings_count;
-    });
-    this.dashboardService.getWinsCount().subscribe((res) => {
-      this.winsCount = res.wins_count;
-    });
-  }
-
-  fetchPipelineTable(): void {
-    this.pipelineService.getPipelineTable().subscribe((data) => {
-      this.pipelineData = data;
-    });
-  }
-
-  fetchPipelineChart(): void {
-    this.pipelineService.getPipelineChart().subscribe((data) => {
-      this.pipelineChartData = data;
-      this.isDataLoaded = true;
-      this.updateBarChartData();
-    });
-  }
-
-  updateBarChartData(): void {
-    this.pipelineService.getPipelineChart().subscribe((data) => {
-      data.sort((a: any, b: any) => a.probability - b.probability);
-      this.barChart.series = [
-        {
-          name: 'Accounts',
-          data: data.map((item: any) => item.count),
-        },
-      ];
-      this.barChart.xaxis.categories = data.map((item: any) =>
-        item.probability.toString()
-      );
-    });
-  }
-
-  get cards() {
-    return [
-      {
-        title: 'Pipeline',
-        value: `$${this.pipelineCount}`,
-        percentage: '+55%',
-      },
-      {
-        title: 'Revenue',
-        value: `$${this.revenueCount}`,
-        percentage: '+5%',
-      },
-      {
-        title: 'Count To Wins',
-        value: `${this.winsCount}`,
-        percentage: '-14%',
-      },
-      {
-        title: 'Signings',
-        value: `$${this.signingsCount}`,
-        percentage: '+8%',
-      },
-    ];
-  }
-
-  barChart = {
-    chart: {
-      type: 'bar' as ApexChart['type'],
-      height: 350,
-      background: 'transparent',
-      foreColor: 'var(--text-color)',
-    },
-    series: [{ name: 'Clients', data: [] as number[] }],
-    xaxis: { categories: ['10%', '33%', '66%', '95%'] as string[] },
-    yaxis: {
-      title: {
-        text: 'Accounts #',
-        style: { fontFamily: 'Arial, Helvetica, sans-serif' },
-      },
-    },
-    plotOptions: {
-      bar: { horizontal: false, columnWidth: '50%', distributed: true },
-    },
-    dataLabels: { enabled: true },
-    colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560'],
-    tooltip: {
-      enabled: true,
-      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-      y: { formatter: (val: number) => `${val} Clients` },
-    },
-    theme: {
-      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-    },
-  };
-
-  gaugeChart = {
-    series: [46],
-    chart: {
-      type: 'radialBar' as ApexChart['type'],
-      height: 350,
-      background: 'transparent',
-    },
-    plotOptions: {
-      radialBar: {
-        startAngle: -90,
-        endAngle: 90,
-        track: {
-          background: '#e7e7e7',
-          strokeWidth: '97%',
-        },
-        dataLabels: {
-          name: {
-            show: true,
-            fontSize: '16px',
-            offsetY: 20,
-            color: '#333',
-            formatter: () => 'Pipeline Target Score',
+          dataLabels: {
+            enabled: true,
+            formatter: function (val: any, opt: any) {
+              return funnelStages[opt.dataPointIndex] + ': ' + val;
+            },
           },
-          value: {
-            fontSize: '24px',
-            show: true,
-            offsetY: -10,
-            color: '#333',
-            formatter: (val: number) => `${Math.round((val / 100) * 60)}M`,
+          xaxis: {
+            categories: funnelStages,
           },
-        },
+          colors: [
+            '#4CAF50',
+            '#81C784',
+            '#AED581',
+            '#C5E1A5',
+            '#DCE775',
+            '#FFF176',
+          ],
+        };
+      });
+  }
+
+  loadHeatmapChart(): void {
+    this.pipelineService.getHeatmapData(this.username, this.year).subscribe({
+      next: (res: any) => {
+        if (!res || !Array.isArray(res.heatmap_data)) {
+          console.warn('Invalid or missing heatmap data:', res);
+          return;
+        }
+
+        const data = res.heatmap_data;
+
+        const productCategories = [
+          ...new Set(data.map((d: any) => d.product_category)),
+        ];
+        const forecastCategories = [
+          ...new Set(data.map((d: any) => d.forecast_category)),
+        ];
+
+        const series = productCategories.map((product) => ({
+          name: product,
+          data: forecastCategories.map((forecast) => {
+            const match = data.find(
+              (d: any) =>
+                d.product_category === product &&
+                d.forecast_category === forecast
+            );
+            return match ? match.value : 0;
+          }),
+        }));
+
+        this.heatmapChart = {
+          series,
+          chart: { height: 350, type: 'heatmap' },
+          dataLabels: { enabled: true },
+          xaxis: { categories: forecastCategories },
+          colors: ['#008FFB'],
+        };
       },
-    },
-    fill: {
-      colors: ['#4CAF50'],
-    },
-    yaxis: {
-      min: 0,
-      max: 60,
-    },
-    tooltip: {
-      enabled: true,
-      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-    },
-    theme: {
-      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-    },
-  };
+      error: (err) => {
+        console.error('Error fetching heatmap data:', err);
+      },
+    });
+  }
 }

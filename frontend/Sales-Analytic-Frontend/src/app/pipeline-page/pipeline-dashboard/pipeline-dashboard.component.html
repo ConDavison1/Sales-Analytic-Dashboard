@@ -3,7 +3,8 @@
   <div class="main-content">
     <div class="pipeline">
       <app-header></app-header>
-      <!--Cards Section-->
+
+      <!-- Cards Section -->
       <div class="cards">
         <div *ngFor="let card of cards" class="card">
           <h3>{{ card.title }}</h3>
@@ -12,7 +13,7 @@
         </div>
       </div>
 
-      <!--Pipeline Table-->
+      <!-- Pipeline Table -->
       <div class="table-container">
         <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
         <table class="scrollable-table">
@@ -41,29 +42,29 @@
         </table>
       </div>
 
-      <!--Charts Section-->
-      <div class="chart-container">
+      <!-- Funnel Chart Section -->
+      <div class="chart-container" *ngIf="funnelChart.series">
+        <h3>Sales Stages</h3>
         <apx-chart
-          #barChartRef
-          [series]="barChart.series"
-          [chart]="barChart.chart"
-          [xaxis]="barChart.xaxis"
-          [yaxis]="barChart.yaxis"
-          [plotOptions]="barChart.plotOptions"
-          [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors"
+          [series]="funnelChart.series"
+          [chart]="funnelChart.chart"
+          [xaxis]="funnelChart.xaxis"
+          [plotOptions]="funnelChart.plotOptions"
+          [dataLabels]="funnelChart.dataLabels"
+          [colors]="funnelChart.colors"
         >
         </apx-chart>
       </div>
 
-      <!--Pipeline Target Gauge-->
-      <div class="chart-container relative">
+      <!-- Product Forecast Heatmap Chart -->
+      <div class="chart-container" *ngIf="heatmapChart.series">
+        <h3>Product Forecast</h3>
         <apx-chart
-          #gaugeChartRef
-          [series]="gaugeChart.series"
-          [chart]="gaugeChart.chart"
-          [plotOptions]="gaugeChart.plotOptions"
-          [fill]="gaugeChart.fill"
+          [series]="heatmapChart.series"
+          [chart]="heatmapChart.chart"
+          [xaxis]="heatmapChart.xaxis"
+          [dataLabels]="heatmapChart.dataLabels"
+          [colors]="heatmapChart.colors"
         >
         </apx-chart>
       </div>

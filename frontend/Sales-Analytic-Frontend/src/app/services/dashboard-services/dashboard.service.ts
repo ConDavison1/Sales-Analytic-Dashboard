@@ -1,66 +1,38 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-interface RevenueSumResponse {
-  revenue_sum: number;
-}
-
-interface PipelineCountResponse {
-  pipeline_count: number;
-}
-
-interface SigningsCountResponse {
-  signings_count: number;
-}
-
-interface WinsCountResponse {
-  wins_count: number;
-}
-
-interface AccountExecutive {
-  executive_id: number;
-  first_name: string;
-  last_name: string;
-}
-
-interface ChartDataResponse {
-  wins_count: any;
-  pipeline: number[];
-  revenue: number[];
-  wins: number[];
-  signings: number[];
-}
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
-  private baseUrl = 'http://localhost:5000';
+  // Directly calling Flask since we're using CORS now
+  private baseUrl = 'http://localhost:5000/api/landing';
 
   constructor(private http: HttpClient) {}
 
-  getRevenueSum(): Observable<RevenueSumResponse> {
-    return this.http.get<RevenueSumResponse>(`${this.baseUrl}/revenue-sum`);
+  getRevenueChartData(username: string, year: number = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/revenue-chart-data`, { params });
   }
 
-  getPipelineCount(): Observable<PipelineCountResponse> {
-    return this.http.get<PipelineCountResponse>(`${this.baseUrl}/pipeline-count`);
+  getWinChartData(username: string, year: number = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/win-chart-data`, { params });
   }
 
-  getSigningsCount(): Observable<SigningsCountResponse> {
-    return this.http.get<SigningsCountResponse>(`${this.baseUrl}/signings-count`);
+  getKpiCards(username: string, year: number = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/kpi-cards`, { params });
   }
 
-  getWinsCount(): Observable<WinsCountResponse> {
-    return this.http.get<WinsCountResponse>(`${this.baseUrl}/wins-count`);
+  getPipelineChartData(username: string, year: number = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/pipeline-chart-data`, { params });
   }
 
-  getAccountExecutives(): Observable<AccountExecutive[]> {
-    return this.http.get<AccountExecutive[]>(`${this.baseUrl}/account_executives`); 
-  }
-
-  getChartData(): Observable<ChartDataResponse> {
-    return this.http.get<ChartDataResponse>(`${this.baseUrl}/chart-data`);
+  getSigningsChartData(username: string, year: number = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/signings-chart-data`, { params });
   }
 }
