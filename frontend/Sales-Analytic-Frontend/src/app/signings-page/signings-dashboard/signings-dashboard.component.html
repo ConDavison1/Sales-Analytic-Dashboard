@@ -3,71 +3,68 @@
   <div class="main-content">
     <div class="signings">
       <app-header></app-header>
-      <!-- Cards Section -->
+
+      <!-- Cards -->
       <div class="cards">
-        <div *ngFor="let card of cards" class="card">
+        <div *ngFor="let card of quarterlyCards" class="card">
           <h3>{{ card.title }}</h3>
           <p>{{ card.value }}</p>
           <span>{{ card.percentage }}</span>
         </div>
       </div>
 
-      <!-- Signings Estimates Table -->
+      <!-- Table -->
       <div class="table-container">
-        <h2 class="text-xl font-semibold mb-4">Signings Estimates</h2>
+        <h2>Signings</h2>
         <table class="scrollable-table">
           <thead>
             <tr>
-              <th>Account Name</th>
-              <th>Opportunity ID</th>
-              <th>Stage</th>
-              <th>Forecast Category</th>
-              <th>Probability</th>
-              <th>iACV</th>
-              <th>Signing Date</th>
-              <th>Time Period</th>
+              <th>Client</th><th>Product</th><th>Category</th>
+              <th>Total Value</th><th>iACV</th>
+              <th>Start</th><th>End</th><th>Signing</th><th>FY</th><th>Q</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let row of signingsData">
-              <td>{{ row.account_name }}</td>
-              <td>{{ row.opportunity_id }}</td>
-              <td>{{ row.stage }}</td>
-              <td>{{ row.forecast_category }}</td>
-              <td>{{ row.probability }}</td>
+              <td>{{ row.client_name }}</td>
+              <td>{{ row.product_name }}</td>
+              <td>{{ row.product_category }}</td>
+              <td>{{ row.total_contract_value }}</td>
               <td>{{ row.incremental_acv }}</td>
+              <td>{{ row.start_date }}</td>
+              <td>{{ row.end_date }}</td>
               <td>{{ row.signing_date }}</td>
-              <td>{{ row.time_period }}</td>
+              <td>{{ row.fiscal_year }}</td>
+              <td>{{ row.fiscal_quarter }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Charts Section -->
+      <!-- Charts -->
       <div class="chart-container">
-        <apx-chart
-          #barChartRef
+        <apx-chart #barChartRef
           [series]="barChart.series"
           [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors"
-        >
+          [colors]="barChart.colors">
         </apx-chart>
       </div>
+      <!-- Provincial Distribution Polar Area Chart -->
+        <div class="chart-container">
+          <h2 class="text-xl font-semibold mb-4">Provincial Distribution</h2>
+          <apx-chart
+            [series]="polarChart.series"
+            [chart]="polarChart.chart"
+            [labels]="polarChart.labels"
+            [colors]="polarChart.colors"
+            [responsive]="polarChart.responsive"
+          ></apx-chart>
+        </div>
 
-      <!-- Signings Target Gauge -->
-      <div class="chart-container relative">
-        <apx-chart
-          #gaugeChartRef
-          [series]="gaugeChart.series"
-          [chart]="gaugeChart.chart"
-          [plotOptions]="gaugeChart.plotOptions"
-          [fill]="gaugeChart.fill"
-        >
-        </apx-chart>
-      </div>
+
     </div>
   </div>
 </div>
