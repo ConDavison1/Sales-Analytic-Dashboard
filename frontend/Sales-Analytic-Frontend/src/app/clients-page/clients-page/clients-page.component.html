@@ -36,7 +36,7 @@
                   <td>{{ client.email }}</td>
                   <td>
                     <button
-                      (click)="deleteClient(client.client_id)"
+                      
                       class="delete-btn"
                     >
                       🗑️
@@ -60,9 +60,9 @@
           ></apx-chart>
         </div>
 
-        <!-- Add Client -->
+        Add Client
         <div class="add-client">
-          <form [formGroup]="addClientForm" (ngSubmit)="addClient()">
+          <form [formGroup]="addClientForm" >
             <h3>Add Client</h3>
 
             <div class="form-group">

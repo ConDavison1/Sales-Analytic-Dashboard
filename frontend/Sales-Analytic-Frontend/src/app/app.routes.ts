@@ -4,7 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { ClientsPageComponent } from './clients-page/clients-page/clients-page.component';
 import { AccountExecPageComponent } from './account-exec-page/account-exec-page/account-exec-page.component';
 import { WinsPageComponent } from './wins-page/wins-page/wins-page.component';
-import { AuthGuard } from './auth/auth.guard'; // Import the AuthGuard
+// import { AuthGuard } from './auth/auth.guard'; // Import the AuthGuard
 import { RevenuePageComponent } from './revenue-page/revenue-page/revenue-page.component';
 import { SigningsDashboardComponent } from './signings-page/signings-dashboard/signings-dashboard.component';
 import { PipelineDashboardComponent } from './pipeline-page/pipeline-dashboard/pipeline-dashboard.component';
