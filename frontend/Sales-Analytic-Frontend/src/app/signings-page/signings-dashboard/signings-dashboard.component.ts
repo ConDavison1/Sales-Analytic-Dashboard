@@ -62,36 +62,36 @@ export class SigningsDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.fetchDashboardData();
+    // this.fetchDashboardData();
     this.fetchSigningsData();
     this.fetchSigningsChart();
   }
 
-  fetchDashboardData(): void {
-    this.dashboardService
-      .getPipelineCount()
-      .subscribe((response: { pipeline_count: number }) => {
-        this.pipelineCount = response.pipeline_count;
-      });
+  // fetchDashboardData(): void {
+  //   this.dashboardService
+  //     .getPipelineCount()
+  //     .subscribe((response: { pipeline_count: number }) => {
+  //       this.pipelineCount = response.pipeline_count;
+  //     });
 
-    this.dashboardService
-      .getRevenueSum()
-      .subscribe((response: { revenue_sum: number }) => {
-        this.revenueCount = response.revenue_sum;
-      });
+  //   this.dashboardService
+  //     .getRevenueSum()
+  //     .subscribe((response: { revenue_sum: number }) => {
+  //       this.revenueCount = response.revenue_sum;
+  //     });
 
-    this.dashboardService
-      .getSigningsCount()
-      .subscribe((response: { signings_count: number }) => {
-        this.signingsCount = response.signings_count;
-      });
+  //   this.dashboardService
+  //     .getSigningsCount()
+  //     .subscribe((response: { signings_count: number }) => {
+  //       this.signingsCount = response.signings_count;
+  //     });
 
-    this.dashboardService
-      .getWinsCount()
-      .subscribe((response: { wins_count: number }) => {
-        this.winsCount = response.wins_count;
-      });
-  }
+  //   this.dashboardService
+  //     .getWinsCount()
+  //     .subscribe((response: { wins_count: number }) => {
+  //       this.winsCount = response.wins_count;
+  //     });
+  // }
 
   fetchSigningsData(): void {
     this.signingsService.getSigningsData().subscribe((data) => {
