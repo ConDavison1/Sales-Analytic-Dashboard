@@ -56,7 +56,9 @@ def create_app(config_name='default'):
     # from .routes.wins import wins_bp             # Sales wins tracking endpoints
     from .routes.signings import signings_bp     # Contract signing endpoints
     from .routes.landing import landing_bp       # Landing page endpoints
-    
+    from .routes.ai import ai_bp
+    app.register_blueprint(ai_bp)  # This will expose /ai-insight
+
     # Add each blueprint to the application with its URL prefix
     # The URL prefixes are defined in each blueprint file
     app.register_blueprint(auth_bp)              # /api/auth/...

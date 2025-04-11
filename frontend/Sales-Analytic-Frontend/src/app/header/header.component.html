@@ -5,7 +5,12 @@
 
   <div class="search-bar">
     <i class="fa fa-search"></i>
-    <input type="text" placeholder="Search..." />
+    <input
+      type="text"
+      placeholder="Search..."
+      [(ngModel)]="query"
+      (keydown)="onSearchKeydown($event)"
+    />
   </div>
 
   <div class="actions">
@@ -21,5 +26,20 @@
       </span>
     </label>
     <img src="assets/logan.jpg" alt="Profile Picture" />
+  </div>
+
+  <div class="ai-panel" [class.open]="showInsight">
+    <div class="panel-header">
+      <h3>AI Insight</h3>
+      <button class="close-btn" (click)="closeInsightPopup()">×</button>
+    </div>
+    <div class="panel-body">
+      <div *ngFor="let insight of aiInsights" class="insight-entry">
+        <p><strong>Q:</strong> {{ insight.query }}</p>
+        <p><strong>A:</strong> {{ insight.response }}</p>
+        <hr />
+      </div>
+    </div>
+    
   </div>
 </div>
