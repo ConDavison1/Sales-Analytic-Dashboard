@@ -217,3 +217,184 @@ def add_or_update_data_point(data_points, quarter, revenue, client_count):
             
     # If no matching quarter found, add a new data point
     data_points.append([quarter, revenue, client_count])
+
+@revenue_bp.route('/industry-revenue-area-chart', methods=['GET'])
+def get_industry_revenue_area_chart():
+    """
+    Get revenue data by industry for area chart visualization
+    
+    Returns data showing revenue trends for the top 4 industries across quarters
+    for the specified fiscal year. This is designed for stacked area chart visualization.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - year: Fiscal year (optional, default: 2024)
+    
+    Response format:
+    {
+      "industry_data": [
+        {
+          "industry": "Financial Services",
+          "data": [25000, 35000, 40000, 50000]  // Revenue for quarters 1-4
+        },
+        {
+          "industry": "Healthcare",
+          "data": [20000, 25000, 30000, 35000]
+        },
+        {
+          "industry": "Manufacturing",
+          "data": [15000, 20000, 25000, 30000]
+        },
+        {
+          "industry": "Retail",
+          "data": [10000, 15000, 18000, 22000]
+        }
+      ],
+      "quarters": [1, 2, 3, 4],
+      "year": 2024
+    }
+    
+    Returns:
+    - 200 OK with industry revenue data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if calculation fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        year = request.args.get('year', 2024, type=int)
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get area chart data by industry
+        industry_data = get_industry_revenue_data(user, year)
+        
+        # Return formatted response
+        return jsonify({
+            "industry_data": industry_data,
+            "quarters": [1, 2, 3, 4],
+            "year": year
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in get_industry_revenue_area_chart: {str(e)}")
+        return jsonify({"error": f"Failed to calculate industry revenue data: {str(e)}"}), 500
+
+
+def get_industry_revenue_data(user, year):
+    """
+    Get quarterly revenue data for the top 4 industries.
+    
+    For directors, includes revenue for all clients managed by account executives they manage.
+    For account executives, includes only revenue for their clients.
+    
+    Args:
+        user: The User object
+        year: The fiscal year to filter by
+    
+    Returns:
+        List of dictionaries with industry and quarterly revenue data
+    """
+    try:
+        # First, identify the top 4 industries by total revenue
+        top_industries_query = db.session.query(
+            Client.industry,
+            func.sum(Revenue.amount).label('total_revenue')
+        ).join(
+            Revenue, Client.client_id == Revenue.client_id
+        ).filter(
+            Revenue.fiscal_year == year
+        )
+        
+        # Apply role-based filtering
+        if user.role == 'director':
+            # Get all account executives managed by this director
+            ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+            ae_ids = [relation.account_executive_id for relation in ae_relations]
+            
+            # Filter by clients managed by these account executives
+            if ae_ids:
+                top_industries_query = top_industries_query.filter(Client.account_executive_id.in_(ae_ids))
+            else:
+                # If no AEs found, return empty result
+                return []
+        elif user.role == 'account-executive':
+            # Filter by this account executive's clients
+            top_industries_query = top_industries_query.filter(Client.account_executive_id == user.user_id)
+        
+        # Complete the query with grouping and get top 4 by revenue
+        top_industries_query = top_industries_query.group_by(
+            Client.industry
+        ).order_by(
+            func.sum(Revenue.amount).desc()
+        ).limit(4)
+        
+        top_industries_result = top_industries_query.all()
+        
+        # Extract just the industry names
+        top_industries = [industry for industry, _ in top_industries_result if industry]
+        
+        # If we have fewer than 4 industries, or some are None, this is ok
+        if len(top_industries) == 0:
+            return []
+        
+        # Now get quarterly revenue data for each of these top industries
+        industry_data = []
+        
+        for industry in top_industries:
+            # Query revenue by quarter for this industry
+            quarterly_revenue_query = db.session.query(
+                Revenue.fiscal_quarter,
+                func.sum(Revenue.amount).label('quarterly_revenue')
+            ).join(
+                Client, Revenue.client_id == Client.client_id
+            ).filter(
+                Revenue.fiscal_year == year,
+                Client.industry == industry
+            )
+            
+            # Apply the same role-based filtering
+            if user.role == 'director':
+                if ae_ids:
+                    quarterly_revenue_query = quarterly_revenue_query.filter(Client.account_executive_id.in_(ae_ids))
+                else:
+                    continue  # Skip this industry if no AEs found
+            elif user.role == 'account-executive':
+                quarterly_revenue_query = quarterly_revenue_query.filter(Client.account_executive_id == user.user_id)
+            
+            # Complete the query with grouping
+            quarterly_revenue_query = quarterly_revenue_query.group_by(
+                Revenue.fiscal_quarter
+            ).order_by(
+                Revenue.fiscal_quarter
+            )
+            
+            quarterly_results = quarterly_revenue_query.all()
+            
+            # Initialize array with zeros for all 4 quarters
+            quarterly_data = [0.0, 0.0, 0.0, 0.0]
+            
+            # Fill in actual values from query results
+            for quarter, revenue in quarterly_results:
+                if 1 <= quarter <= 4:  # Ensure quarter is valid
+                    quarterly_data[quarter - 1] = float(revenue) if revenue is not None else 0.0
+            
+            # Add to industry data
+            industry_data.append({
+                "industry": industry,
+                "data": quarterly_data
+            })
+        
+        return industry_data
+        
+    except Exception as e:
+        print(f"Error in get_industry_revenue_data: {str(e)}")
+        return []
