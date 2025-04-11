@@ -14,14 +14,8 @@
 
             <!--Pipeline Table-->
             <div class="table-container">
-                <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
-                <div class="filter-dropdown">
-                    <label for="filter">Filter By:</label>
-                    <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
-                        <option value="all">All</option>
-                        <option *ngFor="let option of filterOptions" [value]="option.value">{{ option.label }}</option>
-                    </select>
-                </div>
+                <h2>Pipeline Estimates</h2>
+                <button class="open-filter" (click)="showFilterOverlay = true">Filters</button>
                 <table class="scrollable-table">
                     <thead>
                         <tr>
@@ -60,6 +54,43 @@
                 <apx-chart [series]="gaugeChart.series" [chart]="gaugeChart.chart" [plotOptions]="gaugeChart.plotOptions"
                     [fill]="gaugeChart.fill">
                 </apx-chart>
+            </div>
+
+            <!--Pipeline Filter Overlay-->
+            <div class="filter-overlay" (click)="onOverlayClick($event)" *ngIf="showFilterOverlay">
+                <div class="filter-panel" (click)="$event.stopPropagation()">
+                    <h2>Pipeline Filters</h2>
+
+                    <div class="filter-group">
+                        <h3>Stage</h3>
+                        <label *ngFor="let stage of uniqueStages">
+                            <input type="checkbox" [value]="stage" [checked]="selectedFilters.stage.has(stage)" (change)="toggleFilter('stage', stage, $event)" />
+                            {{ stage }}
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Forecast Category</h3>
+                        <label *ngFor="let category of uniqueForecastCategories">
+                            <input type="checkbox" [value]="category" [checked]="selectedFilters.forecast_category.has(category)" (change)="toggleFilter('forecast_category', category, $event)" />
+                            {{ category }}
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Time Period</h3>
+                        <label *ngFor="let period of uniqueTimePeriods">
+                            <input type="checkbox" [value]="period" [checked]="selectedFilters.time_period.has(period)" (change)="toggleFilter('time_period', period, $event)" />
+                            {{ period }}
+                        </label>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button class="apply-filters" (click)="applyMultiFilters()">Apply Filters</button>
+                        <button class="clear-filters" (click)="clearFilters()">Clear Filters</button>
+                        <button class="close-filters" (click)="showFilterOverlay = false">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

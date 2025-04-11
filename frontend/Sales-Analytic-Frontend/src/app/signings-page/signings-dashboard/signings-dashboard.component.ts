@@ -41,6 +41,19 @@ export class SigningsDashboardComponent implements OnInit {
 
   signingsChartData: ChartData[] = [];
 
+  showFilterOverlay: boolean = false;
+
+  selectedFilters: {
+    product_category: Set<string>;
+    quarter: Set<string>;
+  } = {
+    product_category: new Set(),
+    quarter: new Set(),
+  };
+
+  uniqueProductCategories: string[] = [];
+  uniqueQuarters: string[] = [];
+
   isDataLoaded: boolean = false;
 
   constructor(
@@ -83,8 +96,40 @@ export class SigningsDashboardComponent implements OnInit {
   fetchSigningsData(): void {
     this.signingsService.getSigningsData().subscribe((data) => {
       this.signingsData = data;
+      this.signingsData = [...data];
+  
+      this.uniqueProductCategories = [...new Set(data.map(row => row.category))];
+      this.uniqueQuarters = [...new Set(data.map(row => row.quarter))];
     });
   }
+
+  toggleFilter(category: keyof typeof this.selectedFilters, value: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
+    }
+  }
+
+  applyMultiFilters(): void {
+    this.signingsData = this.signingsData.filter(row =>
+      (!this.selectedFilters.product_category.size || this.selectedFilters.product_category.has(row.stage)) &&
+      (!this.selectedFilters.quarter.size || this.selectedFilters.quarter.has(row.forecast_category))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.product_category.clear();
+    this.selectedFilters.quarter.clear();
+    this.signingsData= [...this.signingsData];
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
+  }
+
   fetchSigningsCount(): void {
     this.signingsService.getSigningsCount().subscribe((data) => {
       this.signingsData = data;

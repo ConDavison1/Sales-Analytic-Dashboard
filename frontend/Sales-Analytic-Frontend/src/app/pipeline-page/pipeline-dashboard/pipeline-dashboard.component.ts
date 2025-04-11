@@ -39,10 +39,22 @@ export class PipelineDashboardComponent implements OnInit {
   pipelineData: any[] = [];
 
   pipelineDataAll: any[] = [];
-  selectedFilter: string = 'all';
-  filterOptions: { label: string, value: string }[] = [];
 
-  lastFilterKey: string = '';
+  showFilterOverlay: boolean = false;
+
+  selectedFilters: {
+    stage: Set<string>;
+    forecast_category: Set<string>;
+    time_period: Set<string>;
+  } = {
+    stage: new Set(),
+    forecast_category: new Set(),
+    time_period: new Set()
+  };
+
+  uniqueStages: string[] = [];
+  uniqueForecastCategories: string[] = [];
+  uniqueTimePeriods: string[] = [];
 
   pipelineChartData: any[] = [];
   isDataLoaded: boolean = false;
@@ -77,39 +89,37 @@ export class PipelineDashboardComponent implements OnInit {
   fetchPipelineTable(): void {
     this.pipelineService.getPipelineTable().subscribe((data) => {
       this.pipelineDataAll = data;
-      this.pipelineData = [...data]; // initially show all
+      this.pipelineData = [...data];
   
-      const uniqueOptions = new Set<string>();
-  
-      data.forEach(row => {
-        if (row.stage) uniqueOptions.add(`stage:${row.stage}`);
-        if (row.forecast_category) uniqueOptions.add(`forecast_category:${row.forecast_category}`);
-        if (row.time_period) uniqueOptions.add(`time_period:${row.time_period}`);
-      });
-  
-      this.filterOptions = Array.from(uniqueOptions).map(opt => {
-        const [key, val] = opt.split(':');
-        const label = `${this.titleCase(key)}: ${val}`;
-        return { label, value: opt };
-      });
+      this.uniqueStages = [...new Set(data.map(row => row.stage))];
+      this.uniqueForecastCategories = [...new Set(data.map(row => row.forecast_category))];
+      this.uniqueTimePeriods = [...new Set(data.map(row => row.time_period))];
     });
   }
 
-  applyFilter(): void {
-    if (!this.selectedFilter) {
-      this.pipelineData = [...this.pipelineDataAll];
-      this.lastFilterKey = '';
-      return;
+  toggleFilter(category: keyof typeof this.selectedFilters, value: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
     }
-  
-    const [key, value] = this.selectedFilter.split(':');
-
-    this.pipelineData = this.pipelineDataAll.filter(row => row[key] === value);
-    this.lastFilterKey = key;
   }
 
-  titleCase(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).replace('_', ' ');
+  applyMultiFilters(): void {
+    this.pipelineData = this.pipelineDataAll.filter(row =>
+      (!this.selectedFilters.stage.size || this.selectedFilters.stage.has(row.stage)) &&
+      (!this.selectedFilters.forecast_category.size || this.selectedFilters.forecast_category.has(row.forecast_category)) &&
+      (!this.selectedFilters.time_period.size || this.selectedFilters.time_period.has(row.time_period))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.stage.clear();
+    this.selectedFilters.forecast_category.clear();
+    this.selectedFilters.time_period.clear();
+    this.pipelineData = [...this.pipelineDataAll];
   }
 
   fetchPipelineChart(): void {
@@ -132,13 +142,10 @@ export class PipelineDashboardComponent implements OnInit {
     });
   }
 
-
-
-
-
-
-
-
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
+  }
+  
   get cards() {
     return [
       { title: 'Pipeline', value: `$${this.pipelineCount}`, percentage: '+55%' },

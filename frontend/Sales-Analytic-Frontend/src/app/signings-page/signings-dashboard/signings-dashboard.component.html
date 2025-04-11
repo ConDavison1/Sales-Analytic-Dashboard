@@ -14,7 +14,8 @@
 
             <!--Signings Estimates Table-->
             <div class="table-container">
-                <h2 class="text-xl font-semibold mb-4">Signings Estimates</h2>
+                <h2>Signings Estimates</h2>
+                <button (click)="showFilterOverlay = true">Filters</button>
                 <table class="scrollable-table">
                     <thead>
                         <tr>
@@ -63,6 +64,36 @@
                 [plotOptions]="gaugeChart.plotOptions"
                 [fill]="gaugeChart.fill">
                 </apx-chart>
+            </div>
+
+            <!--Signings Filter Overlay-->
+            <div class="filter-overlay" (click)="onOverlayClick($event)" *ngIf="showFilterOverlay">
+                <div class="filter-panel" (click)="$event.stopPropagation()">
+                    <h2>Signings Filters</h2>
+
+                    <div class="filter-group">
+                        <h3>Product Category</h3>
+                        <label *ngFor="let category of uniqueProductCategories">
+                            <input type="checkbox" [value]="category" [checked]="selectedFilters.product_category.has(category)" (change)="toggleFilter('product_category', category, $event)" />
+                            {{ category }}
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Quarter</h3>
+                        <label *ngFor="let quarter of uniqueQuarters">
+                            <input type="checkbox" [value]="quarter" [checked]="selectedFilters.quarter.has(quarter)" (change)="toggleFilter('quarter', quarter, $event)" />
+                            {{ quarter }}
+                        </label>
+                    </div>
+
+                    <div>
+                        <button>Apply Filters</button>
+                        <button>Clear Filters</button>
+                        <button>Close</button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
