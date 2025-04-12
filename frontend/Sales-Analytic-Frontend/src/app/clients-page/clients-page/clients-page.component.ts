@@ -116,7 +116,7 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
   loadClients(): void {
     this.clientService.getClients(this.username).subscribe({
       next: (res) => {
-        this.clients = res.clients;  // assuming your Flask API returns a `clients` key
+        this.clients = res.clients;  
       },
       error: (err) => {
         console.error('Client fetch error:', err);
