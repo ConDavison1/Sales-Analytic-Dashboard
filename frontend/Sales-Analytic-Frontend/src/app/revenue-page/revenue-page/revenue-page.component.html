@@ -14,7 +14,10 @@
       </div>
 
       <!-- Revenue Table -->
-      <div class="table-container" *ngIf="isDataLoaded && revenueData.length > 0">
+      <div
+        class="table-container"
+        *ngIf="isDataLoaded && revenueData.length > 0"
+      >
         <h2 class="text-xl font-semibold mb-4">Revenue Records</h2>
         <table class="scrollable-table">
           <thead>
@@ -23,7 +26,6 @@
               <th>Product</th>
               <th>Category</th>
               <th>Total ($)</th>
-              <th>ARR ($)</th>
               <th>Month</th>
               <th>Quarter</th>
               <th>FY</th>
@@ -35,7 +37,6 @@
               <td>{{ row.product_name }}</td>
               <td>{{ row.product_category }}</td>
               <td>{{ row.amount | currency }}</td>
-              <td>{{ row.iacv | currency }}</td>
               <td>{{ row.month }}</td>
               <td>{{ row.fiscal_quarter }}</td>
               <td>{{ row.fiscal_year }}</td>
@@ -45,8 +46,10 @@
       </div>
 
       <!-- Product Distribution Chart -->
-      <div class="chart-container" *ngIf="isDataLoaded && barChart.series.length > 0">
-
+      <div
+        class="chart-container"
+        *ngIf="isDataLoaded && barChart.series.length > 0"
+      >
         <h3>Product Distribution</h3>
         <apx-chart
           #barChartRef
@@ -61,7 +64,15 @@
       </div>
 
       <!-- Industry Revenue -->
-      <div class="chart-container" *ngIf="isDataLoaded && areaChart && areaChart.series && areaChart.series.length > 0">
+      <div
+        class="chart-container"
+        *ngIf="
+          isDataLoaded &&
+          areaChart &&
+          areaChart.series &&
+          areaChart.series.length > 0
+        "
+      >
         <h3>Industry Revenue</h3>
         <apx-chart
           #areaChartRef
