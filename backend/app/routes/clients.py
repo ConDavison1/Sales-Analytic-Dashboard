@@ -312,3 +312,192 @@ def get_province_distribution_data(user):
     except Exception as e:
         print(f"Error in get_province_distribution_data: {str(e)}")
         return []
+
+@clients_bp.route('/clients', methods=['GET'])
+def get_clients():
+    """
+    Query clients data with flexible filtering
+    
+    Returns clients filtered by various criteria and based on user role.
+    Directors can see clients for all account executives they manage.
+    Account executives can only see their own clients.
+    
+    Query parameters:
+    - username: Username of the current user (required)
+    - provinces: Comma-separated list of province codes to filter by (optional)
+      Example: provinces=ON,QC,BC
+    - industries: Comma-separated list of industries to filter by (optional)
+      Example: industries=Financial Services,Healthcare
+      Note: Industry filtering is case-insensitive
+    
+    Response format:
+    {
+        "clients": [
+            {
+                "client_id": 1,
+                "client_name": "Acme Corp",
+                "industry": "Financial Services",
+                "city": "Toronto",
+                "province": "ON",
+                "account_executive": "John Smith",
+                "account_executive_id": 5,
+                "created_date": "2023-06-15"
+            },
+            ...
+        ],
+        "total_count": 42,
+        "applied_filters": {
+            "provinces": ["ON", "QC"],
+            "industries": ["Financial Services", "Healthcare"]
+        }
+    }
+    
+    Returns:
+    - 200 OK with filtered clients data
+    - 400 Bad Request if missing required parameters
+    - 404 Not Found if user doesn't exist
+    - 500 Internal Server Error if query execution fails
+    """
+    try:
+        # Get and validate parameters
+        username = request.args.get('username', type=str)
+        provinces_param = request.args.get('provinces', type=str)
+        industries_param = request.args.get('industries', type=str)
+        
+        # Parse comma-separated provinces
+        provinces = []
+        if provinces_param:
+            provinces = [p.strip().upper() for p in provinces_param.split(',') if p.strip()]
+        
+        # Parse comma-separated industries
+        industries = []
+        if industries_param:
+            industries = [i.strip() for i in industries_param.split(',') if i.strip()]
+        
+        # Validate required parameters
+        if not username:
+            return jsonify({"error": "Missing required parameter: username"}), 400
+        
+        # Get user by username and validate
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Build the query based on user role and filters
+        query, applied_filters = build_clients_query(user, provinces, industries)
+        
+        # Get total count for metadata
+        total_count = query.count()
+        
+        # Execute query and get results with pagination
+        # Limit to 1000 records for performance
+        results = query.order_by(
+            Client.client_name
+        ).limit(1000).all()
+        
+        # Format the results
+        clients_data = format_clients_results(results)
+        
+        # Return formatted response
+        return jsonify({
+            "clients": clients_data,
+            "total_count": total_count,
+            "applied_filters": applied_filters
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in get_clients: {str(e)}")
+        return jsonify({"error": f"Failed to query clients: {str(e)}"}), 500
+
+
+def build_clients_query(user, provinces=None, industries=None):
+    """
+    Build the query for clients based on user role and filters
+    
+    Args:
+        user: The User object
+        provinces: List of province codes to filter by (optional)
+        industries: List of industries to filter by (optional)
+    
+    Returns:
+        Tuple of (query, applied_filters)
+    """
+    # Start building the base query
+    query = db.session.query(
+        Client,
+        User.first_name,
+        User.last_name,
+        User.user_id
+    ).join(
+        User, Client.account_executive_id == User.user_id
+    )
+    
+    # Initialize applied filters dictionary
+    applied_filters = {}
+    
+    # Apply role-based filtering
+    if user.role == 'director':
+        # Get all account executives managed by this director
+        ae_relations = DirectorAccountExecutive.query.filter_by(director_id=user.user_id).all()
+        ae_ids = [relation.account_executive_id for relation in ae_relations]
+        
+        # Filter by clients managed by these account executives
+        if ae_ids:
+            query = query.filter(Client.account_executive_id.in_(ae_ids))
+        else:
+            # If no AEs found, return no results
+            query = query.filter(False)
+    elif user.role == 'account-executive':
+        # Filter by this account executive's clients
+        query = query.filter(Client.account_executive_id == user.user_id)
+    
+    # Apply province filter if provided
+    if provinces:
+        query = query.filter(Client.province.in_(provinces))
+        applied_filters["provinces"] = provinces
+    
+    # Apply industry filter if provided (case-insensitive)
+    if industries:
+        # Create a list of case-insensitive conditions for each industry
+        industry_conditions = []
+        for industry in industries:
+            industry_conditions.append(func.lower(Client.industry) == func.lower(industry))
+        
+        # Combine conditions with OR
+        if industry_conditions:
+            query = query.filter(or_(*industry_conditions))
+        
+        applied_filters["industries"] = industries
+    
+    return query, applied_filters
+
+
+def format_clients_results(results):
+    """
+    Format the query results into the desired output structure
+    
+    Args:
+        results: List of tuples from the query
+    
+    Returns:
+        List of dictionaries with client data
+    """
+    clients_data = []
+    
+    for client, ae_first_name, ae_last_name, ae_id in results:
+        # Format the account executive name
+        account_executive = f"{ae_first_name} {ae_last_name}" if ae_first_name and ae_last_name else ""
+        account_executive = account_executive.strip()
+            
+        clients_data.append({
+            "client_id": client.client_id,
+            "client_name": client.client_name,
+            "industry": client.industry,
+            "city": client.city,
+            "province": client.province,
+            "account_executive": account_executive,
+            "account_executive_id": ae_id,
+            "created_date": client.created_date.strftime('%Y-%m-%d') if client.created_date else None
+        })
+    
+    return clients_data
