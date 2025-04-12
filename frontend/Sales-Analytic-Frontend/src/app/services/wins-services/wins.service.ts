@@ -1,31 +1,32 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-interface Wins {
-  opportunity_id: number;
-  account_name: string;
-  industry: string;
-  deal_value: number;
-  forecast_category: string;
-  win_date: string;
-}
 
 @Injectable({
   providedIn: 'root',
 })
 export class WinsService {
-  baseUrl = 'http://localhost:5000';
+  baseUrl = 'http://localhost:5000/api/wins';
+
   constructor(private http: HttpClient) {}
 
-  getWins(): Observable<Wins[]> {
-    return this.http.get<Wins[]>(`${this.baseUrl}/wins-rows`);
+  getWins(username: string, year = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/wins`, { params });
   }
 
-  getWinsBarChart(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/wins-opportunities-by-industry`);
+  getWinsQuarterlyTargets(username: string, year = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/wins-quarterly-targets`, { params });
   }
-  getWinsLineChart(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/wins-over-time`);
+
+  getWinsCategoryDistribution(username: string, year = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/win-category-quarterly-chart`, { params }); // 🔁 correct endpoint
+  }
+
+  getWinsOverTime(username: string, year = 2024): Observable<any> {
+    const params = new HttpParams().set('username', username).set('year', year);
+    return this.http.get(`${this.baseUrl}/win-quarterly-evolution-chart`, { params }); // 🔁 correct endpoint
   }
 }

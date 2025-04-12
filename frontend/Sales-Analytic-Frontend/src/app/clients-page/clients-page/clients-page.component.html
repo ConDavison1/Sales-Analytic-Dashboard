@@ -3,117 +3,66 @@
   <div class="main-content">
     <div class="clients-page">
       <app-header></app-header>
-      <!-- Cards Section -->
-      <div class="cards">
-        <div *ngFor="let card of cards" class="card">
-          <h3>{{ card.title }}</h3>
-          <p>{{ card.value }}</p>
-          <span>{{ card.percentage }}</span>
-        </div>
-        <!-- Clients Section -->
-        <div class="table-container">
-          <h2 class="table-title">Client list</h2>
+
+
+
+         <!-- Clients Table -->
+         <div class="table-container">
+          <h2 class="table-title">Client List</h2>
           <div class="scrollable-table">
             <table class="custom-table">
               <thead>
                 <tr>
-                  <th>Executive ID</th>
                   <th>Client ID</th>
-                  <th>Company</th>
+                  <th>Client Name</th>
                   <th>Industry</th>
-                  <th>Location</th>
-                  <th>Email</th>
-                  <th>Delete</th>
+                  <th>City</th>
+                  <th>Province</th>
+                  <th>Account Executive</th>
+                  <th>Created Date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let client of clients">
-                  <td>{{ client.executive_id }}</td>
                   <td>{{ client.client_id }}</td>
-                  <td>{{ client.company_name }}</td>
+                  <td>{{ client.client_name }}</td>
                   <td>{{ client.industry }}</td>
-                  <td>{{ client.location }}</td>
-                  <td>{{ client.email }}</td>
-                  <td>
-                    <button
-                      
-                      class="delete-btn"
-                    >
-                      🗑️
-                    </button>
-                  </td>
+                  <td>{{ client.city }}</td>
+                  <td>{{ client.province }}</td>
+                  <td>{{ client.account_executive }}</td>
+                  <td>{{ client.created_date }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-        <!-- Client Count CHart-->
-        <div id="chart">
-          <h3>Executive Client Count</h3>
+        <!-- Industry Treemap Chart -->
+        <div class="chart-container" *ngIf="industryTreemap.series">
+          <h3>Top Industries by Client Count</h3>
           <apx-chart
-            [series]="chartOptions.series"
-            [chart]="chartOptions.chart"
-            [labels]="chartOptions.labels"
-            [fill]="chartOptions.fill"
-            [stroke]="chartOptions.stroke"
-            [responsive]="chartOptions.responsive"
+            #industryChartRef
+            [series]="industryTreemap.series"
+            [chart]="industryTreemap.chart"
+            [tooltip]="industryTreemap.tooltip"
+            [dataLabels]="industryTreemap.dataLabels"
+            [colors]="industryTreemap.colors"
           ></apx-chart>
         </div>
 
-        Add Client
-        <div class="add-client">
-          <form [formGroup]="addClientForm" >
-            <h3>Add Client</h3>
-
-            <div class="form-group">
-              <label for="executive_id">Executive ID</label>
-              <input
-                type="number"
-                id="executive_id"
-                formControlName="executive_id"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="company_name">Company Name</label>
-              <input
-                type="text"
-                id="company_name"
-                formControlName="company_name"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="industry">Industry</label>
-              <input
-                type="text"
-                id="industry"
-                formControlName="industry"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="location">Location</label>
-              <input
-                type="text"
-                id="location"
-                formControlName="location"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" formControlName="email" required />
-            </div>
-
-            <button type="submit" class="submit-button">Add Client</button>
-          </form>
+        <!-- Province Pie Chart -->
+        <div class="chart-container" *ngIf="provincePieChart.series">
+          <h3>Client Distribution by Province</h3>
+          <apx-chart
+            #provinceChartRef
+            [series]="provincePieChart.series"
+            [chart]="provincePieChart.chart"
+            [labels]="provincePieChart.labels"
+            [dataLabels]="provincePieChart.dataLabels"
+            [colors]="provincePieChart.colors"
+          ></apx-chart>
         </div>
-      </div>
+
+
     </div>
   </div>
 </div>
