@@ -157,10 +157,46 @@ export class PipelineDashboardComponent implements OnInit {
 
         this.heatmapChart = {
           series,
-          chart: { height: 350, type: 'heatmap' },
+          chart: {
+            height: 350,
+            type: 'heatmap',
+          },
           dataLabels: { enabled: true },
           xaxis: { categories: forecastCategories },
-          colors: ['#008FFB'],
+          plotOptions: {
+            heatmap: {
+              enableShades: false, // Use strict colors rather than a gradient
+              colorScale: {
+                ranges: [
+                  {
+                    from: 0,
+                    to: 500000, // "Low" now spans from 0 to 5 million
+                    name: 'Low',
+                    color: '#4285F4', // Google Blue
+                  },
+                  {
+                    from: 500001,
+                    to: 1000000,
+                    name: 'Below Average',
+                    color: '#DB4437', // Google Red
+                  },
+                  {
+                    from: 1000001,
+                    to: 15000000,
+                    name: 'Above Average',
+                    color: '#F4B400', // Google Yellow
+                  },
+                  {
+                    from: 15000001,
+                    to: 17000000,
+                    name: 'High',
+                    color: '#0F9D58', // Google Green
+                  },
+                ],
+              },
+            },
+          },
+          fill: { opacity: 1 }, // Ensure full opacity so that the color shows strongly
         };
       },
       error: (err) => {

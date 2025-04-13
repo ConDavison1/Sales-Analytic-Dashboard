@@ -19,9 +19,16 @@
         <table class="scrollable-table">
           <thead>
             <tr>
-              <th>Client</th><th>Product</th><th>Category</th>
-              <th>Total Value</th><th>iACV</th>
-              <th>Start</th><th>End</th><th>Signing</th><th>FY</th><th>Q</th>
+              <th>Client</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Total Value</th>
+              <th>iACV</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Signing</th>
+              <th>FY</th>
+              <th>Q</th>
             </tr>
           </thead>
           <tbody>
@@ -43,28 +50,31 @@
 
       <!-- Charts -->
       <div class="chart-container">
-        <apx-chart #barChartRef
+        <h3>Industry</h3>
+        <apx-chart
+          #barChartRef
           [series]="barChart.series"
           [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
+          [yaxis]="barChart.yaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors">
+          [colors]="barChart.colors"
+        >
         </apx-chart>
       </div>
       <!-- Provincial Distribution Polar Area Chart -->
-        <div class="chart-container">
-          <h2 class="text-xl font-semibold mb-4">Provincial Distribution</h2>
-          <apx-chart
-            [series]="polarChart.series"
-            [chart]="polarChart.chart"
-            [labels]="polarChart.labels"
-            [colors]="polarChart.colors"
-            [responsive]="polarChart.responsive"
-          ></apx-chart>
-        </div>
-
-
+      <div class="chart-container">
+        <h3>Provincial Distribution</h3>
+        <apx-chart
+          #polarChartRef
+          [series]="polarChart.series"
+          [chart]="polarChart.chart"
+          [labels]="polarChart.labels"
+          [colors]="polarChart.colors"
+          [responsive]="polarChart.responsive"
+        ></apx-chart>
+      </div>
     </div>
   </div>
 </div>

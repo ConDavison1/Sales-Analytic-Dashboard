@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import {
@@ -12,7 +18,7 @@ import {
   ApexFill,
   ApexNonAxisChartSeries,
   ApexResponsive,
-  ApexChart as ApexNonAxisChart
+  ApexChart as ApexNonAxisChart,
 } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
@@ -46,12 +52,14 @@ export type PolarChartOptions = {
     CommonModule,
     NgApexchartsModule,
     HeaderComponent,
-    SidebarComponent
-  ]
+    SidebarComponent,
+  ],
 })
-export class SigningsDashboardComponent implements OnInit {
+export class SigningsDashboardComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   @ViewChild('barChartRef') barChartRef!: ChartComponent;
-  @ViewChild('gaugeChartRef') gaugeChartRef!: ChartComponent;
+  @ViewChild('polarChartRef') polarChartRef!: ChartComponent;
 
   username = localStorage.getItem('username') || '';
   year = 2024;
@@ -59,102 +67,69 @@ export class SigningsDashboardComponent implements OnInit {
   signingsData: any[] = [];
   quarterlyCards: any[] = [];
 
+  // Initial bar chart options. We'll update the foreColor based on dark mode.
   barChart: BarChartOptions = {
     series: [{ name: 'iACV', data: [] }],
     chart: {
       type: 'bar',
       height: 350,
-      background: 'transparent'
+      background: 'transparent',
+      foreColor: '#000', // default; will be updated below
     },
     xaxis: {
       categories: [],
-      title: {
-        text: 'Industry'
-      }
+      title: { text: 'Industry' },
     },
     yaxis: {
-      title: {
-        text: 'Incremental ACV ($)'
-      },
-      labels: {
-        formatter: (val: number) => `$${val.toLocaleString()}`
-      }
+      title: { text: 'Incremental iACV ($)' },
     },
     dataLabels: {
-      enabled: true,
-      formatter: (val: number) => `$${val.toLocaleString()}`
+      enabled: false,
     },
     plotOptions: {
-      bar: {
-        columnWidth: '60%',
-        distributed: false
-      }
+      bar: { columnWidth: '60%', distributed: false },
     },
     tooltip: {
       enabled: true,
-      y: {
-        formatter: (val: number) => `$${val.toLocaleString()}`
-      }
+      y: { formatter: (val: number) => `$${val.toLocaleString()}` },
     },
-    colors: ['#3f51b5']
+    colors: ['#4285F4'],
   };
 
+  // Initial polar chart options.
   polarChart: PolarChartOptions = {
     series: [],
     chart: {
       type: 'polarArea',
-      height: 350
+      height: 300,
+      foreColor: '#000', // default; will be updated below
     },
     labels: [],
     colors: [
-      '#1E90FF', '#FF8C00', '#32CD32', '#FF69B4',
-      '#8A2BE2', '#00CED1', '#FFD700', '#FF6347',
-      '#40E0D0', '#DA70D6'
+      '#1E90FF',
+      '#FF8C00',
+      '#32CD32',
+      '#FF69B4',
+      '#8A2BE2',
+      '#00CED1',
+      '#FFD700',
+      '#FF6347',
+      '#40E0D0',
+      '#DA70D6',
     ],
     responsive: [
       {
         breakpoint: 480,
         options: {
-          chart: {
-            height: 300
-          },
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }
-    ]
+          chart: { height: 300 },
+          legend: { position: 'bottom' },
+        },
+      },
+    ],
   };
 
-  gaugeChart = {
-    series: [0],
-    chart: {
-      type: 'radialBar' as const,
-      height: 350,
-      background: 'transparent'
-    },
-    plotOptions: {
-      radialBar: {
-        startAngle: -90,
-        endAngle: 90,
-        dataLabels: {
-          name: {
-            show: true,
-            fontSize: '16px',
-            offsetY: 20,
-            formatter: () => 'Signings Target Score'
-          },
-          value: {
-            fontSize: '24px',
-            show: true,
-            offsetY: -10,
-            formatter: (val: number) => `${Math.round((val / 100) * 60)}M`
-          }
-        }
-      }
-    },
-    fill: { colors: ['#4CAF50'] } as ApexFill
-  };
+  // MutationObserver to track theme changes.
+  private themeObserver!: MutationObserver;
 
   constructor(private signingsService: SigningsService) {}
 
@@ -170,25 +145,99 @@ export class SigningsDashboardComponent implements OnInit {
     console.log('[SigningsDashboard] Username:', this.username);
     this.loadSignings();
     this.loadIndustryChart();
-    this.loadQuarterlyTargets();
     this.loadProvincialDistributionChart();
+    this.loadQuarterlyTargets();
+
+    // Set up MutationObserver to detect dark mode changes.
+    this.themeObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class'
+        ) {
+          console.log('[SigningsDashboard] Theme change detected.');
+          this.toggleChartTheme();
+        }
+      });
+    });
+    this.themeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // Delay updating theme to allow "dark-mode" class to be applied.
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 500);
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
+  }
+
+  /**
+   * toggleChartTheme updates the chart text colors (foreColor) and tooltip theme based on dark mode.
+   * If dark mode is active (document.body has 'dark-mode'), chart text turns white (#fff); otherwise, black (#000).
+   */
+  toggleChartTheme(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+    console.log(
+      `[SigningsDashboard] toggleChartTheme: isDark=${isDark}, foreColor=${foreColor}`
+    );
+
+    if (this.barChartRef) {
+      this.barChartRef.updateOptions(
+        {
+          chart: { foreColor: foreColor },
+          xaxis: { labels: { style: { colors: [foreColor] } } },
+          yaxis: {
+            labels: { style: { colors: [foreColor] } },
+            // Include the title text and style here so it isn't removed
+            title: { text: 'Incremental ACV ($)', style: { color: foreColor } },
+          },
+          tooltip: { theme: isDark ? 'dark' : 'light' },
+        },
+        false,
+        true
+      );
+    }
+
+    if (this.polarChartRef) {
+      this.polarChartRef.updateOptions(
+        {
+          chart: { foreColor: foreColor },
+          tooltip: { theme: isDark ? 'dark' : 'light' },
+        },
+        false,
+        true
+      );
+    }
   }
 
   loadSignings(): void {
     this.signingsService.getSignings(this.username, this.year).subscribe({
-      next: res => (this.signingsData = res.signings),
-      error: err => console.error('Signings error:', err)
+      next: (res) => (this.signingsData = res.signings),
+      error: (err) => console.error('Signings error:', err),
     });
   }
 
   loadIndustryChart(): void {
-    console.log('[SigningsDashboard] Loading Industry ACV Histogram...');
     this.signingsService.getIndustryACV(this.username, this.year).subscribe({
-      next: res => {
+      next: (res) => {
         const chartData = res.industry_acv_data;
         const industries = chartData.map((item: any) => item.industry);
         const values = chartData.map((item: any) => item.incremental_acv);
 
+        // Check current theme for initial foreColor.
+        const isDark = document.body.classList.contains('dark-mode');
+        const foreColor = isDark ? '#fff' : '#000';
+
+        // Update barChart options.
         this.barChart.series = [{ name: 'iACV', data: values }];
         this.barChart = {
           ...this.barChart,
@@ -196,38 +245,52 @@ export class SigningsDashboardComponent implements OnInit {
           xaxis: {
             ...this.barChart.xaxis,
             categories: industries,
-            title: { text: 'Industry' }
-          }
+            title: { text: 'Industry' },
+          },
+          chart: { ...this.barChart.chart, foreColor: foreColor },
         };
       },
-      error: err => console.error('Industry ACV error:', err)
+      error: (err) => console.error('Industry ACV error:', err),
     });
   }
 
   loadProvincialDistributionChart(): void {
-    console.log('[SigningsDashboard] Loading Provincial Distribution...');
-    this.signingsService.getProvincialDistribution(this.username, this.year).subscribe({
-      next: (res) => {
-        const data = res.provincial_data;
-        this.polarChart.series = data.map((item: any) => item.count);
-        this.polarChart.labels = data.map((item: any) => `${item.province} - $${item.avg_value.toLocaleString()}`);
-      },
-      error: (err) => console.error('Provincial Distribution error:', err)
-    });
+    this.signingsService
+      .getProvincialDistribution(this.username, this.year)
+      .subscribe({
+        next: (res) => {
+          const data = res.provincial_data;
+          // Check current theme for initial foreColor.
+          const isDark = document.body.classList.contains('dark-mode');
+          const foreColor = isDark ? '#fff' : '#000';
+
+          this.polarChart.series = data.map((item: any) => item.count);
+          this.polarChart.labels = data.map(
+            (item: any) =>
+              `${item.province} - $${item.avg_value.toLocaleString()}`
+          );
+          // Update polar chart foreColor.
+          this.polarChart = {
+            ...this.polarChart,
+            chart: { ...this.polarChart.chart, foreColor: foreColor },
+          };
+        },
+        error: (err) => console.error('Provincial Distribution error:', err),
+      });
   }
 
   loadQuarterlyTargets(): void {
-    this.signingsService.getQuarterlyTargets(this.username, this.year).subscribe({
-      next: res => {
-        this.quarterlyCards = res.quarterly_targets.map((q: any) => ({
-          title: `Q${q.quarter} Target`,
-          value: `$${q.accumulated_value.toLocaleString()}`,
-          percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`
-        }));
-        const latest = res.quarterly_targets[res.quarterly_targets.length - 1];
-        this.gaugeChart.series = [latest.achievement_percentage];
-      },
-      error: err => console.error('Quarterly targets error:', err)
-    });
+    this.signingsService
+      .getQuarterlyTargets(this.username, this.year)
+      .subscribe({
+        next: (res) => {
+          this.quarterlyCards = res.quarterly_targets.map((q: any) => ({
+            title: `Q${q.quarter} Target`,
+            value: `$${q.accumulated_value.toLocaleString()}`,
+            percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`,
+          }));
+        },
+        error: (err) => console.error('Quarterly targets error:', err),
+      });
   }
 }
