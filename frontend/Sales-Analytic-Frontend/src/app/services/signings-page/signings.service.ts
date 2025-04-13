@@ -6,7 +6,10 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class SigningsService {
-  private baseUrl = 'http://localhost:5000/api/signings';
+  getSignings() {
+    throw new Error('Method not implemented.');
+  }
+  private apiUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
 
   constructor(private http: HttpClient) {}
 

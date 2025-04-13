@@ -48,10 +48,8 @@ export class LoginComponent {
 
   onLogin() {
     const payload = { username: this.username, password: this.password };
-
-    console.log('Sending login request with payload:', payload);  // Add log to check payload
-
-    this.http.post('http://localhost:5000/api/auth/login', payload).subscribe({
+  
+    this.http.post('https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app/login', payload).subscribe({
       next: (response: any) => {
         console.log('Login response:', response);  // Log the full response
         

@@ -6,8 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class DashboardService {
-  // Directly calling Flask since we're using CORS now
-  private baseUrl = 'http://localhost:5000/api/landing';
+  private baseUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
 
   constructor(private http: HttpClient) {}
 

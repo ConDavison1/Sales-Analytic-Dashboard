@@ -4,9 +4,8 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PipelineService {
-  private baseUrl = 'http://localhost:5000/api/pipeline';
-
-  constructor(private http: HttpClient) {}
+  private apiUrl = 'https://sales-analytics-backend-jcggzuuyxq-uc.a.run.app';
+  constructor(private http: HttpClient) { }
 
   getOpportunities(username: string, filters: any = {}): Observable<any> {
     const params = new HttpParams({ fromObject: { username, ...filters } });
