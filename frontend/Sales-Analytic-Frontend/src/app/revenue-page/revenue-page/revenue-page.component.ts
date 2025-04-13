@@ -289,7 +289,7 @@ export class RevenuePageComponent
     xaxis: {
       categories: [] as string[],
     },
-    colors: ['#00E396'],
+    colors: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
     tooltip: {
       theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
     },

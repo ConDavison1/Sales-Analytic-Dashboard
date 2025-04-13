@@ -20,13 +20,12 @@
           <thead>
             <tr>
               <th>Client</th>
-              <th>Product</th>
-              <th>Category</th>
+              <th>Product Name</th>
+              <th>Product Category</th>
               <th>Total ($)</th>
-              <th>ARR ($)</th>
               <th>Month</th>
               <th>Quarter</th>
-              <th>FY</th>
+              <th>Year</th>
             </tr>
           </thead>
           <tbody>
@@ -35,7 +34,6 @@
               <td>{{ row.product_name }}</td>
               <td>{{ row.product_category }}</td>
               <td>{{ row.amount | currency }}</td>
-              <td>{{ row.iacv | currency }}</td>
               <td>{{ row.month }}</td>
               <td>{{ row.fiscal_quarter }}</td>
               <td>{{ row.fiscal_year }}</td>
@@ -62,7 +60,7 @@
 
       <!-- Industry Revenue -->
       <div class="chart-container" *ngIf="isDataLoaded && areaChart && areaChart.series && areaChart.series.length > 0">
-        <h3>Industry Revenue</h3>
+        <h3>Revenue by Industry (Quarter)</h3>
         <apx-chart
           #areaChartRef
           [series]="areaChart.series"
