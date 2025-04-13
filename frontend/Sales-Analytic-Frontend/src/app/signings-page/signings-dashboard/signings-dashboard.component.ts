@@ -17,6 +17,7 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { SigningsService } from '../../services/signings-page/signings.service';
+import { FormsModule } from '@angular/forms';
 
 export type BarChartOptions = {
   series: ApexAxisChartSeries;
@@ -46,7 +47,8 @@ export type PolarChartOptions = {
     CommonModule,
     NgApexchartsModule,
     HeaderComponent,
-    SidebarComponent
+    SidebarComponent,
+    FormsModule
   ]
 })
 export class SigningsDashboardComponent implements OnInit {
@@ -57,7 +59,22 @@ export class SigningsDashboardComponent implements OnInit {
   year = 2024;
 
   signingsData: any[] = [];
+  signingsDataUnfiltered: any[] = [];
   quarterlyCards: any[] = [];
+
+  showFilterOverlay: boolean = false;
+  searchTerm: string = '';
+
+  selectedFilters: {
+    product_category: Set<string>;
+    fiscal_quarter: Set<string>;
+  } = {
+    product_category: new Set<string>(),
+    fiscal_quarter: new Set<string>()
+  };
+
+  uniqueProductCategories: string[] = [];
+  uniqueQuarters: string[] = [];
 
   barChart: BarChartOptions = {
     series: [{ name: 'iACV', data: [] }],
@@ -176,9 +193,61 @@ export class SigningsDashboardComponent implements OnInit {
 
   loadSignings(): void {
     this.signingsService.getSignings(this.username, this.year).subscribe({
-      next: res => (this.signingsData = res.signings),
+      next: res => {
+        const formattedData = res.signings.map((s: any) => ({
+          client_name: s.client_name,
+          product_name: s.product_name,
+          product_category: s.product_category,
+          total_contract_value: s.total_contract_value,
+          incremental_acv: s.incremental_acv,
+          start_date: s.start_date,
+          end_date: s.end_date,
+          signing_date: s.signing_date,
+          fiscal_year: s.fiscal_year,
+          fiscal_quarter: s.fiscal_quarter
+        }));
+        this.signingsDataUnfiltered = formattedData;
+        this.signingsData = [...formattedData];
+
+        this.uniqueProductCategories = [...new Set<string>(
+          formattedData.map((row: any) => row.product_category as string)
+        )];
+        this.uniqueQuarters = [...new Set<string>(
+          formattedData.map((row: any) => row.fiscal_quarter as string)
+        )];
+      },
       error: err => console.error('Signings error:', err)
     });
+  }
+
+  toggleFilter(category: keyof typeof this.selectedFilters, value: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
+    }
+  }
+
+  applyFilters(): void {
+    this.signingsData = this.signingsDataUnfiltered.filter(row =>
+    (!this.selectedFilters.product_category.size || this.selectedFilters.product_category.has(row.product_category)) &&
+    (!this.selectedFilters.fiscal_quarter.size || this.selectedFilters.fiscal_quarter.has(row.fiscal_quarter)) &&
+    (!this.searchTerm || row.client_name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.product_category.clear();
+    this.selectedFilters.fiscal_quarter.clear();
+    this.searchTerm = '';
+    this.signingsData = [...this.signingsDataUnfiltered];
+    this.showFilterOverlay = false;
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
   }
 
   loadIndustryChart(): void {
