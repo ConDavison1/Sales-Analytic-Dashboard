@@ -20,12 +20,12 @@
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Wins ID</th>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Industry</th>
-                <th>Value</th>
-                <th>Forecast</th>
-                <th>Date of Win</th>
+                <th>Level</th>
+                <th>Category</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>
@@ -33,7 +33,7 @@
                 <td>{{ win.opportunity_id }}</td>
                 <td>{{ win.client_name }}</td>
                 <td>{{ win.client_industry }}</td>
-                <td>{{ win.deal_value }}</td>
+                <td>{{win.win_level}}</td>
                 <td>{{ win.forecast_category }}</td>
                 <td>{{ win.win_date }}</td>
               </tr>
@@ -47,6 +47,7 @@
         <div *ngIf="!isDataLoaded" class="loading">
           Loading category chart...
         </div>
+        <h3>Win Category</h3>
         <apx-chart
           *ngIf="isDataLoaded"
           [series]="chartOptionsOne.series"
@@ -55,6 +56,7 @@
           [stroke]="chartOptionsOne.stroke"
           [tooltip]="chartOptionsOne.tooltip"
           [legend]="chartOptionsOne.legend"
+
         ></apx-chart>
       </div>
 
@@ -63,6 +65,7 @@
         <div *ngIf="!isDataLoaded" class="loading">
           Loading win evolution chart...
         </div>
+        <h3>Total Wins (Quarter)</h3>
         <apx-chart
           *ngIf="isDataLoaded"
           [series]="chartOptionsTwo.series"

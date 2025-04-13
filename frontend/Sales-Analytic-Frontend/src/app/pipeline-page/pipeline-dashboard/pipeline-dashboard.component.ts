@@ -69,7 +69,7 @@ export class PipelineDashboardComponent implements OnInit {
         forecast_category: opp.forecast_category,
         probability: `${opp.probability}%`,
         opportunity_value: `$${opp.amount.toLocaleString()}`,
-        time_period: opp.close_date,
+        //close_date: opp.close_date,
       }));
     });
   }
@@ -115,16 +115,16 @@ export class PipelineDashboardComponent implements OnInit {
             categories: funnelStages,
           },
           colors: [
-            '#4CAF50',
-            '#81C784',
-            '#AED581',
-            '#C5E1A5',
-            '#DCE775',
-            '#FFF176',
+            '#4285F4', // Google Blue
+            '#34A853', // Google Green
+            '#FBBC05', // Google Yellow
+            '#EA4335', // Google Red
+            '#A142F4', // Google Purple
+            '#00ACC1', // Google Teal
           ],
         };
       });
-  }
+  }          
 
   loadHeatmapChart(): void {
     this.pipelineService.getHeatmapData(this.username, this.year).subscribe({
@@ -157,10 +157,24 @@ export class PipelineDashboardComponent implements OnInit {
 
         this.heatmapChart = {
           series,
-          chart: { height: 350, type: 'heatmap' },
-          dataLabels: { enabled: true },
+          chart: { height: 350, type: 'heatmap', toolbar: { show: false } },
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.8, // increased from 0.4
+              opacityTo: 0.4,   // increased from 0.1
+            },
+          },
+          
+          dataLabels: {
+            enabled: true,
+            formatter: function (val: number) {
+              return `$${val.toLocaleString()}`;
+            },
           xaxis: { categories: forecastCategories },
           colors: ['#008FFB'],
+          }
         };
       },
       error: (err) => {

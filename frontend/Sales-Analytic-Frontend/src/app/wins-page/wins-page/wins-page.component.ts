@@ -59,9 +59,9 @@ export class WinsPageComponent implements OnInit {
           opportunity_id: w.win_id,
           client_name: w.client_name,
           client_industry: w.client_industry,
-          deal_value: `$${(w.win_multiplier * 1000000).toLocaleString()}`,
+          win_level: w.win_level,
           forecast_category: w.win_category.toUpperCase(),
-          win_date: `FY${w.fiscal_year} Q${w.fiscal_quarter}`,
+          win_date: `${w.fiscal_year} Q${w.fiscal_quarter}`,
         }));
         this.markLoaded();
       },
@@ -98,8 +98,12 @@ export class WinsPageComponent implements OnInit {
             type: 'line',
             height: 350,
             stacked: true,
+            toolbar: {
+              show: false,
+            },
           },
           series: res.series,
+          colors: ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#A142F4', '#00ACC1'],
           xaxis: {
             categories: res.quarters,
           },
@@ -112,7 +116,7 @@ export class WinsPageComponent implements OnInit {
             intersect: false,
           },
           legend: {
-            position: 'top',
+            position: 'bottom',
           },
         };
         this.markLoaded();
@@ -123,7 +127,7 @@ export class WinsPageComponent implements OnInit {
       },
     });
   }
-
+  
   loadEvolutionChart(): void {
     this.winsService.getWinsOverTime(this.username, this.year).subscribe({
       next: (res) => {
@@ -131,7 +135,11 @@ export class WinsPageComponent implements OnInit {
           chart: {
             type: 'line',
             height: 350,
+            toolbar: {
+              show: false,
+            },
           },
+          colors: ['#4285F4'], // Google blue for Total Wins line
           series: [
             {
               name: 'Total Wins',
@@ -148,6 +156,9 @@ export class WinsPageComponent implements OnInit {
             shared: true,
             intersect: false,
           },
+          legend: {
+            position: 'bottom',
+          },
         };
         this.markLoaded();
       },
@@ -157,4 +168,6 @@ export class WinsPageComponent implements OnInit {
       },
     });
   }
+  
+  
 }
