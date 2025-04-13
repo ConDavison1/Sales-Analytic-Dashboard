@@ -19,21 +19,25 @@
         <table class="scrollable-table">
           <thead>
             <tr>
-              <th>Client</th><th>Product</th><th>Category</th>
-              <th>Total Value</th><th>iACV</th>
-              <th>Start</th><th>End</th><th>Signing</th><th>FY</th><th>Q</th>
+              <th>Client</th>
+              <th>Product</th>
+
+              <th>Total Value</th>
+              <th>iACV</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Year</th>
+              <th>Quarter</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let row of signingsData">
               <td>{{ row.client_name }}</td>
               <td>{{ row.product_name }}</td>
-              <td>{{ row.product_category }}</td>
               <td>{{ row.total_contract_value }}</td>
               <td>{{ row.incremental_acv }}</td>
               <td>{{ row.start_date }}</td>
               <td>{{ row.end_date }}</td>
-              <td>{{ row.signing_date }}</td>
               <td>{{ row.fiscal_year }}</td>
               <td>{{ row.fiscal_quarter }}</td>
             </tr>
