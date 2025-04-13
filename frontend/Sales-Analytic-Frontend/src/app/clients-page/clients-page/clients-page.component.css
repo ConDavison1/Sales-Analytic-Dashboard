@@ -150,6 +150,20 @@
   gap: 12px;
   margin-top: 12px;
 }
+.chart-container {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+  margin: 0;
+  max-width: 100%;
+  grid-column: span 2;
+}
+.chart-container h3 {
+text-align: center;
+justify-content: center;
+}
 
 .form-group input {
   width: 100%;

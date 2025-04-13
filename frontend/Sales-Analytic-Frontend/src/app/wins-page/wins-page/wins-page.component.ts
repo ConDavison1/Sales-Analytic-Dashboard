@@ -1,345 +1,173 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgApexchartsModule } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
-import { CommonModule } from '@angular/common';
-import { DashboardService } from '../../services/dashboard-services/dashboard.service';
 import { WinsService } from '../../services/wins-services/wins.service';
-import { NgApexchartsModule, ApexAxisChartSeries } from 'ng-apexcharts';
-
-export type ChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: any;
-  xaxis: any;
-  stroke: any;
-  dataLabels: any;
-  markers: any;
-  plotOptions: any;
-  yaxis: any;
-  fill: any;
-  tooltip: any;
-  legend: any;
-  grid: any;
-  title: any;
-};
 
 @Component({
-  selector: 'app-wins-page',
   standalone: true,
+  selector: 'app-wins-page',
+  templateUrl: './wins-page.component.html',
+  styleUrls: ['./wins-page.component.css'],
   imports: [
-    HeaderComponent,
-    SidebarComponent,
     CommonModule,
     NgApexchartsModule,
+    SidebarComponent,
+    HeaderComponent,
   ],
-  templateUrl: './wins-page.component.html',
-  styleUrl: './wins-page.component.css',
 })
 export class WinsPageComponent implements OnInit {
+  username = '';
+  year = 2024;
+
+  isDataLoaded = false;
+  loadCount = 0;
+  totalLoads = 4;
+
+  cards: any[] = [];
   wins: any[] = [];
-  isLoadingWins: boolean = true;
-  winsChartData: any;
-  isWinsDataLoaded: boolean = false;
 
-  chartOptionsOne: Partial<ChartOptions> = {
-    series: [
-      { name: 'Wins', data: [] },
-      { name: 'Opportunities', data: [] },
-    ],
-  };
+  chartOptionsOne: any = {}; 
+  chartOptionsTwo: any = {}; 
 
-  chartOptionsTwo: Partial<ChartOptions> = {
-    series: [],
-  };
-
-  sortColumn: string = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
-
-  pipelineCount: number = 0;
-  revenueCount: number = 0;
-  signingsCount: number = 0;
-  winsCount: number = 0;
-
-  constructor(
-    private winsService: WinsService,
-    private dashboardService: DashboardService
-  ) {
-    this.chartOptionsOne = {
-      series: [
-        { name: 'Wins', data: [] },
-        { name: 'Opportunities', data: [] },
-      ],
-      chart: {
-        type: 'bar',
-        height: 350,
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '55%',
-          endingShape: 'rounded',
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent'],
-      },
-      xaxis: {
-        title: {
-          text: 'Industry',
-        },
-        categories: [],
-      },
-      yaxis: {
-        title: {
-          text: 'Count of Wins & Opportunities',
-        },
-      },
-      fill: {
-        opacity: 1,
-        colors: ['#1E88E5', '#43A047'], // Add colors for your bars
-      },
-      tooltip: {
-        y: {
-          formatter: function (val: number) {
-            return val + ' Count';
-          },
-        },
-      },
-      legend: {
-        show: true,
-      },
-    };
-
-    this.chartOptionsTwo = {
-      series: [
-        {
-          name: 'Confirmed Wins',
-          data: [],
-        },
-        {
-          name: 'Potential Wins',
-          data: [],
-        },
-      ],
-      chart: {
-        height: 350,
-        type: 'line',
-        zoom: {
-          enabled: false,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 5,
-        curve: 'straight',
-        dashArray: [0, 8, 5],
-      },
-      title: {
-        text: 'Wins Over Time',
-        align: 'left',
-      },
-      legend: {
-        tooltipHoverFormatter: function (
-          val: string,
-          opts: {
-            w: {
-              globals: { series: { [x: string]: { [x: string]: string } } };
-            };
-            seriesIndex: string | number;
-            dataPointIndex: string | number;
-          }
-        ) {
-          return (
-            val +
-            ' - <strong>' +
-            opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] +
-            '</strong>'
-          );
-        },
-      },
-      markers: {
-        size: 0,
-        hover: {
-          sizeOffset: 6,
-        },
-      },
-      xaxis: {
-        title: {
-          text: 'Month',
-        },
-        labels: {
-          trim: false,
-        },
-        categories: [
-          'J',
-          'F',
-          'M',
-          'A',
-          'M',
-          'J',
-          'J',
-          'A',
-          'S',
-          'O',
-          'N',
-          'D',
-        ],
-      },
-      tooltip: {
-        y: [
-          {
-            title: {
-              formatter: function (val: string) {
-                return val;
-              },
-            },
-          },
-          {
-            title: {
-              formatter: function (val: string) {
-                return val;
-              },
-            },
-          },
-          {
-            title: {
-              formatter: function (val: any) {
-                return val;
-              },
-            },
-          },
-        ],
-      },
-      grid: {
-        borderColor: '#f1f1f1',
-      },
-    };
-  }
+  constructor(private winsService: WinsService) {}
 
   ngOnInit(): void {
-    // this.fetchCardData();
-    this.fetchWins();
-    this.fetchBarChart();
-    this.fetchLineChart();
-  }
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.username = user.username || '';
 
-  fetchLineChart(): void {
-    this.winsService.getWinsLineChart().subscribe(
-      (response) => {
-        console.log('Line chart data received:', response);
-        this.chartOptionsTwo.series = [
-          {
-            name: 'Confirmed Wins',
-            data: response.map((item: any) => item.confirmed_wins),
-          },
-          {
-            name: 'Potential Wins',
-            data: response.map((item: any) => item.potential_wins),
-          },
-        ];
-      },
-      (error) => {
-        console.error('Error loading line chart data:', error);
-      }
-    );
-  }
-
-  fetchBarChart(): void {
-    this.winsService.getWinsBarChart().subscribe(
-      (response) => {
-        console.log('Chart data received:', response);
-        this.chartOptionsOne.series = [
-          {
-            name: 'Wins',
-            data: response.map((item: any) => item.wins),
-          },
-          {
-            name: 'Opportunities',
-            data: response.map((item: any) => item.opportunities),
-          },
-        ];
-        this.chartOptionsOne.xaxis.categories = response.map(
-          (item: any) => item.industry
-        );
-        this.isWinsDataLoaded = true;
-      },
-      (error) => {
-        console.error('Error loading chart data:', error);
-        this.isWinsDataLoaded = false;
-      }
-    );
-  }
-
-  fetchWins(): void {
-    this.winsService.getWins().subscribe((response: any[]) => {
-      this.wins = response;
-    });
-  }
-
-  sortTable(column: string) {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
+    if (this.username) {
+      this.loadWins();
+      this.loadQuarterlyCards();
+      this.loadCategoryChart();
+      this.loadEvolutionChart();
     }
+  }
 
-    this.wins.sort((a, b) => {
-      const valueA = a[column];
-      const valueB = b[column];
+  private markLoaded(): void {
+    this.loadCount++;
+    if (this.loadCount >= this.totalLoads) {
+      this.isDataLoaded = true;
+    }
+  }
 
-      if (typeof valueA === 'number' && typeof valueB === 'number') {
-        return this.sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
-      } else {
-        return this.sortDirection === 'asc'
-          ? valueA.toString().localeCompare(valueB.toString())
-          : valueB.toString().localeCompare(valueA.toString());
-      }
+  loadWins(): void {
+    this.winsService.getWins(this.username, this.year).subscribe({
+      next: (res) => {
+        this.wins = res.wins.map((w: any) => ({
+          opportunity_id: w.win_id,
+          client_name: w.client_name,
+          client_industry: w.client_industry,
+          win_level: w.win_level,
+          forecast_category: w.win_category.toUpperCase(),
+          win_date: `${w.fiscal_year} Q${w.fiscal_quarter}`,
+        }));
+        this.markLoaded();
+      },
+      error: (err) => {
+        console.error('Wins fetch error:', err);
+        this.markLoaded();
+      },
     });
   }
 
-  // fetchCardData(): void {
-  //   this.dashboardService.getPipelineCount().subscribe((response) => {
-  //     this.pipelineCount = response.pipeline_count;
-  //   });
-
-  //   this.dashboardService.getRevenueSum().subscribe((response) => {
-  //     this.revenueCount = response.revenue_sum;
-  //   });
-
-  //   this.dashboardService.getSigningsCount().subscribe((response) => {
-  //     this.signingsCount = response.signings_count;
-  //   });
-
-  //   this.dashboardService.getWinsCount().subscribe((response) => {
-  //     this.winsCount = response.wins_count;
-  //   });
-  // }
-
-  get cards() {
-    return [
-      {
-        title: 'Pipeline',
-        value: `$${this.pipelineCount}`,
-        percentage: '+55%',
+  loadQuarterlyCards(): void {
+    this.winsService.getWinsQuarterlyTargets(this.username, this.year).subscribe({
+      next: (res) => {
+        const quarters = res.quarterly_targets || [];
+        this.cards = quarters.map((q: any) => ({
+          title: `Q${q.quarter} Wins`,
+          value: q.accumulated_value,
+          percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`,
+        }));
+        this.markLoaded();
       },
-      { title: 'Revenue', value: `$${this.revenueCount}`, percentage: '+5%' },
-      {
-        title: 'Signings',
-        value: `$${this.signingsCount}`,
-        percentage: '+89%',
+      error: (err) => {
+        console.error('Quarterly target error:', err);
+        this.markLoaded();
       },
-      {
-        title: 'Count To Wins',
-        value: `${this.winsCount}`,
-        percentage: '-14%',
-      },
-    ];
+    });
   }
+
+  loadCategoryChart(): void {
+    this.winsService.getWinsCategoryDistribution(this.username, this.year).subscribe({
+      next: (res) => {
+        this.chartOptionsOne = {
+          chart: {
+            type: 'line',
+            height: 350,
+            stacked: true,
+            toolbar: {
+              show: false,
+            },
+          },
+          series: res.series,
+          colors: ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#A142F4', '#00ACC1'],
+          xaxis: {
+            categories: res.quarters,
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 2,
+          },
+          tooltip: {
+            shared: true,
+            intersect: false,
+          },
+          legend: {
+            position: 'bottom',
+          },
+        };
+        this.markLoaded();
+      },
+      error: (err) => {
+        console.error('Category distribution error:', err);
+        this.markLoaded();
+      },
+    });
+  }
+  
+  loadEvolutionChart(): void {
+    this.winsService.getWinsOverTime(this.username, this.year).subscribe({
+      next: (res) => {
+        this.chartOptionsTwo = {
+          chart: {
+            type: 'line',
+            height: 350,
+            toolbar: {
+              show: false,
+            },
+          },
+          colors: ['#4285F4'], // Google blue for Total Wins line
+          series: [
+            {
+              name: 'Total Wins',
+              data: res.win_evolution.map((e: any) => e.win_count),
+            },
+          ],
+          xaxis: {
+            categories: res.categories,
+          },
+          stroke: {
+            curve: 'smooth',
+          },
+          tooltip: {
+            shared: true,
+            intersect: false,
+          },
+          legend: {
+            position: 'bottom',
+          },
+        };
+        this.markLoaded();
+      },
+      error: (err) => {
+        console.error('Wins evolution error:', err);
+        this.markLoaded();
+      },
+    });
+  }
+  
+  
 }

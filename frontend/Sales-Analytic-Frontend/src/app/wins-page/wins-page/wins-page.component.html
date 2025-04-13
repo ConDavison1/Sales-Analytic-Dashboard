@@ -3,6 +3,7 @@
   <div class="main-content">
     <div class="wins-page">
       <app-header></app-header>
+
       <!-- Cards Section -->
       <div class="cards">
         <div *ngFor="let card of cards" class="card">
@@ -11,6 +12,7 @@
           <span>{{ card.percentage }}</span>
         </div>
       </div>
+
       <!-- Clients Section -->
       <div class="table-container">
         <h2 class="table-title">Wins List</h2>
@@ -18,20 +20,20 @@
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Wins ID</th>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Industry</th>
-                <th>Value</th>
-                <th>Forecast</th>
-                <th>Date of Win</th>
+                <th>Level</th>
+                <th>Category</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let win of wins">
                 <td>{{ win.opportunity_id }}</td>
-                <td>{{ win.account_name }}</td>
-                <td>{{ win.industry }}</td>
-                <td>{{ win.deal_value }}</td>
+                <td>{{ win.client_name }}</td>
+                <td>{{ win.client_industry }}</td>
+                <td>{{win.win_level}}</td>
                 <td>{{ win.forecast_category }}</td>
                 <td>{{ win.win_date }}</td>
               </tr>
@@ -40,43 +42,37 @@
         </div>
       </div>
 
-      <!-- Charts Section -->
+      <!-- Category Stacked Line Chart -->
       <div class="chart-container">
-        <div *ngIf="!isWinsDataLoaded" class="loading">
-          Loading chart data...
+        <div *ngIf="!isDataLoaded" class="loading">
+          Loading category chart...
         </div>
+        <h3>Win Category</h3>
         <apx-chart
-          *ngIf="isWinsDataLoaded"
-          #barChartRef
-          [series]="chartOptionsOne.series || []"
+          *ngIf="isDataLoaded"
+          [series]="chartOptionsOne.series"
           [chart]="chartOptionsOne.chart"
           [xaxis]="chartOptionsOne.xaxis"
-          [yaxis]="chartOptionsOne.yaxis"
-          [plotOptions]="chartOptionsOne.plotOptions"
-          [dataLabels]="chartOptionsOne.dataLabels"
           [stroke]="chartOptionsOne.stroke"
-          [fill]="chartOptionsOne.fill"
           [tooltip]="chartOptionsOne.tooltip"
           [legend]="chartOptionsOne.legend"
+
         ></apx-chart>
       </div>
+
+      <!-- Evolution Line Chart -->
       <div class="chart-container">
-        <div *ngIf="!isWinsDataLoaded" class="loading">
-          Loading chart data...
+        <div *ngIf="!isDataLoaded" class="loading">
+          Loading win evolution chart...
         </div>
+        <h3>Total Wins (Quarter)</h3>
         <apx-chart
-          #lineChartRef
-          [series]="chartOptionsTwo.series || []"
+          *ngIf="isDataLoaded"
+          [series]="chartOptionsTwo.series"
           [chart]="chartOptionsTwo.chart"
           [xaxis]="chartOptionsTwo.xaxis"
           [stroke]="chartOptionsTwo.stroke"
           [tooltip]="chartOptionsTwo.tooltip"
-          [dataLabels]="chartOptionsTwo.dataLabels"
-          [legend]="chartOptionsTwo.legend"
-          [markers]="chartOptionsTwo.markers"
-          [grid]="chartOptionsTwo.grid"
-          [yaxis]="chartOptionsTwo.yaxis"
-          [title]="chartOptionsTwo.title"
         ></apx-chart>
       </div>
     </div>

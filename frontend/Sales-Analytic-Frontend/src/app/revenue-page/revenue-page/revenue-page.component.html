@@ -23,12 +23,12 @@
           <thead>
             <tr>
               <th>Client</th>
-              <th>Product</th>
-              <th>Category</th>
+              <th>Product Name</th>
+              <th>Product Category</th>
               <th>Total ($)</th>
               <th>Month</th>
               <th>Quarter</th>
-              <th>FY</th>
+              <th>Year</th>
             </tr>
           </thead>
           <tbody>
@@ -73,7 +73,7 @@
           areaChart.series.length > 0
         "
       >
-        <h3>Industry Revenue</h3>
+        <h3>Revenue by Industry (Quarter)</h3>
         <apx-chart
           #areaChartRef
           [series]="areaChart.series"

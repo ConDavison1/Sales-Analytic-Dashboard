@@ -15,7 +15,7 @@
 
       <!-- Pipeline Table -->
       <div class="table-container">
-        <h2 class="text-xl font-semibold mb-4">Pipeline Estimates</h2>
+        <h2 class="text-xl font-semibold mb-4">Current Opportunites</h2>
         <table class="scrollable-table">
           <thead>
             <tr>
@@ -25,7 +25,7 @@
               <th>Forecast Category</th>
               <th>Probability</th>
               <th>Value</th>
-              <th>Time Period</th>
+              <!-- <th>Close Date</th> -->
             </tr>
           </thead>
           <tbody>
@@ -36,7 +36,7 @@
               <td>{{ row.forecast_category }}</td>
               <td>{{ row.probability }}</td>
               <td>{{ row.opportunity_value }}</td>
-              <td>{{ row.time_period }}</td>
+              <!-- <td>{{ row.close_date }}</td> -->
             </tr>
           </tbody>
         </table>
@@ -44,7 +44,7 @@
 
       <!-- Funnel Chart Section -->
       <div class="chart-container" *ngIf="funnelChart.series">
-        <h3>Sales Stages</h3>
+        <h3>Stage of Opportunity</h3>
         <apx-chart
           [series]="funnelChart.series"
           [chart]="funnelChart.chart"
@@ -58,7 +58,7 @@
 
       <!-- Product Forecast Heatmap Chart -->
       <div class="chart-container" *ngIf="heatmapChart.series">
-        <h3>Product Forecast</h3>
+        <h3>Value Based on Forecast Category</h3>
         <apx-chart
           [series]="heatmapChart.series"
           [chart]="heatmapChart.chart"

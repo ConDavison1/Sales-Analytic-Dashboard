@@ -69,7 +69,7 @@ export class PipelineDashboardComponent implements OnInit {
         forecast_category: opp.forecast_category,
         probability: `${opp.probability}%`,
         opportunity_value: `$${opp.amount.toLocaleString()}`,
-        time_period: opp.close_date,
+        //close_date: opp.close_date,
       }));
     });
   }
@@ -115,12 +115,12 @@ export class PipelineDashboardComponent implements OnInit {
             categories: funnelStages,
           },
           colors: [
-            '#4CAF50',
-            '#81C784',
-            '#AED581',
-            '#C5E1A5',
-            '#DCE775',
-            '#FFF176',
+            '#4285F4', // Google Blue
+            '#34A853', // Google Green
+            '#FBBC05', // Google Yellow
+            '#EA4335', // Google Red
+            '#A142F4', // Google Purple
+            '#00ACC1', // Google Teal
           ],
         };
       });
