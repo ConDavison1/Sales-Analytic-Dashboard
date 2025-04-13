@@ -1,6 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgApexchartsModule } from 'ng-apexcharts';
+import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
@@ -17,15 +23,25 @@ import { PipelineService } from '../../services/pipeline-services/pipeline.servi
     HeaderComponent,
   ],
 })
-export class PipelineDashboardComponent implements OnInit {
+export class PipelineDashboardComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   username = '';
   year = 2024;
 
   cards: any[] = [];
   pipelineData: any[] = [];
 
+  // Chart options for Funnel & Heatmap charts.
   funnelChart: any = {};
   heatmapChart: any = {};
+
+  // ViewChild references for the ApexCharts components.
+  @ViewChild('funnelChartRef') funnelChartRef!: ChartComponent;
+  @ViewChild('heatmapChartRef') heatmapChartRef!: ChartComponent;
+
+  // MutationObserver to detect theme changes.
+  private themeObserver!: MutationObserver;
 
   constructor(private pipelineService: PipelineService) {}
 
@@ -39,6 +55,87 @@ export class PipelineDashboardComponent implements OnInit {
       this.loadHeatmapChart();
       this.loadQuarterlyCards();
     }
+
+    // Set up MutationObserver to watch for changes in the body's class attribute.
+    this.themeObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class'
+        ) {
+          console.log('Pipeline Dashboard: Theme change detected.');
+          this.toggleChartTheme();
+        }
+      });
+    });
+    this.themeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // Immediately update the charts with the current theme.
+    this.toggleChartTheme();
+
+    // Use multiple delays to ensure that dark mode is applied before the charts update.
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 500);
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
+  }
+
+  /**
+   * Updates the chart options for the Funnel and Heatmap charts based on the active theme.
+   * When dark mode is active (i.e. body contains "dark-mode"), foreColor is set to white.
+   */
+  toggleChartTheme(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+
+    // Update the Funnel Chart
+    if (this.funnelChartRef) {
+      this.funnelChartRef.updateOptions(
+        {
+          chart: {
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
+          },
+          xaxis: {
+            labels: { style: { colors: [foreColor] } },
+          },
+          tooltip: { theme: isDark ? 'dark' : 'light' },
+        },
+        false,
+        true
+      );
+    }
+
+    // Update the Heatmap Chart
+    if (this.heatmapChartRef) {
+      this.heatmapChartRef.updateOptions(
+        {
+          chart: {
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
+          },
+          xaxis: {
+            labels: { style: { colors: [foreColor] } },
+          },
+          tooltip: { theme: isDark ? 'dark' : 'light' },
+        },
+        false,
+        true
+      );
+    }
   }
 
   loadQuarterlyCards(): void {
@@ -46,12 +143,10 @@ export class PipelineDashboardComponent implements OnInit {
       .getQuarterlyTargets(this.username, this.year)
       .subscribe((res) => {
         const quarters = res.quarterly_targets;
-
         if (!quarters || quarters.length === 0) {
           console.warn('No quarterly targets available');
           return;
         }
-
         this.cards = quarters.map((q: any) => ({
           title: `Q${q.quarter} Target`,
           value: `$${q.accumulated_value.toLocaleString()}`,
@@ -69,7 +164,6 @@ export class PipelineDashboardComponent implements OnInit {
         forecast_category: opp.forecast_category,
         probability: `${opp.probability}%`,
         opportunity_value: `$${opp.amount.toLocaleString()}`,
-        //close_date: opp.close_date,
       }));
     });
   }
@@ -83,6 +177,8 @@ export class PipelineDashboardComponent implements OnInit {
         );
         const funnelStages = sortedData.map((d: any) => d.stage);
         const funnelCounts = sortedData.map((d: any) => d.count);
+        const isDark = document.body.classList.contains('dark-mode');
+        const foreColor = isDark ? '#fff' : '#000';
 
         this.funnelChart = {
           series: [
@@ -94,6 +190,8 @@ export class PipelineDashboardComponent implements OnInit {
           chart: {
             type: 'bar',
             height: 400,
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
           },
           plotOptions: {
             bar: {
@@ -113,6 +211,7 @@ export class PipelineDashboardComponent implements OnInit {
           },
           xaxis: {
             categories: funnelStages,
+            labels: { style: { colors: [foreColor] } },
           },
           colors: [
             '#4285F4', // Google Blue
@@ -133,16 +232,13 @@ export class PipelineDashboardComponent implements OnInit {
           console.warn('Invalid or missing heatmap data:', res);
           return;
         }
-
         const data = res.heatmap_data;
-
         const productCategories = [
           ...new Set(data.map((d: any) => d.product_category)),
         ];
         const forecastCategories = [
           ...new Set(data.map((d: any) => d.forecast_category)),
         ];
-
         const series = productCategories.map((product) => ({
           name: product,
           data: forecastCategories.map((forecast) => {
@@ -154,49 +250,59 @@ export class PipelineDashboardComponent implements OnInit {
             return match ? match.value : 0;
           }),
         }));
+        const isDark = document.body.classList.contains('dark-mode');
+        const foreColor = isDark ? '#fff' : '#000';
 
         this.heatmapChart = {
           series,
           chart: {
             height: 350,
             type: 'heatmap',
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
           },
           dataLabels: { enabled: true },
-          xaxis: { categories: forecastCategories },
+          xaxis: {
+            categories: forecastCategories,
+            labels: { style: { colors: [foreColor] } },
+          },
+          legend: {
+            position: 'bottom',
+          },
           plotOptions: {
             heatmap: {
-              enableShades: false, // Use strict colors rather than a gradient
+              enableShades: false,
               colorScale: {
                 ranges: [
                   {
                     from: 0,
-                    to: 500000, // "Low" now spans from 0 to 5 million
+                    to: 500000,
                     name: 'Low',
-                    color: '#4285F4', // Google Blue
+                    color: '#4285F4',
                   },
                   {
                     from: 500001,
                     to: 1000000,
                     name: 'Below Average',
-                    color: '#DB4437', // Google Red
+                    color: '#DB4437',
                   },
                   {
                     from: 1000001,
                     to: 15000000,
                     name: 'Above Average',
-                    color: '#F4B400', // Google Yellow
+                    color: '#F4B400',
                   },
                   {
                     from: 15000001,
                     to: 17000000,
                     name: 'High',
-                    color: '#0F9D58', // Google Green
+                    color: '#0F9D58',
                   },
                 ],
               },
             },
           },
-          fill: { opacity: 1 }, // Ensure full opacity so that the color shows strongly
+          fill: { opacity: 1 },
         };
       },
       error: (err) => {

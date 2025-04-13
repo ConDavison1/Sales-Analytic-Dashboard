@@ -46,6 +46,7 @@
       <div class="chart-container" *ngIf="funnelChart.series">
         <h3>Stage of Opportunity</h3>
         <apx-chart
+          #funnelChartRef
           [series]="funnelChart.series"
           [chart]="funnelChart.chart"
           [xaxis]="funnelChart.xaxis"
@@ -60,12 +61,14 @@
       <div class="chart-container" *ngIf="heatmapChart.series">
         <h3>Value Based on Forecast Category</h3>
         <apx-chart
+          #heatmapChartRef
           [series]="heatmapChart.series"
           [chart]="heatmapChart.chart"
           [xaxis]="heatmapChart.xaxis"
           [dataLabels]="heatmapChart.dataLabels"
           [plotOptions]="heatmapChart.plotOptions"
           [fill]="heatmapChart.fill"
+          [legend]="heatmapChart.legend"
         >
         </apx-chart>
       </div>

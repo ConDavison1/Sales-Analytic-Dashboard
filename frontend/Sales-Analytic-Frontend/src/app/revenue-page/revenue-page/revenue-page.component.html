@@ -58,7 +58,6 @@
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors"
         >
         </apx-chart>
       </div>
@@ -73,7 +72,7 @@
           areaChart.series.length > 0
         "
       >
-        <h3>Revenue by Industry (Quarter)</h3>
+        <h3>Revenue by Industry</h3>
         <apx-chart
           #areaChartRef
           [series]="areaChart.series"

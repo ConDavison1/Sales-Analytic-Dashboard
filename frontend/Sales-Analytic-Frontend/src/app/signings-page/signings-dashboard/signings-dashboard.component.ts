@@ -93,7 +93,7 @@ export class SigningsDashboardComponent
       enabled: true,
       y: { formatter: (val: number) => `$${val.toLocaleString()}` },
     },
-    colors: ['#4285F4'],
+    colors: ['#008FFB'],
   };
 
   // Initial polar chart options.
