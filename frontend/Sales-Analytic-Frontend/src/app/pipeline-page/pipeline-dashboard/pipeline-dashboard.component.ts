@@ -10,6 +10,7 @@ import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
@@ -21,6 +22,7 @@ import { PipelineService } from '../../services/pipeline-services/pipeline.servi
     NgApexchartsModule,
     SidebarComponent,
     HeaderComponent,
+    FormsModule,
   ],
 })
 export class PipelineDashboardComponent
@@ -31,8 +33,21 @@ export class PipelineDashboardComponent
 
   cards: any[] = [];
   pipelineData: any[] = [];
+  pipelineDataUnfiltered: any[] = [];
 
-  // Chart options for Funnel & Heatmap charts.
+  showFilterOverlay: boolean = false;
+  searchTerm: string = '';
+
+  selectedFilters: {
+    stage: Set<string>;
+    forecast_category: Set<string>;
+  } = {
+    stage: new Set<string>(),
+    forecast_category: new Set<string>(),
+  };
+
+  uniqueStages: string[] = [];
+  uniqueForecastCategories: string[] = [];
   funnelChart: any = {};
   heatmapChart: any = {};
 
@@ -157,15 +172,68 @@ export class PipelineDashboardComponent
 
   loadOpportunities(): void {
     this.pipelineService.getOpportunities(this.username).subscribe((res) => {
-      this.pipelineData = res.opportunities.map((opp: any) => ({
+      const formattedData = res.opportunities.map((opp: any) => ({
         account_name: opp.client_name,
         opportunity_id: opp.opportunity_id,
         stage: opp.sales_stage,
         forecast_category: opp.forecast_category,
         probability: `${opp.probability}%`,
         opportunity_value: `$${opp.amount.toLocaleString()}`,
+        time_period: opp.close_date,
       }));
+
+      this.pipelineDataUnfiltered = formattedData;
+      this.pipelineData = [...formattedData];
+
+      this.uniqueForecastCategories = [
+        ...new Set<string>(
+          formattedData.map((row: any) => row.forecast_category as string)
+        ),
+      ];
+      this.uniqueStages = Array.from(
+        new Set<string>(formattedData.map((row: any) => row.stage))
+      );
     });
+  }
+
+  toggleFilter(
+    category: keyof typeof this.selectedFilters,
+    value: string,
+    event: Event
+  ): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
+    }
+  }
+
+  applyFilters(): void {
+    this.pipelineData = this.pipelineData.filter(
+      (row) =>
+        (!this.selectedFilters.stage.size ||
+          this.selectedFilters.stage.has(row.stage)) &&
+        (!this.selectedFilters.forecast_category.size ||
+          this.selectedFilters.forecast_category.has(row.forecast_category)) &&
+        (!this.searchTerm ||
+          row.account_name
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.stage.clear();
+    this.selectedFilters.forecast_category.clear();
+    this.searchTerm = '';
+    this.pipelineData = [...this.pipelineDataUnfiltered];
+    this.showFilterOverlay = false;
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
   }
 
   loadStageFunnel(): void {

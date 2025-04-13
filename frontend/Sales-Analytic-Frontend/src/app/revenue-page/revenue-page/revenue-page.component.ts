@@ -12,6 +12,7 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { RevenueService } from '../../services/revenue-services/revenue.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-revenue-page',
@@ -20,6 +21,7 @@ import { RevenueService } from '../../services/revenue-services/revenue.service'
     CommonModule,
     SidebarComponent,
     HeaderComponent,
+    FormsModule,
   ],
   standalone: true,
   templateUrl: './revenue-page.component.html',
@@ -33,9 +35,24 @@ export class RevenuePageComponent
   @ViewChild('areaChartRef') areaChartRef!: ChartComponent;
 
   revenueData: any[] = [];
+  revenueDataUnfiltered: any[] = [];
   revenueChartData: any[] = [];
   cards: any[] = [];
   isDataLoaded: boolean = false;
+
+  showFilterOverlay: boolean = false;
+  searchTerm: string = '';
+
+  selectedFilters: {
+    product_category: Set<string>;
+    fiscal_quarter: Set<string>;
+  } = {
+    product_category: new Set<string>(),
+    fiscal_quarter: new Set<string>(),
+  };
+
+  uniqueProductCategories: string[] = [];
+  uniqueQuarters: string[] = [];
 
   private username: string = '';
   private loadCount = 0;
@@ -149,13 +166,32 @@ export class RevenuePageComponent
   fetchRevenueClients(): void {
     this.revenueService.getRevenue(this.username).subscribe({
       next: (res) => {
-        this.revenueData = res.revenue;
-        this.markLoaded();
+        const formattedData = res.revenue.map((r: any) => ({
+          client_name: r.client_name,
+          product_name: r.product_name,
+          product_category: r.product_category,
+          amount: r.amount,
+          month: r.month,
+          fiscal_quarter: r.fiscal_quarter,
+          fiscal_year: r.fiscal_year,
+        }));
+
+        this.revenueDataUnfiltered = formattedData;
+        this.revenueData = [...formattedData];
+
+        this.uniqueProductCategories = [
+          ...new Set<string>(
+            formattedData.map((row: any) => row.product_category as string)
+          ),
+        ];
+
+        this.uniqueQuarters = [
+          ...new Set<string>(
+            formattedData.map((row: any) => row.fiscal_quarter as string)
+          ),
+        ];
       },
-      error: (err) => {
-        console.error('Revenue fetch error:', err);
-        this.markLoaded();
-      },
+      error: (err) => console.error('Revenue fetch error:', err),
     });
   }
 
@@ -182,6 +218,44 @@ export class RevenuePageComponent
         this.markLoaded();
       },
     });
+  }
+
+  toggleFilter(
+    category: keyof typeof this.selectedFilters,
+    value: string,
+    event: Event
+  ): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
+    }
+  }
+
+  applyFilters(): void {
+    this.revenueData = this.revenueDataUnfiltered.filter(
+      (row) =>
+        (!this.selectedFilters.product_category.size ||
+          this.selectedFilters.product_category.has(row.product_category)) &&
+        (!this.selectedFilters.fiscal_quarter.size ||
+          this.selectedFilters.fiscal_quarter.has(row.fiscal_quarter)) &&
+        (!this.searchTerm ||
+          row.client_name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.product_category.clear();
+    this.selectedFilters.fiscal_quarter.clear();
+    this.searchTerm = '';
+    this.revenueData = [...this.revenueDataUnfiltered];
+    this.showFilterOverlay = false;
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
   }
 
   fetchQuarterlyTargets(): void {
