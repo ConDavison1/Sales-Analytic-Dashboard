@@ -26,13 +26,16 @@
       <span *ngIf="!isSidebarCollapsed">Clients</span>
     </a>
     <a
-      [routerLink]="['/account-executives']"
-      [routerLinkActive]="'active'"
-      [class.active]="activeLink === 'account-executives'"
-    >
-      <i class="material-icons">account_circle</i>
-      <span *ngIf="!isSidebarCollapsed">Account Exec's</span>
-    </a>
+    *ngIf="username === 'shogg'"
+    [routerLink]="['/account-executives']"
+    [routerLinkActive]="'active'"
+    [class.active]="activeLink === 'account-executives'"
+  >
+    <i class="material-icons">account_circle</i>
+    <span *ngIf="!isSidebarCollapsed">Account Exec's</span>
+  </a>
+  
+  
   </nav>
 
   <!-- Sales Section -->

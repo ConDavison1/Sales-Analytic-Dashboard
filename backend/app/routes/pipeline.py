@@ -11,11 +11,12 @@ from ..models.models import (
     DirectorAccountExecutive
 )
 from datetime import datetime
-
+from ..auth_utils import token_required
 # Create a Blueprint for pipeline routes
 pipeline_bp = Blueprint('pipeline', __name__, url_prefix='/api/pipeline')
 
 @pipeline_bp.route('/opportunities', methods=['GET'])
+@token_required
 def get_opportunities():
     """
     Get opportunities with flexible filtering
@@ -259,6 +260,7 @@ def format_opportunity_results(results):
     return opportunities
 
 @pipeline_bp.route('/pipeline-quarterly-targets', methods=['GET'])
+@token_required
 def get_pipeline_quarterly_targets():
     """
     Get quarterly accumulated weighted pipeline values and target achievement percentages
@@ -548,6 +550,7 @@ def calculate_quarterly_targets(opportunities, quarterly_percentages, yearly_tar
     return quarterly_targets
 
 @pipeline_bp.route('/stage-funnel-chart-data', methods=['GET'])
+@token_required
 def get_stage_funnel_chart_data():
     """
     Get opportunity count by sales stage for funnel chart visualization
@@ -673,6 +676,7 @@ def get_stage_funnel_data(user, year):
     return stage_funnel_data
 
 @pipeline_bp.route('/product-forecast-heatmap-chart-data', methods=['GET'])
+@token_required
 def get_product_forecast_heatmap_data():
     """
     Get weighted opportunity values across product categories and forecast categories

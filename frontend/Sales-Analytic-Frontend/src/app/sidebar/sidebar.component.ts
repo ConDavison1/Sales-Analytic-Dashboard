@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,33 +15,37 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   isSidebarCollapsed = false;
   isMobileSidebarVisible = false;
   activeLink: string = '';
+  username: string | null = null;
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private authService: AuthService // ✅ Inject AuthService
+  ) {}
 
   ngOnInit(): void {
+    this.username = this.authService.getUsername(); // ✅ Get normalized username
+    console.log('Sidebar username:', this.username);
+
     this.handleInitialSidebarState();
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        const currentRoute =
-          this.activatedRoute.snapshot.firstChild?.routeConfig?.path;
+        const currentRoute = this.activatedRoute.snapshot.firstChild?.routeConfig?.path;
         if (currentRoute) {
           this.setActive(currentRoute);
         }
 
-        // Close the mobile sidebar after navigation
         if (window.innerWidth <= 768) {
           this.isMobileSidebarVisible = false;
         }
 
-        // Ensure margin is correctly updated after route change
         this.adjustMainContentMargin();
       }
     });
   }
 
   ngAfterViewInit(): void {
-    // Adjust content margin once view is ready
     setTimeout(() => this.adjustMainContentMargin(), 0);
   }
 
@@ -64,7 +69,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
       this.isSidebarCollapsed = false;
       this.isMobileSidebarVisible = false;
     } else {
-      this.isSidebarCollapsed = false; // or true if you want collapsed by default
+      this.isSidebarCollapsed = false;
     }
 
     this.adjustMainContentMargin();
@@ -77,9 +82,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
       if (window.innerWidth <= 768) {
         mainContent.style.marginLeft = '0px';
       } else {
-        mainContent.style.marginLeft = this.isSidebarCollapsed
-          ? '70px'
-          : '250px';
+        mainContent.style.marginLeft = this.isSidebarCollapsed ? '70px' : '250px';
       }
     }
   }
@@ -94,7 +97,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   }
 
   onLogout(): void {
-    localStorage.removeItem('token');
+    this.authService.logout(); 
     this.router.navigate(['/login']);
   }
 }

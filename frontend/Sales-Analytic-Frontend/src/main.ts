@@ -1,12 +1,18 @@
 import { appRoutes } from './app/app.routes';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
-import { provideRouter } from '@angular/router'; // Import provideRouter
-import { AppComponent } from './app/app.component'; // Import your root component
+import {
+  provideHttpClient,
+  withInterceptors
+} from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { AppComponent } from './app/app.component';
+import { AuthInterceptor } from './app/auth/auth.interceptor'; // ✅ Make sure this path is correct
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideHttpClient(), // Provide HttpClient if necessary
-    provideRouter(appRoutes) // Provide the router with your appRoutes
+    provideHttpClient(
+      withInterceptors([AuthInterceptor]) // ✅ Register the interceptor here
+    ),
+    provideRouter(appRoutes)
   ]
 }).catch(err => console.error(err));

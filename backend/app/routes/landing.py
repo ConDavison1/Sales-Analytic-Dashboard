@@ -12,12 +12,15 @@ from ..models.models import (
 )
 from datetime import datetime
 import logging
+from ..auth_utils import token_required
+
 
 
 # Create a Blueprint for landing page routes
 landing_bp = Blueprint('landing', __name__, url_prefix='/api/landing')
 
 @landing_bp.route('/revenue-chart-data', methods=['GET'])
+@token_required
 def get_revenue_chart_data():
     """
         Get Revenue Chart Data for histogram visualization
@@ -164,6 +167,7 @@ def calculate_revenue_chart_data_for_clients(client_ids, year):
     ]
 
 @landing_bp.route('/win-chart-data', methods=['GET'])
+@token_required
 def get_win_chart_data():
     """
         Get Win Chart Data for histogram visualization
@@ -309,6 +313,7 @@ def calculate_win_chart_data_for_clients(client_ids, year):
 
 
 @landing_bp.route('/kpi-cards', methods=['GET'])
+@token_required
 def get_kpi_cards():
     """
         Get Key Performance Indicators for the landing page cards
@@ -627,6 +632,7 @@ def calculate_wins_kpi(client_ids, year):
     
 
 @landing_bp.route('/pipeline-chart-data', methods=['GET'])
+@token_required
 def get_pipeline_chart_data():
     """
     Get Pipeline Chart Data for pie chart visualization
@@ -815,6 +821,7 @@ def calculate_pipeline_chart_data_for_clients(client_ids, year):
         return []
 
 @landing_bp.route('/signings-chart-data', methods=['GET'])
+@token_required
 def get_signings_chart_data():
     """
     Get Signings Chart Data for pie chart visualization

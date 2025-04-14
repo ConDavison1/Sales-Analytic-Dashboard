@@ -11,11 +11,12 @@ from ..models.models import (
     DirectorAccountExecutive, YearlyTarget
 )
 from datetime import datetime
-
+from ..auth_utils import token_required
 # Create a Blueprint for executives routes
 executives_bp = Blueprint('executives', __name__, url_prefix='/api/executives')
 
 @executives_bp.route('/account-executives', methods=['GET'])
+@token_required
 def get_account_executives():
     """
     Get all account executives
@@ -60,6 +61,7 @@ def get_account_executives():
         return jsonify({"error": f"Failed to retrieve account executives: {str(e)}"}), 500
 
 @executives_bp.route('/ae-performance', methods=['GET'])
+@token_required
 def get_ae_performance():
     """
     Get performance indicators for all account executives
