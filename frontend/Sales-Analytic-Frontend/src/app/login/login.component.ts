@@ -48,24 +48,26 @@ export class LoginComponent {
 
   onLogin() {
     const payload = { username: this.username, password: this.password };
-
-    console.log('Sending login request with payload:', payload);  // Add log to check payload
-
+  
+    console.log('Sending login request with payload:', payload);
+  
     this.http.post('http://localhost:5000/api/auth/login', payload).subscribe({
       next: (response: any) => {
-        console.log('Login response:', response);  // Log the full response
-        
-        if (!response.user) {
-          this.message = "Login failed: No user data received!";
-          console.log(this.message);  // Log the failure message
+        console.log('Login response:', response);
+  
+        if (!response.user || !response.token) {
+          this.message = "Login failed: Missing user or token in response!";
+          console.log(this.message);
           return;
         }
-
-        // Optional: store user data in localStorage or a service
+  
+        // ✅ Store token and user info in localStorage
+        localStorage.setItem('token', response.token); // <<< THIS WAS MISSING
         localStorage.setItem('user', JSON.stringify(response.user));
-        console.log('User Info:', response.user);  // Log user data
-
-        // Redirect to landing page
+        localStorage.setItem('username', response.user.username.trim().toLowerCase());
+  
+        console.log('User Info:', response.user);
+  
         this.router.navigate(['/landing-page']);
       },
       error: (error) => {
@@ -73,7 +75,8 @@ export class LoginComponent {
         this.message = error.error.error || 'Login failed!';
       }
     });
-}
+  }
+  
 
   
   

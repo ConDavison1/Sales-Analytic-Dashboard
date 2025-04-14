@@ -11,11 +11,12 @@ from ..models.models import (
     DirectorAccountExecutive, YearlyTarget, QuarterlyTarget
 )
 from datetime import datetime
-
+from ..auth_utils import token_required
 # Create a Blueprint for wins routes
 wins_bp = Blueprint('wins', __name__, url_prefix='/api/wins')
 
 @wins_bp.route('/win-quarterly-evolution-chart', methods=['GET'])
+@token_required
 def get_win_quarterly_evolution_chart():
     """
     Get win count evolution by quarter for line chart visualization
@@ -149,6 +150,7 @@ def get_wins_evolution_data(user, year):
         return []
     
 @wins_bp.route('/win-category-quarterly-chart', methods=['GET'])
+@token_required
 def get_win_category_quarterly_chart():
     """
     Get win counts by category and quarter for stacked bar chart visualization
@@ -303,6 +305,7 @@ def get_win_category_data(user, year):
         return []
 
 @wins_bp.route('/wins', methods=['GET'])
+@token_required
 def get_wins():
     """
     Query wins data with flexible filtering
@@ -552,6 +555,7 @@ def format_wins_results(results):
     return wins_data
 
 @wins_bp.route('/wins-quarterly-targets', methods=['GET'])
+@token_required
 def get_wins_quarterly_targets():
     """
     Get quarterly accumulated win values and target achievement percentages

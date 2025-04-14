@@ -11,69 +11,30 @@ from ..models.models import (
     DirectorAccountExecutive
 )
 from datetime import datetime
+from ..auth_utils import token_required  # Adjust path if needed
+
 
 # Create a Blueprint for clients routes
 clients_bp = Blueprint('clients', __name__, url_prefix='/api/clients')
 
 @clients_bp.route('/industry-treemap-chart', methods=['GET'])
+@token_required
 def get_industry_treemap_chart():
-    """
-    Get client distribution by industry for treemap chart visualization
-    
-    Returns data showing the number of clients and revenue for the top 10 industries by revenue,
-    formatted for a treemap chart visualization. Rectangles are sized by client count.
-    
-    Query parameters:
-    - username: Username of the current user (required)
-    
-    Response format:
-    {
-      "treemap_data": [
-        {
-          "x": "Financial Services",  // Industry name (used as rectangle label)
-          "y": 25,                    // Client count (determines rectangle size)
-          "revenue": 1250000.0,       // Total revenue for the industry (can be used for color intensity)
-          "client_count": 25          // Same as y-value, included for clarity in tooltips
-        },
-        ...
-      ]
-    }
-    
-    Chart visualization details:
-    - Each rectangle represents an industry
-    - Rectangle size is proportional to the client count (y-value)
-    - Revenue can be used for color intensity (higher revenue = darker color)
-    - Industry name (x-value) is displayed as the rectangle label
-    - Tooltips can show both client count and revenue for each industry
-    - Only the top 10 industries by revenue are included
-    
-    Returns:
-    - 200 OK with treemap chart data
-    - 400 Bad Request if missing required parameters
-    - 404 Not Found if user doesn't exist
-    - 500 Internal Server Error if calculation fails
-    """
     try:
-        # Get and validate parameters
         username = request.args.get('username', type=str)
-        
-        # Validate required parameters
         if not username:
             return jsonify({"error": "Missing required parameter: username"}), 400
-        
-        # Get user by username and validate
+
         user = User.query.filter_by(username=username).first()
         if not user:
             return jsonify({"error": "User not found"}), 404
-        
-        # Get client industry distribution data based on user role
+
         treemap_data = get_industry_distribution_data(user)
-        
-        # Return formatted response
+
         return jsonify({
             "treemap_data": treemap_data
         }), 200
-        
+
     except Exception as e:
         print(f"Error in get_industry_treemap_chart: {str(e)}")
         return jsonify({"error": f"Failed to calculate industry distribution data: {str(e)}"}), 500
@@ -151,72 +112,27 @@ def get_industry_distribution_data(user):
         return []
     
 @clients_bp.route('/province-pie-chart', methods=['GET'])
+@token_required
 def get_province_pie_chart():
-    """
-    Get client distribution by province for pie chart visualization
-    
-    Returns data showing the number of clients in each Canadian province,
-    formatted specifically for a pie chart visualization. Each slice of the pie
-    represents a province, with the size proportional to the number of clients.
-    
-    Query parameters:
-    - username: Username of the current user (required)
-    
-    Response format:
-    {
-      "labels": ["Ontario", "Quebec", "British Columbia", ...],  // Province names for pie slices
-      "series": [45, 32, 28, ...],                               // Client counts for pie slice sizes
-      "additional_data": [                                        // Additional data for tooltips
-        {
-          "province": "ON",
-          "province_name": "Ontario", 
-          "client_count": 45,
-          "revenue": 2250000.0
-        },
-        ...
-      ]
-    }
-    
-    Pie Chart visualization details:
-    - Each slice represents a Canadian province
-    - Slice size is proportional to the number of clients in that province
-    - Slice labels show the province name
-    - Tooltips can show additional information like revenue
-    - Data is sorted by client count to ensure consistent visualization
-    
-    Returns:
-    - 200 OK with province pie chart data
-    - 400 Bad Request if missing required parameters
-    - 404 Not Found if user doesn't exist
-    - 500 Internal Server Error if calculation fails
-    """
     try:
-        # Get and validate parameters
         username = request.args.get('username', type=str)
-        
-        # Validate required parameters
         if not username:
             return jsonify({"error": "Missing required parameter: username"}), 400
-        
-        # Get user by username and validate
+
         user = User.query.filter_by(username=username).first()
         if not user:
             return jsonify({"error": "User not found"}), 404
-        
-        # Get client province distribution data based on user role
+
         province_data = get_province_distribution_data(user)
-        
-        # Extract labels (province names) and series (client counts) for pie chart
         labels = [item["province_name"] for item in province_data]
         series = [item["client_count"] for item in province_data]
-        
-        # Return formatted response
+
         return jsonify({
             "labels": labels,
             "series": series,
             "additional_data": province_data
         }), 200
-        
+
     except Exception as e:
         print(f"Error in get_province_pie_chart: {str(e)}")
         return jsonify({"error": f"Failed to calculate province pie chart data: {str(e)}"}), 500
@@ -314,100 +230,44 @@ def get_province_distribution_data(user):
         return []
 
 @clients_bp.route('/clients', methods=['GET'])
+@token_required
 def get_clients():
     """
     Query clients data with flexible filtering
-    
-    Returns clients filtered by various criteria and based on user role.
-    Directors can see clients for all account executives they manage.
-    Account executives can only see their own clients.
-    
-    Query parameters:
-    - username: Username of the current user (required)
-    - provinces: Comma-separated list of province codes to filter by (optional)
-      Example: provinces=ON,QC,BC
-    - industries: Comma-separated list of industries to filter by (optional)
-      Example: industries=Financial Services,Healthcare
-      Note: Industry filtering is case-insensitive
-    
-    Response format:
-    {
-        "clients": [
-            {
-                "client_id": 1,
-                "client_name": "Acme Corp",
-                "industry": "Financial Services",
-                "city": "Toronto",
-                "province": "ON",
-                "account_executive": "John Smith",
-                "account_executive_id": 5,
-                "created_date": "2023-06-15"
-            },
-            ...
-        ],
-        "total_count": 42,
-        "applied_filters": {
-            "provinces": ["ON", "QC"],
-            "industries": ["Financial Services", "Healthcare"]
-        }
-    }
-    
-    Returns:
-    - 200 OK with filtered clients data
-    - 400 Bad Request if missing required parameters
-    - 404 Not Found if user doesn't exist
-    - 500 Internal Server Error if query execution fails
+
+    This endpoint is now protected by JWT.
     """
     try:
-        # Get and validate parameters
         username = request.args.get('username', type=str)
         provinces_param = request.args.get('provinces', type=str)
         industries_param = request.args.get('industries', type=str)
-        
-        # Parse comma-separated provinces
-        provinces = []
-        if provinces_param:
-            provinces = [p.strip().upper() for p in provinces_param.split(',') if p.strip()]
-        
-        # Parse comma-separated industries
-        industries = []
-        if industries_param:
-            industries = [i.strip() for i in industries_param.split(',') if i.strip()]
-        
-        # Validate required parameters
+
+        provinces = [p.strip().upper() for p in provinces_param.split(',')] if provinces_param else []
+        industries = [i.strip() for i in industries_param.split(',')] if industries_param else []
+
         if not username:
             return jsonify({"error": "Missing required parameter: username"}), 400
-        
-        # Get user by username and validate
+
         user = User.query.filter_by(username=username).first()
         if not user:
             return jsonify({"error": "User not found"}), 404
-        
-        # Build the query based on user role and filters
+
         query, applied_filters = build_clients_query(user, provinces, industries)
-        
-        # Get total count for metadata
+
         total_count = query.count()
-        
-        # Execute query and get results with pagination
-        # Limit to 1000 records for performance
-        results = query.order_by(
-            Client.client_name
-        ).limit(1000).all()
-        
-        # Format the results
+        results = query.order_by(Client.client_name).limit(1000).all()
         clients_data = format_clients_results(results)
-        
-        # Return formatted response
+
         return jsonify({
             "clients": clients_data,
             "total_count": total_count,
             "applied_filters": applied_filters
         }), 200
-        
+
     except Exception as e:
         print(f"Error in get_clients: {str(e)}")
         return jsonify({"error": f"Failed to query clients: {str(e)}"}), 500
+
 
 
 def build_clients_query(user, provinces=None, industries=None):

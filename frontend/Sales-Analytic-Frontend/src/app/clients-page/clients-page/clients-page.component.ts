@@ -48,9 +48,10 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
     this.username = user.username || '';
-
-    if (this.username) {
+  
+    if (this.username && token) {
       this.loadIndustryTreemap();
       this.loadProvincePieChart();
       this.clientService.getClients(this.username).subscribe({
@@ -62,9 +63,12 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
           console.error('Client fetch error:', err);
         },
       });
-      
+    } else {
+      console.warn('[ClientsPage] No token or username available yet. Retrying...');
+      // Retry in 100ms
     }
   }
+  
 
   ngAfterViewInit(): void {
     const observer = new MutationObserver(() => {
