@@ -1,4 +1,10 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  OnDestroy,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { ClientService } from './../../services/client-services/client.service';
 import { HeaderComponent } from '../../header/header.component';
@@ -26,9 +32,8 @@ import {
   ],
   templateUrl: './clients-page.component.html',
   styleUrls: ['./clients-page.component.css'],
-
 })
-export class ClientsPageComponent implements OnInit, AfterViewInit {
+export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('industryChartRef') industryChartRef?: ChartComponent;
   @ViewChild('provinceChartRef') provinceChartRef?: ChartComponent;
 
@@ -41,6 +46,7 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
   provincePieChart: any = {};
   clients: any[] = [];
 
+  private themeObserver!: MutationObserver;
 
   constructor(
     private clientService: ClientService,
@@ -56,55 +62,65 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const token = localStorage.getItem('token');
     this.username = user.username || '';
-  
+
     if (this.username && token) {
       this.loadIndustryTreemap();
       this.loadProvincePieChart();
       this.clientService.getClients(this.username).subscribe({
         next: (res) => {
           this.clients = res.clients;
-          console.log('Clients loaded:', this.clients);
         },
         error: (err) => {
           console.error('Client fetch error:', err);
         },
       });
     } else {
-      console.warn('[ClientsPage] No token or username available yet. Retrying...');
-      // Retry in 100ms
+      console.warn(
+        '[ClientsPage] No token or username available yet. Retrying...'
+      );
     }
-  }
-  
 
-  ngAfterViewInit(): void {
-    const observer = new MutationObserver(() => {
+    this.themeObserver = new MutationObserver(() => {
       this.toggleChartTheme();
     });
 
-    observer.observe(document.body, {
+    this.themeObserver.observe(document.body, {
       attributes: true,
       attributeFilter: ['class'],
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Ensure charts get correct theme styling after they render
+    setTimeout(() => this.toggleChartTheme(), 800);
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
   }
 
   private markLoaded(): void {
     this.loadCount++;
     if (this.loadCount >= this.totalLoads) {
       this.isDataLoaded = true;
+      // Charts are ready, apply theme one last time
+      setTimeout(() => this.toggleChartTheme(), 200);
     }
   }
 
   toggleChartTheme(): void {
     const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
 
     this.industryChartRef?.updateOptions(
       {
-        theme: {
-          mode: isDark ? 'dark' : 'light',
-        },
         chart: {
-          foreColor: 'var(--text-color)',
+          foreColor,
+          theme: { mode: isDark ? 'dark' : 'light' },
         },
+        tooltip: { theme: isDark ? 'dark' : 'light' },
       },
       false,
       true
@@ -112,33 +128,35 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
 
     this.provinceChartRef?.updateOptions(
       {
-        theme: {
-          mode: isDark ? 'dark' : 'light',
-        },
         chart: {
-          foreColor: 'var(--text-color)',
+          foreColor,
+          theme: { mode: isDark ? 'dark' : 'light' },
         },
+        legend: {
+          labels: {
+            colors: [foreColor],
+          },
+        },
+        tooltip: { theme: isDark ? 'dark' : 'light' },
       },
       false,
       true
     );
   }
-  loadClients(): void {
-    this.clientService.getClients(this.username).subscribe({
-      next: (res) => {
-        this.clients = res.clients;  
-      },
-      error: (err) => {
-        console.error('Client fetch error:', err);
-      }
-    });
-  }
-  
+
   loadIndustryTreemap(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+
     this.clientService.getIndustryTreemap(this.username).subscribe({
       next: (treemapData) => {
         this.industryTreemap = {
-          chart: { type: 'treemap', height: 350 },
+          chart: {
+            type: 'treemap',
+            height: 350,
+            foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
+          },
           series: [
             {
               data: treemapData.map((item: any) => ({
@@ -146,16 +164,9 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
                 y: item.y,
               })),
             },
-          ],        
+          ],
           tooltip: {
-            custom: ({ series, seriesIndex, dataPointIndex, w }: any) => {
-              const data = treemapData[dataPointIndex];
-              return `<div class="tooltip">
-                <strong>${data.x}</strong><br>
-                Clients: ${data.client_count}<br>
-                Revenue: $${data.revenue.toLocaleString()}
-              </div>`;
-            },
+            theme: isDark ? 'dark' : 'light',
           },
         };
         this.markLoaded();
@@ -168,12 +179,29 @@ export class ClientsPageComponent implements OnInit, AfterViewInit {
   }
 
   loadProvincePieChart(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+
     this.clientService.getProvincePieChart(this.username).subscribe({
       next: (res) => {
         this.provincePieChart = {
-          chart: { type: 'pie', height: 350 },
+          chart: {
+            type: 'pie',
+            height: 350,
+            foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
+          },
           labels: res.labels,
           series: res.series,
+          legend: {
+            position: 'bottom',
+            labels: {
+              colors: [foreColor],
+            },
+          },
+          tooltip: {
+            theme: isDark ? 'dark' : 'light',
+          },
         };
         this.markLoaded();
       },

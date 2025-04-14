@@ -15,7 +15,9 @@
       <!-- Chart Section -->
       <div id="chartone">
         <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <h3>Revenue</h3>
         <apx-chart
+          #revenueChartRef
           *ngIf="!isLoadingChartData"
           [series]="chartOptionsOne.series || []"
           [chart]="chartOptionsOne.chart"
@@ -32,7 +34,9 @@
 
       <div id="charttwo">
         <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <h3>Wins</h3>
         <apx-chart
+          #winChartRef
           *ngIf="!isLoadingChartData"
           [series]="chartOptionsTwo.series || []"
           [chart]="chartOptionsTwo.chart"
@@ -49,34 +53,28 @@
 
       <div id="chartthree">
         <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <h3>Pipeline - Forecast Category</h3>
         <apx-chart
+          #pipelineChartRef
           *ngIf="!isLoadingChartData"
-          [series]="chartOptionsThree.series || []"
+          [series]="chartOptionsThree.series"
           [chart]="chartOptionsThree.chart"
-          [xaxis]="chartOptionsThree.xaxis"
-          [yaxis]="chartOptionsThree.yaxis"
-          [plotOptions]="chartOptionsThree.plotOptions"
+          [labels]="chartOptionsThree.labels"
           [dataLabels]="chartOptionsThree.dataLabels"
-          [stroke]="chartOptionsThree.stroke"
-          [fill]="chartOptionsThree.fill"
-          [tooltip]="chartOptionsThree.tooltip"
           [legend]="chartOptionsThree.legend"
         ></apx-chart>
       </div>
 
       <div id="chartfour">
         <div *ngIf="isLoadingChartData"><p>Loading chart data...</p></div>
+        <h3>Signings - Product Type</h3>
         <apx-chart
+          #signingsChartRef
           *ngIf="!isLoadingChartData"
-          [series]="chartOptionsFour.series || []"
+          [series]="chartOptionsFour.series"
           [chart]="chartOptionsFour.chart"
-          [xaxis]="chartOptionsFour.xaxis"
-          [yaxis]="chartOptionsFour.yaxis"
-          [plotOptions]="chartOptionsFour.plotOptions"
+          [labels]="chartOptionsFour.labels"
           [dataLabels]="chartOptionsFour.dataLabels"
-          [stroke]="chartOptionsFour.stroke"
-          [fill]="chartOptionsFour.fill"
-          [tooltip]="chartOptionsFour.tooltip"
           [legend]="chartOptionsFour.legend"
         ></apx-chart>
       </div>

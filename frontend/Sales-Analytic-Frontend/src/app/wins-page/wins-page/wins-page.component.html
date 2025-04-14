@@ -16,6 +16,9 @@
       <!-- Clients Section -->
       <div class="table-container">
         <h2 class="table-title">Wins List</h2>
+        <button class="open-filter" (click)="showFilterOverlay = true">
+          Filters
+        </button>
         <div class="scrollable-table">
           <table class="custom-table">
             <thead>
@@ -33,8 +36,8 @@
                 <td>{{ win.opportunity_id }}</td>
                 <td>{{ win.client_name }}</td>
                 <td>{{ win.client_industry }}</td>
-                <td>{{win.win_level}}</td>
-                <td>{{ win.forecast_category }}</td>
+                <td>{{ win.win_level }}</td>
+                <td>{{ win.win_category }}</td>
                 <td>{{ win.win_date }}</td>
               </tr>
             </tbody>
@@ -49,14 +52,15 @@
         </div>
         <h3>Win Category</h3>
         <apx-chart
+          #categoryChartRef
           *ngIf="isDataLoaded"
           [series]="chartOptionsOne.series"
           [chart]="chartOptionsOne.chart"
           [xaxis]="chartOptionsOne.xaxis"
+          [yaxis]="chartOptionsOne.yaxis"
           [stroke]="chartOptionsOne.stroke"
           [tooltip]="chartOptionsOne.tooltip"
           [legend]="chartOptionsOne.legend"
-
         ></apx-chart>
       </div>
 
@@ -65,15 +69,79 @@
         <div *ngIf="!isDataLoaded" class="loading">
           Loading win evolution chart...
         </div>
-        <h3>Total Wins (Quarter)</h3>
+        <h3>Total Wins</h3>
         <apx-chart
+          #evolutionChartRef
           *ngIf="isDataLoaded"
           [series]="chartOptionsTwo.series"
           [chart]="chartOptionsTwo.chart"
           [xaxis]="chartOptionsTwo.xaxis"
+          [yaxis]="chartOptionsTwo.yaxis"
           [stroke]="chartOptionsTwo.stroke"
           [tooltip]="chartOptionsTwo.tooltip"
+          [legend]="chartOptionsTwo.legend"
         ></apx-chart>
+      </div>
+
+      <!-- Filters Section -->
+      <div
+        class="filter-overlay"
+        (click)="onOverlayClick($event)"
+        *ngIf="showFilterOverlay"
+      >
+        <div class="filter-panel" (click)="$event.stopPropagation()">
+          <h2>Wins Filters</h2>
+
+          <div class="filter-group">
+            <h3>Categories</h3>
+            <label *ngFor="let category of uniqueCategories">
+              <input
+                type="checkbox"
+                [value]="category"
+                [checked]="selectedFilters.win_category.has(category)"
+                (change)="toggleFilter('win_category', category, $event)"
+              />
+              <span>{{ category }}</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Industry</h3>
+            <label *ngFor="let industry of uniqueIndustries">
+              <input
+                type="checkbox"
+                [value]="industry"
+                [checked]="selectedFilters.client_industry.has(industry)"
+                (change)="toggleFilter('client_industry', industry, $event)"
+              />
+              <span>{{ industry }}</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Client Name</h3>
+            <label>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeholder="Search by client name"
+                class="search-input"
+              />
+            </label>
+          </div>
+
+          <div class="filter-actions">
+            <button class="apply-filters" (click)="applyFilters()">
+              Apply Filters
+            </button>
+            <button class="clear-filters" (click)="clearFilters()">
+              Clear Filters
+            </button>
+            <button class="close-filters" (click)="showFilterOverlay = false">
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
