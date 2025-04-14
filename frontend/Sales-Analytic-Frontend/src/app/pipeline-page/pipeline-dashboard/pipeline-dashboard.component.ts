@@ -199,15 +199,15 @@ export class PipelineDashboardComponent
   }
 
   toggleFilter(
-    category: keyof typeof this.selectedFilters,
+    stage: keyof typeof this.selectedFilters,
     value: string,
     event: Event
   ): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.selectedFilters[category].add(value);
+      this.selectedFilters[stage].add(value);
     } else {
-      this.selectedFilters[category].delete(value);
+      this.selectedFilters[stage].delete(value);
     }
   }
 
