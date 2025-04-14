@@ -24,7 +24,6 @@
             <tr>
               <th>Client</th>
               <th>Product</th>
-
               <th>Total Value</th>
               <th>iACV</th>
               <th>Start Date</th>
@@ -60,10 +59,10 @@
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
           [colors]="barChart.colors"
-        >
-        </apx-chart>
+          [tooltip]="barChart.tooltip"
+        ></apx-chart>
       </div>
-      <!-- Provincial Distribution Polar Area Chart -->
+
       <div class="chart-container">
         <h3>Provincial Distribution</h3>
         <apx-chart
@@ -76,7 +75,7 @@
         ></apx-chart>
       </div>
 
-      <!--Signings Filters-->
+      <!-- Filters -->
       <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"
@@ -94,7 +93,7 @@
                 [checked]="selectedFilters.product_category.has(category)"
                 (change)="toggleFilter('product_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -107,7 +106,7 @@
                 [checked]="selectedFilters.fiscal_quarter.has(quarter)"
                 (change)="toggleFilter('fiscal_quarter', quarter, $event)"
               />
-              {{ quarter }}
+              <span>{{ quarter }}</span>
             </label>
           </div>
 
@@ -117,7 +116,7 @@
               <input
                 type="text"
                 [(ngModel)]="searchTerm"
-                placeHolder="Search by client name"
+                placeholder="Search by client name"
                 class="search-input"
               />
             </label>

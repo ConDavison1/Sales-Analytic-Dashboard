@@ -58,20 +58,12 @@
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-        >
-        </apx-chart>
+          [tooltip]="barChart.tooltip"
+        ></apx-chart>
       </div>
 
       <!-- Industry Revenue -->
-      <div
-        class="chart-container"
-        *ngIf="
-          isDataLoaded &&
-          areaChart &&
-          areaChart.series &&
-          areaChart.series.length > 0
-        "
-      >
+      <div class="chart-container" *ngIf="isDataLoaded">
         <h3>Revenue by Industry</h3>
         <apx-chart
           #areaChartRef
@@ -82,8 +74,8 @@
           [fill]="areaChart.fill"
           [dataLabels]="areaChart.dataLabels"
           [colors]="areaChart.colors"
-        >
-        </apx-chart>
+          [tooltip]="areaChart.tooltip"
+        ></apx-chart>
       </div>
 
       <!--Revenue Filters-->
@@ -104,7 +96,7 @@
                 [checked]="selectedFilters.product_category.has(category)"
                 (change)="toggleFilter('product_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -117,7 +109,7 @@
                 [checked]="selectedFilters.fiscal_quarter.has(quarter)"
                 (change)="toggleFilter('fiscal_quarter', quarter, $event)"
               />
-              {{ quarter }}
+              <span>{{ quarter }}</span>
             </label>
           </div>
 

@@ -146,11 +146,9 @@ export class RevenuePageComponent
     if (this.areaChartRef) {
       this.areaChartRef.updateOptions(
         {
-          theme: { mode: 'dark' },
+          theme: { mode: isDark ? 'dark' : 'light' },
           chart: { foreColor: foreColor },
           xaxis: { labels: { style: { colors: [foreColor] } } },
-          // **Force tooltip to ALWAYS use dark theme**
-          tooltip: { theme: 'dark' },
         },
         false,
         true
@@ -331,7 +329,6 @@ export class RevenuePageComponent
       type: 'area' as const,
       height: 350,
       background: 'transparent',
-      foreColor: 'var(--text-color)',
     },
     dataLabels: { enabled: false },
     stroke: { curve: 'smooth' as const },

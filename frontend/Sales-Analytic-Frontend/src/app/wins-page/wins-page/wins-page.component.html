@@ -57,6 +57,7 @@
           [series]="chartOptionsOne.series"
           [chart]="chartOptionsOne.chart"
           [xaxis]="chartOptionsOne.xaxis"
+          [yaxis]="chartOptionsOne.yaxis"
           [stroke]="chartOptionsOne.stroke"
           [tooltip]="chartOptionsOne.tooltip"
           [legend]="chartOptionsOne.legend"
@@ -75,8 +76,10 @@
           [series]="chartOptionsTwo.series"
           [chart]="chartOptionsTwo.chart"
           [xaxis]="chartOptionsTwo.xaxis"
+          [yaxis]="chartOptionsTwo.yaxis"
           [stroke]="chartOptionsTwo.stroke"
           [tooltip]="chartOptionsTwo.tooltip"
+          [legend]="chartOptionsTwo.legend"
         ></apx-chart>
       </div>
 
@@ -98,7 +101,7 @@
                 [checked]="selectedFilters.win_category.has(category)"
                 (change)="toggleFilter('win_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -111,7 +114,7 @@
                 [checked]="selectedFilters.client_industry.has(industry)"
                 (change)="toggleFilter('client_industry', industry, $event)"
               />
-              {{ industry }}
+              <span>{{ industry }}</span>
             </label>
           </div>
 
