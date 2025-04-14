@@ -96,6 +96,11 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.chart-container h3 {
+  justify-content: center;
+  text-align: center;
+}
+
 /* Scrollbar */
 .table-container tbody::-webkit-scrollbar {
   width: 8px;

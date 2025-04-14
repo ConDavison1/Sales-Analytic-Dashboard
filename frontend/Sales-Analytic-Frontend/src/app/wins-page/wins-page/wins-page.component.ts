@@ -1,6 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgApexchartsModule } from 'ng-apexcharts';
+import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { WinsService } from '../../services/wins-services/wins.service';
@@ -19,7 +25,7 @@ import { FormsModule } from '@angular/forms';
     FormsModule
   ],
 })
-export class WinsPageComponent implements OnInit {
+export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   username = '';
   year = 2024;
 
@@ -45,8 +51,15 @@ export class WinsPageComponent implements OnInit {
   uniqueCategories: string[] = [];
   uniqueIndustries: string[] = [];
 
-  chartOptionsOne: any = {}; 
-  chartOptionsTwo: any = {}; 
+  chartOptionsOne: any = {};
+  chartOptionsTwo: any = {};
+
+  // Ensure these match your template references (e.g., #categoryChartRef in your template)
+  @ViewChild('categoryChartRef') categoryChartRef!: ChartComponent;
+  @ViewChild('evolutionChartRef') evolutionChartRef!: ChartComponent;
+
+  // MutationObserver to detect dark-mode changes.
+  private themeObserver!: MutationObserver;
 
   constructor(private winsService: WinsService) {}
 
@@ -59,6 +72,84 @@ export class WinsPageComponent implements OnInit {
       this.loadQuarterlyCards();
       this.loadCategoryChart();
       this.loadEvolutionChart();
+    }
+
+    // Set up a MutationObserver to watch for changes to the body's class attribute.
+    this.themeObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class'
+        ) {
+          console.log('Theme change detected in WinsPage.');
+          this.toggleChartTheme();
+        }
+      });
+    });
+    this.themeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // Immediately update charts with current theme.
+    this.toggleChartTheme();
+
+    // Use multiple delays to re-check the theme in case the dark-mode class is applied late.
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 500);
+
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
+  }
+
+  /**
+   * Updates chart options to reflect the active theme.
+   * When dark mode is active (body has "dark-mode"), sets foreColor to white (#fff) and uses ApexCharts' theme.
+   */
+  toggleChartTheme(): void {
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+
+    // Update Category Distribution Chart (chartOptionsOne)
+    if (this.categoryChartRef) {
+      this.categoryChartRef.updateOptions(
+        {
+          chart: {
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' }, // use ApexCharts' theme feature
+          },
+          xaxis: { labels: { style: { colors: [foreColor] } } },
+          tooltip: { theme: isDark ? 'dark' : 'light' },
+        },
+        false,
+        true
+      );
+    }
+
+    // Update Evolution Chart (chartOptionsTwo)
+    if (this.evolutionChartRef) {
+      this.evolutionChartRef.updateOptions(
+        {
+          chart: {
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' }, // use ApexCharts' theme feature
+          },
+          xaxis: { labels: { style: { colors: [foreColor] } } },
+          tooltip: { theme: isDark ? 'dark' : 'light' },
+        },
+        false,
+        true
+      );
     }
   }
 
@@ -135,73 +226,97 @@ export class WinsPageComponent implements OnInit {
   }
 
   loadQuarterlyCards(): void {
-    this.winsService.getWinsQuarterlyTargets(this.username, this.year).subscribe({
-      next: (res) => {
-        const quarters = res.quarterly_targets || [];
-        this.cards = quarters.map((q: any) => ({
-          title: `Q${q.quarter} Wins`,
-          value: q.accumulated_value,
-          percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`,
-        }));
-        this.markLoaded();
-      },
-      error: (err) => {
-        console.error('Quarterly target error:', err);
-        this.markLoaded();
-      },
-    });
+    this.winsService
+      .getWinsQuarterlyTargets(this.username, this.year)
+      .subscribe({
+        next: (res) => {
+          const quarters = res.quarterly_targets || [];
+          this.cards = quarters.map((q: any) => ({
+            title: `Q${q.quarter} Wins`,
+            value: q.accumulated_value,
+            percentage: `${q.achievement_percentage.toFixed(1)}% Achieved`,
+          }));
+          this.markLoaded();
+        },
+        error: (err) => {
+          console.error('Quarterly target error:', err);
+          this.markLoaded();
+        },
+      });
   }
 
   loadCategoryChart(): void {
-    this.winsService.getWinsCategoryDistribution(this.username, this.year).subscribe({
-      next: (res) => {
-        this.chartOptionsOne = {
-          chart: {
-            type: 'line',
-            height: 350,
-            stacked: true,
-            toolbar: {
-              show: false,
+    // Check the active theme when initializing the chart.
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+
+    this.winsService
+      .getWinsCategoryDistribution(this.username, this.year)
+      .subscribe({
+        next: (res) => {
+          this.chartOptionsOne = {
+            chart: {
+              type: 'line',
+              height: 350,
+              stacked: true,
+              toolbar: { show: false },
+              foreColor: foreColor,
+              theme: { mode: isDark ? 'dark' : 'light' },
             },
-          },
-          series: res.series,
-          colors: ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#A142F4', '#00ACC1'],
-          xaxis: {
-            categories: res.quarters,
-          },
-          stroke: {
-            curve: 'smooth',
-            width: 2,
-          },
-          tooltip: {
-            shared: true,
-            intersect: false,
-          },
-          legend: {
-            position: 'bottom',
-          },
-        };
-        this.markLoaded();
-      },
-      error: (err) => {
-        console.error('Category distribution error:', err);
-        this.markLoaded();
-      },
-    });
+            series: res.series,
+            colors: [
+              '#4285F4',
+              '#34A853',
+              '#FBBC05',
+              '#EA4335',
+              '#A142F4',
+              '#00ACC1',
+            ],
+            xaxis: {
+              title: {
+                text: 'Quarter',
+              },
+              categories: res.quarters,
+              labels: { style: { colors: [foreColor] } },
+            },
+            stroke: {
+              curve: 'smooth',
+              width: 2,
+            },
+            tooltip: {
+              shared: true,
+              intersect: false,
+              theme: isDark ? 'dark' : 'light',
+            },
+            legend: {
+              position: 'bottom',
+            },
+          };
+          this.markLoaded();
+        },
+        error: (err) => {
+          console.error('Category distribution error:', err);
+          this.markLoaded();
+        },
+      });
   }
-  
+
   loadEvolutionChart(): void {
+    // Check the active theme when initializing the chart.
+    const isDark = document.body.classList.contains('dark-mode');
+    const foreColor = isDark ? '#fff' : '#000';
+
     this.winsService.getWinsOverTime(this.username, this.year).subscribe({
       next: (res) => {
         this.chartOptionsTwo = {
           chart: {
             type: 'line',
             height: 350,
-            toolbar: {
-              show: false,
-            },
+            toolbar: { show: false },
+            foreColor: foreColor,
+            theme: { mode: isDark ? 'dark' : 'light' },
           },
-          colors: ['#4285F4'], // Google blue for Total Wins line
+          colors: ['#4285F4'],
           series: [
             {
               name: 'Total Wins',
@@ -210,6 +325,8 @@ export class WinsPageComponent implements OnInit {
           ],
           xaxis: {
             categories: res.categories,
+            title: { text: 'Quarter' },
+            labels: { style: { colors: [foreColor] } },
           },
           stroke: {
             curve: 'smooth',
@@ -217,6 +334,7 @@ export class WinsPageComponent implements OnInit {
           tooltip: {
             shared: true,
             intersect: false,
+            theme: isDark ? 'dark' : 'light',
           },
           legend: {
             position: 'bottom',
@@ -230,6 +348,4 @@ export class WinsPageComponent implements OnInit {
       },
     });
   }
-  
-  
 }
