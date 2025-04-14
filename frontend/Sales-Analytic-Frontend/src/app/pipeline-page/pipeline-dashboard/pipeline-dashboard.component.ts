@@ -148,6 +148,10 @@ export class PipelineDashboardComponent
             labels: { style: { colors: [foreColor] } },
           },
           tooltip: { theme: isDark ? 'dark' : 'light' },
+          y: {
+            formatter: (value: number) => {
+              return `$${Math.round(value).toLocaleString()}`;
+            }},
         },
         false,
         true
@@ -301,6 +305,7 @@ export class PipelineDashboardComponent
           console.warn('Invalid or missing heatmap data:', res);
           return;
         }
+  
         const data = res.heatmap_data;
         const productCategories = [
           ...new Set(data.map((d: any) => d.product_category)),
@@ -319,9 +324,10 @@ export class PipelineDashboardComponent
             return match ? match.value : 0;
           }),
         }));
+  
         const isDark = document.body.classList.contains('dark-mode');
         const foreColor = isDark ? '#fff' : '#000';
-
+  
         this.heatmapChart = {
           series,
           chart: {
@@ -330,7 +336,12 @@ export class PipelineDashboardComponent
             foreColor: foreColor,
             theme: { mode: isDark ? 'dark' : 'light' },
           },
-          dataLabels: { enabled: true },
+          dataLabels: {
+            enabled: true,
+            formatter: function (val: number) {
+              return `$${Math.round(val).toLocaleString()}`;
+            }
+          },
           xaxis: {
             categories: forecastCategories,
             labels: { style: { colors: [foreColor] } },
@@ -371,6 +382,13 @@ export class PipelineDashboardComponent
               },
             },
           },
+          tooltip: {
+            y: {
+              formatter: (value: number) => {
+                return `$${Math.round(value).toLocaleString()}`;
+              },
+            },
+          },
           fill: { opacity: 1 },
         };
       },
@@ -379,4 +397,6 @@ export class PipelineDashboardComponent
       },
     });
   }
+  
+  
 }

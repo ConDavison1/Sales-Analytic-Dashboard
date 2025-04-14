@@ -205,6 +205,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((data) => {
         const isDark = document.body.classList.contains('dark-mode');
         const foreColor = isDark ? '#fff' : '#000';
+  
         this.chartOptionsOne = {
           series: [
             {
@@ -227,17 +228,19 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
           fill: { opacity: 1 },
           tooltip: {
             y: {
-              formatter: function (val: any) {
-                return `$${val}`;
+              formatter: function (val: number) {
+                return `$${Math.round(val).toLocaleString()}`;
               },
             },
             theme: isDark ? 'dark' : 'light',
           },
           theme: { mode: isDark ? 'dark' : 'light' },
         };
+  
         this.isLoadingChartData = false;
       });
   }
+  
 
   loadWinChart(): void {
     this.dashboardService

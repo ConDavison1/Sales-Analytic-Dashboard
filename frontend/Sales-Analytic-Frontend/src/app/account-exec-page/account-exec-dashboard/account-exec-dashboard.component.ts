@@ -183,12 +183,19 @@ export class AccountExecDashboardComponent
         distributed: true,
       },
     },
-    dataLabels: { enabled: true },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val: number) {
+        return `$${val.toLocaleString()}`;
+      }
+    },
     colors: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
     tooltip: {
       enabled: true,
       theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-      y: { formatter: (val: number) => `$${val.toLocaleString()}` },
+      y: {
+        formatter: (val: number) => `$${val.toLocaleString()}`,
+      },
     },
     legend: {
       show: false,
@@ -200,6 +207,7 @@ export class AccountExecDashboardComponent
       mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
     },
   };
+  
 
   addExecutive(): void {
     if (this.addExecutiveForm.valid) {

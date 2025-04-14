@@ -323,6 +323,10 @@ export class SigningsDashboardComponent
           },
           tooltip: {
             theme: isDark ? 'dark' : 'light',
+            y: {
+              formatter: (value: number) => {
+                return `$${Math.round(value).toLocaleString()}`;
+              }},
           },
 
           chart: { ...this.barChart.chart, foreColor: foreColor },

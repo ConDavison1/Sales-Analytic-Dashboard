@@ -315,7 +315,10 @@ export class RevenuePageComponent
     tooltip: {
       enabled: true,
       theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-      y: { formatter: (val: number) => `${val} Clients` },
+      y: {
+        formatter: (value: number) => {
+          return `$${Math.round(value).toLocaleString()}`;
+        }},
     },
     theme: {
       mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
