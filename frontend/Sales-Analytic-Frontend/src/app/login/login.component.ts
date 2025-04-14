@@ -61,8 +61,8 @@ export class LoginComponent {
           return;
         }
   
-        // ✅ Store token and user info in localStorage
-        localStorage.setItem('token', response.token); // <<< THIS WAS MISSING
+        
+        localStorage.setItem('token', response.token); 
         localStorage.setItem('user', JSON.stringify(response.user));
         localStorage.setItem('username', response.user.username.trim().toLowerCase());
   
