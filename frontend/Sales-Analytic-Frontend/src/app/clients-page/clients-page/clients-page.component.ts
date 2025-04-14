@@ -56,7 +56,7 @@ export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const token = localStorage.getItem('token');
     this.username = user.username || '';
-  
+
     if (this.username && token) {
       this.loadIndustryTreemap();
       this.loadProvincePieChart();
@@ -69,13 +69,11 @@ export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       });
     } else {
-      console.warn('[ClientsPage] No token or username available yet. Retrying...');
-      // Retry in 100ms
+      console.warn(
+        '[ClientsPage] No token or username available yet. Retrying...'
+      );
     }
-  }
-  
 
-    // Watch for theme changes
     this.themeObserver = new MutationObserver(() => {
       this.toggleChartTheme();
     });

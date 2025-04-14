@@ -130,6 +130,7 @@ input:checked + .slider::before {
 input:checked + .slider {
   background-color: #2196f3;
 }
+
 .insight-popup {
   position: fixed;
   top: 60px;
@@ -145,8 +146,8 @@ input:checked + .slider {
 }
 
 .insight-content {
-  background: var(--bg-color, #fff);
-  color: var(--text-color, #111);
+  background: var(--bg-color);
+  color: var(--text-color);
   padding: 24px;
   border-radius: 12px;
   width: 90%;
@@ -198,14 +199,15 @@ input:checked + .slider {
   right: -400px;
   width: 350px;
   height: calc(100% - 60px);
-  background: var(--bg-color, #fff);
-  color: var(--text-color, #111);
+  background: var(--bg-color);
+  color: var(--text-color);
   border-left: 1px solid #ccc;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
   transition: right 0.3s ease;
   z-index: 1500;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .ai-panel.open {
@@ -217,7 +219,7 @@ input:checked + .slider {
   justify-content: space-between;
   align-items: center;
   padding: 14px 16px;
-  background: #f5f5f5;
+  background: var(--bg-color);
   border-bottom: 1px solid #ddd;
 }
 
@@ -231,13 +233,13 @@ input:checked + .slider {
   background: none;
   font-size: 22px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-color);
 }
 
 .panel-body {
   padding: 16px;
   font-size: 14px;
-  color: #111;
+  color: var(--text-color);
   white-space: pre-line;
 }
 
