@@ -84,20 +84,6 @@ export class SigningsDashboardComponent
   uniqueProductCategories: string[] = [];
   uniqueQuarters: string[] = [];
 
-  showFilterOverlay: boolean = false;
-  searchTerm: string = '';
-
-  selectedFilters: {
-    product_category: Set<string>;
-    fiscal_quarter: Set<string>;
-  } = {
-    product_category: new Set<string>(),
-    fiscal_quarter: new Set<string>(),
-  };
-
-  uniqueProductCategories: string[] = [];
-  uniqueQuarters: string[] = [];
-
   // Initial bar chart options. We'll update the foreColor based on dark mode.
   barChart: BarChartOptions = {
     series: [{ name: 'iACV', data: [] }],

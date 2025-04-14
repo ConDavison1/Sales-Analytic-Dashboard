@@ -56,7 +56,7 @@ export class RevenuePageComponent
 
   private username: string = '';
   private loadCount = 0;
-  private totalLoadsNeeded = 4;
+  private totalLoadsNeeded = 2;
 
   // MutationObserver to monitor dark-mode changes.
   private themeObserver!: MutationObserver;
