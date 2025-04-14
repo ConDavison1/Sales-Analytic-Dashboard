@@ -37,9 +37,6 @@ export class LoginComponent {
 
   constructor(private http: HttpClient, private router: Router, private dialog: MatDialog) {}
 
-  openForgotPasswordModal(): void {
-    this.dialog.open(ForgotPasswordModalComponent, { width: '60%' });
-  }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
