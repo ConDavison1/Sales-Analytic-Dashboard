@@ -4,6 +4,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { WinsService } from '../../services/wins-services/wins.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
@@ -15,6 +16,7 @@ import { WinsService } from '../../services/wins-services/wins.service';
     NgApexchartsModule,
     SidebarComponent,
     HeaderComponent,
+    FormsModule
   ],
 })
 export class WinsPageComponent implements OnInit {
@@ -27,6 +29,21 @@ export class WinsPageComponent implements OnInit {
 
   cards: any[] = [];
   wins: any[] = [];
+  winsUnfiltered: any[] = [];
+
+  showFilterOverlay: boolean = false;
+  searchTerm: string = '';
+
+  selectedFilters: {
+    win_category: Set<string>;
+    client_industry: Set<string>;
+  } = {
+    win_category: new Set<string>(),
+    client_industry: new Set<string>()
+  };
+
+  uniqueCategories: string[] = [];
+  uniqueIndustries: string[] = [];
 
   chartOptionsOne: any = {}; 
   chartOptionsTwo: any = {}; 
@@ -55,14 +72,29 @@ export class WinsPageComponent implements OnInit {
   loadWins(): void {
     this.winsService.getWins(this.username, this.year).subscribe({
       next: (res) => {
-        this.wins = res.wins.map((w: any) => ({
+        const formattedData = res.wins.map((w: any) => ({
           opportunity_id: w.win_id,
           client_name: w.client_name,
           client_industry: w.client_industry,
           win_level: w.win_level,
-          forecast_category: w.win_category.toUpperCase(),
+          win_category: w.win_category.toUpperCase(),
           win_date: `${w.fiscal_year} Q${w.fiscal_quarter}`,
+          fiscal_year: w.fiscal_year,
+          fiscal_quarter: w.fiscal_quarter
         }));
+  
+        this.winsUnfiltered = formattedData;
+        this.wins = [...formattedData];
+  
+        this.uniqueIndustries = [...new Set<string>(
+          formattedData.map((row: any) => row.client_industry)
+        )];
+  
+        this.uniqueCategories = [...new Set<string>(
+          formattedData.map((row: any) => row.win_category)
+        )];
+  
+  
         this.markLoaded();
       },
       error: (err) => {
@@ -70,6 +102,36 @@ export class WinsPageComponent implements OnInit {
         this.markLoaded();
       },
     });
+  }
+
+  toggleFilter(category: keyof typeof this.selectedFilters, value: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[category].add(value);
+    } else {
+      this.selectedFilters[category].delete(value);
+    }
+  }
+
+  applyFilters(): void {
+    this.wins = this.winsUnfiltered.filter(row =>
+    (!this.selectedFilters.win_category.size || this.selectedFilters.win_category.has(row.win_category)) &&
+    (!this.selectedFilters.client_industry.size || this.selectedFilters.client_industry.has(row.client_industry)) &&
+    (!this.searchTerm || row.client_name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.win_category.clear();
+    this.selectedFilters.client_industry.clear();
+    this.searchTerm = '';
+    this.wins = [...this.winsUnfiltered];
+    this.showFilterOverlay = false;
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
   }
 
   loadQuarterlyCards(): void {

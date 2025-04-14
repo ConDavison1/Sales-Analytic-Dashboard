@@ -5,7 +5,7 @@
       <app-header></app-header>
 
       <!-- Revenue Target Cards -->
-      <div class="cards" *ngIf="isDataLoaded && cards.length > 0">
+      <div class="cards">
         <div *ngFor="let card of cards" class="card">
           <h3>{{ card.title }}</h3>
           <p>{{ card.value }}</p>
@@ -14,8 +14,9 @@
       </div>
 
       <!-- Revenue Table -->
-      <div class="table-container" *ngIf="isDataLoaded && revenueData.length > 0">
-        <h2 class="text-xl font-semibold mb-4">Revenue Records</h2>
+      <div class="table-container">
+        <h2>Revenue Records</h2>
+        <button class="open-filter" (click)="showFilterOverlay = true">Filters</button>
         <table class="scrollable-table">
           <thead>
             <tr>
@@ -43,7 +44,7 @@
       </div>
 
       <!-- Product Distribution Chart -->
-      <div class="chart-container" *ngIf="isDataLoaded && barChart.series.length > 0">
+      <div class="chart-container">
 
         <h3>Product Distribution</h3>
         <apx-chart
@@ -59,7 +60,7 @@
       </div>
 
       <!-- Industry Revenue -->
-      <div class="chart-container" *ngIf="isDataLoaded && areaChart && areaChart.series && areaChart.series.length > 0">
+      <div class="chart-container">
         <h3>Revenue by Industry (Quarter)</h3>
         <apx-chart
           #areaChartRef
@@ -73,6 +74,44 @@
         >
         </apx-chart>
       </div>
+
+      <!--Revenue Filters-->
+      <div class="filter-overlay" (click)="onOverlayClick($event)" *ngIf="showFilterOverlay">
+        <div class="filter-panel" (click)="$event.stopPropagation()">
+          <h2>Signings Filters</h2>
+
+          <div class="filter-group">
+            <h3>Product Categories</h3>
+            <label *ngFor="let category of uniqueProductCategories">
+              <input type="checkbox" [value]="category" [checked]="selectedFilters.product_category.has(category)" (change)="toggleFilter('product_category', category, $event)" />
+              {{ category }}
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Quarter</h3>
+            <label *ngFor="let quarter of uniqueQuarters">
+              <input type="checkbox" [value]="quarter" [checked]="selectedFilters.fiscal_quarter.has(quarter)" (change)="toggleFilter('fiscal_quarter', quarter, $event)" />
+              {{ quarter }}
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Client Name</h3>
+            <label>
+              <input type="text" [(ngModel)]="searchTerm" placeholder="Search by client name" class="search-input" />
+            </label>
+          </div>
+
+          <div class="filter-actions">
+            <button class="apply-filters" (click)="applyFilters()">Apply Filters</button>
+            <button class="clear-filters" (click)="clearFilters()">Clear Filters</button>
+            <button class="close-filters" (click)="showFilterOverlay = false">Close</button>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
