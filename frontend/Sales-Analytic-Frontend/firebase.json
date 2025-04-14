@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/sales-analytic-frontend/broswer",
+    "public": "dist/sales-analytic-frontend/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
