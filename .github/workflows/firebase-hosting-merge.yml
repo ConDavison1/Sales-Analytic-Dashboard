@@ -13,7 +13,7 @@ jobs:
 
       - name: Install dependencies and build Angular project
         run: |
-          cd frontend/sales-analytic-frontend
+          cd frontend/Sales-Analytic-Frontend
           npm ci
           npm run build
 
@@ -23,4 +23,4 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SALES_ANALYTIC_DASHBOARD }}"
           channelId: live
           projectId: sales-analytic-dashboard
-          entryPoint: frontend/sales-analytic-frontend
+          entryPoint: frontend/Sales-Analytic-Frontend
