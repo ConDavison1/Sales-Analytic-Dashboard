@@ -5,11 +5,12 @@ from ..models.models import (
     DirectorAccountExecutive, YearlyTarget, QuarterlyTarget
 )
 from datetime import datetime
-
+from ..auth_utils import token_required
 # Create a Blueprint for signings routes
 signings_bp = Blueprint('signings', __name__, url_prefix='/api/signings')
 
 @signings_bp.route('/signings', methods=['GET'])
+@token_required
 def get_signings():
     """
     Query signings with flexible filtering
@@ -230,6 +231,7 @@ def format_signings_results(results):
 
 
 @signings_bp.route('/industry-acv-chart-data', methods=['GET'])
+@token_required
 def get_industry_acv_chart_data():
     """
     Get industry ACV histogram data
@@ -358,6 +360,7 @@ def get_industry_acv_data(user, year):
     return industry_acv_data
 
 @signings_bp.route('/provincial-distribution-chart', methods=['GET'])
+@token_required
 def get_provincial_distribution_chart():
     """
     Get the distribution of contracts and average values by province
@@ -499,6 +502,7 @@ def get_provincial_distribution_data(user, year):
         return []
     
 @signings_bp.route('/signings-quarterly-targets', methods=['GET'])
+@token_required
 def get_signings_quarterly_targets():
     """
     Get quarterly accumulated signing values and target achievement percentages

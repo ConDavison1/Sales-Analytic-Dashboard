@@ -11,11 +11,12 @@ from ..models.models import (
     DirectorAccountExecutive, YearlyTarget, QuarterlyTarget
 )
 from datetime import datetime
-
+from ..auth_utils import token_required
 # Create a Blueprint for revenue routes
 revenue_bp = Blueprint('revenue', __name__, url_prefix='/api/revenue')
 
 @revenue_bp.route('/revenue-product-distribution-chart', methods=['GET'])
+@token_required
 def get_revenue_product_distribution_chart():
     """
     Get revenue distribution data for bubble chart visualization
@@ -219,6 +220,7 @@ def add_or_update_data_point(data_points, quarter, revenue, client_count):
     data_points.append([quarter, revenue, client_count])
 
 @revenue_bp.route('/industry-revenue-area-chart', methods=['GET'])
+@token_required
 def get_industry_revenue_area_chart():
     """
     Get revenue data by industry for area chart visualization
@@ -400,6 +402,7 @@ def get_industry_revenue_data(user, year):
         return []
 
 @revenue_bp.route('/revenue', methods=['GET'])
+@token_required
 def get_revenue():
     """
     Query revenue data with flexible filtering
@@ -641,6 +644,7 @@ def format_revenue_results(results):
     return revenue_data
 
 @revenue_bp.route('/revenue-quarterly-targets', methods=['GET'])
+@token_required
 def get_revenue_quarterly_targets():
     """
     Get quarterly accumulated revenue values and target achievement percentages
