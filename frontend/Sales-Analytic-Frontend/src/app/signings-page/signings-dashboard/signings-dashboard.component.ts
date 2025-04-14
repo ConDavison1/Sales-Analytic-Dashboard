@@ -190,7 +190,7 @@ export class SigningsDashboardComponent implements OnInit {
         const chartData = res.industry_acv_data;
         const industries = chartData.map((item: any) => item.industry);
         const values = chartData.map((item: any) => item.incremental_acv);
-
+  
         this.barChart.series = [{ name: 'iACV', data: values }];
         this.barChart = {
           ...this.barChart,
@@ -199,12 +199,20 @@ export class SigningsDashboardComponent implements OnInit {
             ...this.barChart.xaxis,
             categories: industries,
             title: { text: 'Industry' }
+          },
+          tooltip: {
+            y: {
+              formatter: (value: number) => {
+                return `$${Math.round(value).toLocaleString()}`;
+              }
+            }
           }
         };
       },
       error: err => console.error('Industry ACV error:', err)
     });
   }
+  
 
   loadProvincialDistributionChart(): void {
     console.log('[SigningsDashboard] Loading Provincial Distribution...');

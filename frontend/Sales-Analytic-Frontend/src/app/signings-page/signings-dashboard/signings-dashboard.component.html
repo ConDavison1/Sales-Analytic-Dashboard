@@ -35,7 +35,7 @@
               <td>{{ row.client_name }}</td>
               <td>{{ row.product_name }}</td>
               <td>{{ row.total_contract_value }}</td>
-              <td>{{ row.incremental_acv }}</td>
+              <td>{{ row.incremental_acv | currency:'USD':'symbol':'1.0-0' }}</td>
               <td>{{ row.start_date }}</td>
               <td>{{ row.end_date }}</td>
               <td>{{ row.fiscal_year }}</td>
