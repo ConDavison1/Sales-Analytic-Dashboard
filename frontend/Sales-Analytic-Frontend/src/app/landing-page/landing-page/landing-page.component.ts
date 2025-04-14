@@ -189,13 +189,15 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       .getKpiCards(this.username, this.year)
       .subscribe((data) => {
         this.cards = [
-          { title: 'Pipeline', value: `$${data.pipeline}`, percentage: '' },
-          { title: 'Revenue', value: `$${data.revenue}`, percentage: '' },
-          { title: 'Signings', value: `$${data.signings}`, percentage: '' },
-          { title: 'Wins', value: `${data.wins}`, percentage: '' },
+          { title: 'Pipeline', value: `$${Number(data.pipeline).toLocaleString()}`, percentage: '' },
+          { title: 'Revenue', value: `$${Number(data.revenue).toLocaleString()}`, percentage: '' },
+          { title: 'Signings', value: `$${Math.round(data.signings).toLocaleString()}`, percentage: '' },
+          { title: 'Wins', value: `${Number(data.wins).toLocaleString()}`, percentage: '' },
         ];
       });
   }
+  
+  
 
   loadRevenueChart(): void {
     this.dashboardService
