@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-header',
@@ -41,7 +42,7 @@ export class HeaderComponent implements OnInit {
       this.query = '';
 
       this.http
-        .post<any>('http://localhost:5000/ai-insight', { query: userQuery })
+        .post<any>(`${environment.apiUrl}/ai-insight`, { query: userQuery })
         .subscribe({
           next: (res) => {
             console.log('AI Response:', res);
