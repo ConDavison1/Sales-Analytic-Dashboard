@@ -85,7 +85,6 @@
   table-layout: fixed;
 }
 
-.gauge-container,
 .chart-container {
   grid-column: span 2;
   max-width: 100%;
