@@ -1,12 +1,10 @@
 {
   "hosting": {
-    "public": "frontend/Sales-Analytic-Frontend/dist/sales-analytic-frontend",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
+    "public": "dist/sales-analytic-frontend", 
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
     ]
   }
 }
