@@ -55,7 +55,7 @@ export class LoginComponent {
 
     console.log('Sending login request with payload:', payload);
 
-    this.http.post('http://localhost:5000/api/auth/login', payload).subscribe({
+    this.http.post(`${environment}/api/auth/login`, payload).subscribe({
       next: (response: any) => {
         this.isLoading = false; 
 
