@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
+import { Title } from '@angular/platform-browser';
+import { OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -27,14 +29,14 @@ import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-pa
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username: string = '';
   password: string = '';
   message: string = '';
   showPassword = false;
   isLoading = false; 
 
-  constructor(private http: HttpClient, private router: Router, private dialog: MatDialog) {}
+  constructor(private http: HttpClient, private router: Router, private dialog: MatDialog, private titleService: Title ) {}
 
   openForgotPasswordModal(): void {
     this.dialog.open(ForgotPasswordModalComponent, { width: '60%' });
@@ -42,6 +44,9 @@ export class LoginComponent {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+  ngOnInit(): void {
+    this.titleService.setTitle('Login | Sales Analytics');
   }
 
   onLogin() {

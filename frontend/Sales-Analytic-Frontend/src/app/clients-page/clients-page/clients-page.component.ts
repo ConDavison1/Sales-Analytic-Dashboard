@@ -11,6 +11,8 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
+import { Title } from '@angular/platform-browser';
+
 import {
   FormGroup,
   FormBuilder,
@@ -49,10 +51,14 @@ export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private clientService: ClientService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Clients | Sales Analytics');
+
+
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const token = localStorage.getItem('token');
     this.username = user.username || '';

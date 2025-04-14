@@ -10,6 +10,7 @@ import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { WinsService } from '../../services/wins-services/wins.service';
+import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -61,9 +62,10 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   // MutationObserver to detect dark-mode changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private winsService: WinsService) {}
+  constructor(private winsService: WinsService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Count to Wins | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 
