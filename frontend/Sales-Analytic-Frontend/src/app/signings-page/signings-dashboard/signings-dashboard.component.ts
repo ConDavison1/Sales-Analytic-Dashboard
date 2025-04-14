@@ -23,6 +23,7 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { SigningsService } from '../../services/signings-page/signings.service';
+import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 export type BarChartOptions = {
@@ -147,9 +148,10 @@ export class SigningsDashboardComponent
   // MutationObserver to track theme changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private signingsService: SigningsService) {}
+  constructor(private signingsService: SigningsService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Signings | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 

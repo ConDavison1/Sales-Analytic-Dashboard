@@ -41,7 +41,11 @@
           Forgot your password?
         </a>
       </div>
-      <button type="submit" class="login-button">Login</button>
+      <button type="submit" class="login-button" [disabled]="isLoading">
+        <ng-container *ngIf="!isLoading">Login</ng-container>
+        <div *ngIf="isLoading" class="spinner-small"></div>
+      </button>
+      
     </form>
     <p *ngIf="message">{{ message }}</p>
   </div>

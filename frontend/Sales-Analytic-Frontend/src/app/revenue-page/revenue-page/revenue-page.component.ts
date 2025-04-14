@@ -13,6 +13,7 @@ import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { RevenueService } from '../../services/revenue-services/revenue.service';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-revenue-page',
@@ -61,9 +62,10 @@ export class RevenuePageComponent
   // MutationObserver to monitor dark-mode changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private revenueService: RevenueService) {}
+  constructor(private revenueService: RevenueService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Revenue | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username;
     if (!this.username) return;

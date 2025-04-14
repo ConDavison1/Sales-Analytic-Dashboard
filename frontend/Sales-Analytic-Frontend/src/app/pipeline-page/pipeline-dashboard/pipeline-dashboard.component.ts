@@ -11,6 +11,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   standalone: true,
@@ -58,9 +59,10 @@ export class PipelineDashboardComponent
   // MutationObserver to detect theme changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private pipelineService: PipelineService) {}
+  constructor(private pipelineService: PipelineService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Pipeline | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 
@@ -267,7 +269,6 @@ export class PipelineDashboardComponent
               barHeight: '80%',
               borderRadius: 0,
               distributed: true,
-              // @ts-ignore: Allow unofficial funnel support
               isFunnel: true,
             },
           },

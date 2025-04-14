@@ -8,6 +8,7 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
+import { Title } from '@angular/platform-browser';
 import {
   NgApexchartsModule,
   ApexResponsive,
@@ -67,10 +68,12 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private dashboardService: DashboardService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Dashboard | Sales Analytics');
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
