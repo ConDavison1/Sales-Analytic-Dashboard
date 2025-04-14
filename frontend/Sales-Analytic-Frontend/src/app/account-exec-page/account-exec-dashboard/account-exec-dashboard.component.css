@@ -162,6 +162,11 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.chart-container h3 {
+  justify-content: center;
+  text-align: center;
+}
+
 .add-executive {
   grid-column: 3 / 5;
   max-width: 100%;

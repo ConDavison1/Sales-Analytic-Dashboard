@@ -64,6 +64,14 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+#chartone h3,
+#charttwo h3,
+#chartthree h3,
+#chartfour h3 {
+  text-align: center;
+  justify-content: center;
+}
+
 .loading-message {
   text-align: center;
   padding: 20px;

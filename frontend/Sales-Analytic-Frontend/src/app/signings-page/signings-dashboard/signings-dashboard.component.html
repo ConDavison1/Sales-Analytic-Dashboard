@@ -16,7 +16,9 @@
       <!-- Table -->
       <div class="table-container">
         <h2>Signings</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">Filters</button>
+        <button class="open-filter" (click)="showFilterOverlay = true">
+          Filters
+        </button>
         <table class="scrollable-table">
           <thead>
             <tr>
@@ -48,36 +50,50 @@
 
       <!-- Charts -->
       <div class="chart-container">
-        <apx-chart #barChartRef
+        <h3>Industry</h3>
+        <apx-chart
+          #barChartRef
           [series]="barChart.series"
           [chart]="barChart.chart"
           [xaxis]="barChart.xaxis"
+          [yaxis]="barChart.yaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-          [colors]="barChart.colors">
+          [colors]="barChart.colors"
+        >
         </apx-chart>
       </div>
       <!-- Provincial Distribution Polar Area Chart -->
-        <div class="chart-container">
-          <h2 class="text-xl font-semibold mb-4">Provincial Distribution</h2>
-          <apx-chart
-            [series]="polarChart.series"
-            [chart]="polarChart.chart"
-            [labels]="polarChart.labels"
-            [colors]="polarChart.colors"
-            [responsive]="polarChart.responsive"
-          ></apx-chart>
-        </div>
+      <div class="chart-container">
+        <h3>Provincial Distribution</h3>
+        <apx-chart
+          #polarChartRef
+          [series]="polarChart.series"
+          [chart]="polarChart.chart"
+          [labels]="polarChart.labels"
+          [colors]="polarChart.colors"
+          [responsive]="polarChart.responsive"
+        ></apx-chart>
+      </div>
 
-        <!--Signings Filters-->
-      <div class="filter-overlay" (click)="onOverlayClick($event)" *ngIf="showFilterOverlay">
+      <!--Signings Filters-->
+      <div
+        class="filter-overlay"
+        (click)="onOverlayClick($event)"
+        *ngIf="showFilterOverlay"
+      >
         <div class="filter-panel" (click)="$event.stopPropagation()">
           <h2>Signings Filters</h2>
 
           <div class="filter-group">
             <h3>Product Categories</h3>
             <label *ngFor="let category of uniqueProductCategories">
-              <input type="checkbox" [value]="category" [checked]="selectedFilters.product_category.has(category)" (change)="toggleFilter('product_category', category, $event)" />
+              <input
+                type="checkbox"
+                [value]="category"
+                [checked]="selectedFilters.product_category.has(category)"
+                (change)="toggleFilter('product_category', category, $event)"
+              />
               {{ category }}
             </label>
           </div>
@@ -85,7 +101,12 @@
           <div class="filter-group">
             <h3>Quarter</h3>
             <label *ngFor="let quarter of uniqueQuarters">
-              <input type="checkbox" [value]="quarter" [checked]="selectedFilters.fiscal_quarter.has(quarter)" (change)="toggleFilter('fiscal_quarter', quarter, $event)" />
+              <input
+                type="checkbox"
+                [value]="quarter"
+                [checked]="selectedFilters.fiscal_quarter.has(quarter)"
+                (change)="toggleFilter('fiscal_quarter', quarter, $event)"
+              />
               {{ quarter }}
             </label>
           </div>
@@ -93,19 +114,28 @@
           <div class="filter-group">
             <h3>Client Name</h3>
             <label>
-              <input type="text" [(ngModel)]="searchTerm" placeHolder="Search by client name" class="search-input" />
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeHolder="Search by client name"
+                class="search-input"
+              />
             </label>
           </div>
 
           <div class="filter-actions">
-            <button class="apply-filters" (click)="applyFilters()">Apply Filters</button>
-            <button class="clear-filters" (click)="clearFilters()">Clear Filters</button>
-            <button class="close-filters" (click)="showFilterOverlay = false">Close</button>
+            <button class="apply-filters" (click)="applyFilters()">
+              Apply Filters
+            </button>
+            <button class="clear-filters" (click)="clearFilters()">
+              Clear Filters
+            </button>
+            <button class="close-filters" (click)="showFilterOverlay = false">
+              Close
+            </button>
           </div>
-
         </div>
       </div>
-      
     </div>
   </div>
 </div>

@@ -7,7 +7,7 @@
     <i class="fa fa-search"></i>
     <input
       type="text"
-      placeholder="Search..."
+      placeholder="Ask Ai For Insights..."
       [(ngModel)]="query"
       (keydown)="onSearchKeydown($event)"
     />
@@ -25,7 +25,6 @@
         <i class="fa fa-sun icon sun"></i>
       </span>
     </label>
-    <img src="assets/logan.jpg" alt="Profile Picture" />
   </div>
 
   <div class="ai-panel" [class.open]="showInsight">
@@ -40,6 +39,5 @@
         <hr />
       </div>
     </div>
-    
   </div>
 </div>
