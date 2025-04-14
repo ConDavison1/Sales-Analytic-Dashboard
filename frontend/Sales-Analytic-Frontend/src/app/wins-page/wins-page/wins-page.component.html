@@ -98,7 +98,7 @@
                 [checked]="selectedFilters.win_category.has(category)"
                 (change)="toggleFilter('win_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -111,7 +111,7 @@
                 [checked]="selectedFilters.client_industry.has(industry)"
                 (change)="toggleFilter('client_industry', industry, $event)"
               />
-              {{ industry }}
+              <span>{{ industry }}</span>
             </label>
           </div>
 

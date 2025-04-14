@@ -58,8 +58,7 @@
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-        >
-        </apx-chart>
+        ></apx-chart>
       </div>
 
       <!-- Industry Revenue -->
@@ -82,8 +81,7 @@
           [fill]="areaChart.fill"
           [dataLabels]="areaChart.dataLabels"
           [colors]="areaChart.colors"
-        >
-        </apx-chart>
+        ></apx-chart>
       </div>
 
       <!--Revenue Filters-->
@@ -104,7 +102,7 @@
                 [checked]="selectedFilters.product_category.has(category)"
                 (change)="toggleFilter('product_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -117,7 +115,7 @@
                 [checked]="selectedFilters.fiscal_quarter.has(quarter)"
                 (change)="toggleFilter('fiscal_quarter', quarter, $event)"
               />
-              {{ quarter }}
+              <span>{{ quarter }}</span>
             </label>
           </div>
 

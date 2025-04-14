@@ -102,7 +102,6 @@
   justify-content: center;
 }
 
-/* Scrollbar */
 .table-container tbody::-webkit-scrollbar {
   width: 8px;
 }
@@ -130,7 +129,7 @@
 }
 
 .filter-panel {
-  background: #fff;
+  background: var(--bg-color);
   padding: 24px;
   border-radius: 10px;
   max-width: 600px;
@@ -150,11 +149,79 @@
 }
 
 .filter-group label {
-  display: block;
-  margin-bottom: 6px;
-  cursor: pointer;
+  display: inline-block;
+  margin: 6px 6px 6px 0;
+  position: relative;
 }
 
+/* === PILL FILTERS WITH STABLE CHECKMARK CIRCLES === */
+.filter-group input[type="checkbox"] {
+  display: none;
+}
+
+.filter-group input[type="checkbox"] + span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background-color: #f2f2f2;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.filter-group input[type="checkbox"] + span::before {
+  content: " ";
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.filter-group input[type="checkbox"]:checked + span {
+  background-color: #e6f0ff;
+  border-color: #007bff;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.filter-group input[type="checkbox"]:checked + span::before {
+  content: "✓";
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+/* === Styled Search Input === */
+.search-input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  color: #333;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+/* === Buttons === */
 .filter-actions {
   display: flex;
   gap: 10px;
@@ -179,7 +246,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.apply-filters{
+.apply-filters {
   padding: 10px 18px;
   font-size: 14px;
   background-color: #007bff;
@@ -187,8 +254,9 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s;
 }
+
 .apply-filters:hover {
   background-color: #0056b3;
 }
@@ -201,13 +269,12 @@
   font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s;
 }
 
 .clear-filters:hover {
   background-color: #e2e6ea;
   border-color: #adb5bd;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .close-filters {
@@ -216,14 +283,14 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s;
 }
 
 .close-filters:hover {
   background-color: #c82333;
 }
 
-/* Responsive Layout & Table Fixes */
+/* === Responsive Layout === */
 @media (max-width: 768px) {
   .pipeline {
     grid-template-columns: repeat(2, 1fr);
