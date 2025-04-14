@@ -31,53 +31,46 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   message: string = '';
+  showPassword = false;
+  isLoading = false; 
 
   constructor(private http: HttpClient, private router: Router, private dialog: MatDialog) {}
 
   openForgotPasswordModal(): void {
-    this.dialog.open(ForgotPasswordModalComponent, {
-      width: '60%'
-    });
+    this.dialog.open(ForgotPasswordModalComponent, { width: '60%' });
   }
-
-  showPassword = false;
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
   onLogin() {
+    this.isLoading = true; 
+
     const payload = { username: this.username, password: this.password };
-  
+
     console.log('Sending login request with payload:', payload);
-  
+
     this.http.post('http://localhost:5000/api/auth/login', payload).subscribe({
       next: (response: any) => {
-        console.log('Login response:', response);
-  
+        this.isLoading = false; 
+
         if (!response.user || !response.token) {
           this.message = "Login failed: Missing user or token in response!";
-          console.log(this.message);
           return;
         }
-  
-        // ✅ Store token and user info in localStorage
-        localStorage.setItem('token', response.token); // <<< THIS WAS MISSING
+
+        localStorage.setItem('token', response.token); 
         localStorage.setItem('user', JSON.stringify(response.user));
         localStorage.setItem('username', response.user.username.trim().toLowerCase());
-  
-        console.log('User Info:', response.user);
-  
+
         this.router.navigate(['/landing-page']);
       },
       error: (error) => {
+        this.isLoading = false; 
         console.error("Login Error:", error);
         this.message = error.error.error || 'Login failed!';
       }
     });
   }
-  
-
-  
-  
 }
