@@ -58,19 +58,12 @@
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
+          [tooltip]="barChart.tooltip"
         ></apx-chart>
       </div>
 
       <!-- Industry Revenue -->
-      <div
-        class="chart-container"
-        *ngIf="
-          isDataLoaded &&
-          areaChart &&
-          areaChart.series &&
-          areaChart.series.length > 0
-        "
-      >
+      <div class="chart-container" *ngIf="isDataLoaded">
         <h3>Revenue by Industry</h3>
         <apx-chart
           #areaChartRef
@@ -81,6 +74,7 @@
           [fill]="areaChart.fill"
           [dataLabels]="areaChart.dataLabels"
           [colors]="areaChart.colors"
+          [tooltip]="areaChart.tooltip"
         ></apx-chart>
       </div>
 
