@@ -75,18 +75,20 @@ export class AccountExecDashboardComponent
 
   toggleChartTheme(): void {
     const isDark = document.body.classList.contains('dark-mode');
-    this.chartComponent?.updateOptions(
-      {
+    const foreColor = isDark ? '#fff' : '#000';
+
+    if (this.chartComponent) {
+      this.chartComponent.updateOptions({
         theme: { mode: isDark ? 'dark' : 'light' },
-        chart: { foreColor: 'var(--text-color)' },
+        chart: {
+          foreColor: foreColor,
+        },
         grid: {
           borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
         },
-        tooltip: { theme: isDark ? 'dark' : 'light' },
-      },
-      false,
-      true
-    );
+        tooltip: { theme: 'dark' },
+      });
+    }
   }
 
   fetchAccountExecData(): void {
@@ -103,7 +105,6 @@ export class AccountExecDashboardComponent
         },
       });
   }
-  
 
   fetchTopExecutivesChart(): void {
     this.accountExecService
@@ -203,22 +204,19 @@ export class AccountExecDashboardComponent
     xaxis: {
       categories: [] as string[],
     },
-    theme: {
-      mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-    },
   };
   
 
   addExecutive(): void {
     if (this.addExecutiveForm.valid) {
       const newExecutive = {
-        user_id: this.accountExecData.length + 100, 
+        user_id: this.accountExecData.length + 100,
         ...this.addExecutiveForm.value,
         role: 'account-executive',
         location: 'N/A',
         performance: 'N/A',
       };
-  
+
       this.accountExecData.push(newExecutive);
       alert('New Executive Added');
       this.addExecutiveForm.reset();
@@ -226,7 +224,6 @@ export class AccountExecDashboardComponent
       alert('Please fill in all required fields');
     }
   }
-  
 
   removeExecutive(executiveId: number): void {
     if (confirm('Are you sure you want to delete this executive?')) {
