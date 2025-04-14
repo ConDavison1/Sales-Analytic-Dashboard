@@ -11,6 +11,7 @@ import { DashboardService } from '../../services/dashboard-services/dashboard.se
 import { AccountExecService } from '../../services/account-exec-services/account-exec.service';
 import { first } from 'rxjs';
 import { ChartComponent, NgApexchartsModule, ApexChart } from 'ng-apexcharts';
+import { Title } from '@angular/platform-browser';
 import {
   FormGroup,
   FormBuilder,
@@ -48,7 +49,8 @@ export class AccountExecDashboardComponent
   constructor(
     private dashboardService: DashboardService,
     private accountExecService: AccountExecService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private titleService: Title
   ) {
     this.addExecutiveForm = this.fb.group({
       first_name: ['', Validators.required],
@@ -58,6 +60,7 @@ export class AccountExecDashboardComponent
   }
 
   ngOnInit(): void {
+    this.titleService.setTitle('Account Exec | Sales Analytics');
     this.fetchAccountExecData();
     this.fetchTopExecutivesChart();
   }

@@ -4,6 +4,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { WinsService } from '../../services/wins-services/wins.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   standalone: true,
@@ -31,9 +32,10 @@ export class WinsPageComponent implements OnInit {
   chartOptionsOne: any = {}; 
   chartOptionsTwo: any = {}; 
 
-  constructor(private winsService: WinsService) {}
+  constructor(private winsService: WinsService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Count to Wins | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 

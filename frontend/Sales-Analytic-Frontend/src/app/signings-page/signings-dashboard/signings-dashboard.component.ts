@@ -17,6 +17,7 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { SigningsService } from '../../services/signings-page/signings.service';
+import { Title } from '@angular/platform-browser';
 
 export type BarChartOptions = {
   series: ApexAxisChartSeries;
@@ -156,9 +157,10 @@ export class SigningsDashboardComponent implements OnInit {
     fill: { colors: ['#4CAF50'] } as ApexFill
   };
 
-  constructor(private signingsService: SigningsService) {}
+  constructor(private signingsService: SigningsService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Signings | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 

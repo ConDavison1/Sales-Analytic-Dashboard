@@ -11,6 +11,7 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { NgApexchartsModule, ChartComponent, ApexChart } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { RevenueService } from '../../services/revenue-services/revenue.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-revenue-page',
@@ -41,9 +42,10 @@ export class RevenuePageComponent
   private loadCount = 0;
   private totalLoadsNeeded = 4;
 
-  constructor(private revenueService: RevenueService) {}
+  constructor(private revenueService: RevenueService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Revenue | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username;
 

@@ -4,6 +4,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   standalone: true,
@@ -27,9 +28,10 @@ export class PipelineDashboardComponent implements OnInit {
   funnelChart: any = {};
   heatmapChart: any = {};
 
-  constructor(private pipelineService: PipelineService) {}
+  constructor(private pipelineService: PipelineService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Pipeline | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 
@@ -101,7 +103,6 @@ export class PipelineDashboardComponent implements OnInit {
               barHeight: '80%',
               borderRadius: 0,
               distributed: true,
-              // @ts-ignore: Allow unofficial funnel support
               isFunnel: true,
             },
           },
