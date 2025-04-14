@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClientService {
-  private baseUrl = 'http://localhost:5000/api/clients';
+  private baseUrl = `${environment.apiUrl}/api/clients`;
 
   constructor(private http: HttpClient) {}
 
@@ -15,7 +16,6 @@ export class ClientService {
     return this.http.get(`${this.baseUrl}/clients?username=${username}`)
       .pipe(catchError(this.handleError));
   }
-  
 
   getIndustryTreemap(username: string): Observable<any> {
     return this.http
