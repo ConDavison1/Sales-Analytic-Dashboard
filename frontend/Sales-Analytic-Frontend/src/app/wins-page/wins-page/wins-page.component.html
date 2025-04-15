@@ -13,12 +13,15 @@
         </div>
       </div>
 
-      <!-- Clients Section -->
+      <!-- Wins Table -->
       <div class="table-container">
-        <h2 class="table-title">Wins List</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">
-          Filters
-        </button>
+        <!-- New flex container for table header -->
+        <div class="table-header">
+          <h2 class="table-title">Wins List</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <div class="scrollable-table">
           <table class="custom-table">
             <thead>
@@ -83,7 +86,7 @@
         ></apx-chart>
       </div>
 
-      <!-- Filters Section -->
+      <!-- Wins Filters -->
       <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"

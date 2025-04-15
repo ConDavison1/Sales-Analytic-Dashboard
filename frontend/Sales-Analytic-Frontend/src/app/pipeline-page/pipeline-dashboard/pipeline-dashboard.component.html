@@ -15,10 +15,13 @@
 
       <!-- Pipeline Table -->
       <div class="table-container">
-        <h2 class="text-xl font-semibold mb-4">Current Opportunites</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">
-          Filters
-        </button>
+        <!-- New header container for title and filters button -->
+        <div class="table-header">
+          <h2>Current Opportunities</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <table class="scrollable-table">
           <thead>
             <tr>
