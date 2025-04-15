@@ -18,10 +18,12 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { HeaderComponent } from '../../header/header.component';
+import { SidebarComponent } from '../../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-account-exec-dashboard',
-  imports: [CommonModule, NgApexchartsModule, ReactiveFormsModule],
+  imports: [CommonModule, NgApexchartsModule, ReactiveFormsModule, HeaderComponent, SidebarComponent],
   standalone: true,
   templateUrl: './account-exec-dashboard.component.html',
   styleUrl: './account-exec-dashboard.component.css',
