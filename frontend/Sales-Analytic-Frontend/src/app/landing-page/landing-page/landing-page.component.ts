@@ -8,6 +8,7 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DashboardService } from '../../services/dashboard-services/dashboard.service';
+import { Title } from '@angular/platform-browser';
 import {
   NgApexchartsModule,
   ApexResponsive,
@@ -67,10 +68,12 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private dashboardService: DashboardService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Dashboard | Sales Analytics');
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
@@ -186,13 +189,15 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       .getKpiCards(this.username, this.year)
       .subscribe((data) => {
         this.cards = [
-          { title: 'Pipeline', value: `$${data.pipeline}`, percentage: '' },
-          { title: 'Revenue', value: `$${data.revenue}`, percentage: '' },
-          { title: 'Signings', value: `$${data.signings}`, percentage: '' },
-          { title: 'Wins', value: `${data.wins}`, percentage: '' },
+          { title: 'Pipeline', value: `$${Number(data.pipeline).toLocaleString()}`, percentage: '' },
+          { title: 'Revenue', value: `$${Number(data.revenue).toLocaleString()}`, percentage: '' },
+          { title: 'Signings', value: `$${Math.round(data.signings).toLocaleString()}`, percentage: '' },
+          { title: 'Wins', value: `${Number(data.wins).toLocaleString()}`, percentage: '' },
         ];
       });
   }
+  
+  
 
   loadRevenueChart(): void {
     this.dashboardService
@@ -200,6 +205,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((data) => {
         const isDark = document.body.classList.contains('dark-mode');
         const foreColor = isDark ? '#fff' : '#000';
+  
         this.chartOptionsOne = {
           series: [
             {
@@ -222,17 +228,19 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
           fill: { opacity: 1 },
           tooltip: {
             y: {
-              formatter: function (val: any) {
-                return `$${val}`;
+              formatter: function (val: number) {
+                return `$${Math.round(val).toLocaleString()}`;
               },
             },
             theme: isDark ? 'dark' : 'light',
           },
           theme: { mode: isDark ? 'dark' : 'light' },
         };
+  
         this.isLoadingChartData = false;
       });
   }
+  
 
   loadWinChart(): void {
     this.dashboardService

@@ -15,17 +15,20 @@
 
       <!-- Revenue Table -->
       <div class="table-container">
-        <h2>Revenue Records</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">
-          Filters
-        </button>
+        <!-- New flex container for table header -->
+        <div class="table-header">
+          <h2>Revenue Records</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <table class="scrollable-table">
           <thead>
             <tr>
               <th>Client</th>
               <th>Product Name</th>
               <th>Product Category</th>
-              <th>Total ($)</th>
+              <th>Total</th>
               <th>Month</th>
               <th>Quarter</th>
               <th>Year</th>
@@ -58,20 +61,12 @@
           [xaxis]="barChart.xaxis"
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
-        >
-        </apx-chart>
+          [tooltip]="barChart.tooltip"
+        ></apx-chart>
       </div>
 
       <!-- Industry Revenue -->
-      <div
-        class="chart-container"
-        *ngIf="
-          isDataLoaded &&
-          areaChart &&
-          areaChart.series &&
-          areaChart.series.length > 0
-        "
-      >
+      <div class="chart-container" *ngIf="isDataLoaded">
         <h3>Revenue by Industry</h3>
         <apx-chart
           #areaChartRef
@@ -82,11 +77,11 @@
           [fill]="areaChart.fill"
           [dataLabels]="areaChart.dataLabels"
           [colors]="areaChart.colors"
-        >
-        </apx-chart>
+          [tooltip]="areaChart.tooltip"
+        ></apx-chart>
       </div>
 
-      <!--Revenue Filters-->
+      <!-- Revenue Filters -->
       <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"
@@ -104,7 +99,7 @@
                 [checked]="selectedFilters.product_category.has(category)"
                 (change)="toggleFilter('product_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -117,7 +112,7 @@
                 [checked]="selectedFilters.fiscal_quarter.has(quarter)"
                 (change)="toggleFilter('fiscal_quarter', quarter, $event)"
               />
-              {{ quarter }}
+              <span>{{ quarter }}</span>
             </label>
           </div>
 

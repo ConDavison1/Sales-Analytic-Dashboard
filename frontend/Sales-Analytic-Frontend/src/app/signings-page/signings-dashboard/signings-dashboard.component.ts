@@ -23,6 +23,7 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { SigningsService } from '../../services/signings-page/signings.service';
+import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 export type BarChartOptions = {
@@ -84,14 +85,13 @@ export class SigningsDashboardComponent
   uniqueProductCategories: string[] = [];
   uniqueQuarters: string[] = [];
 
-  // Initial bar chart options. We'll update the foreColor based on dark mode.
   barChart: BarChartOptions = {
     series: [{ name: 'iACV', data: [] }],
     chart: {
       type: 'bar',
       height: 350,
       background: 'transparent',
-      foreColor: '#000', // default; will be updated below
+      foreColor: '#000',
     },
     xaxis: {
       categories: [],
@@ -119,7 +119,7 @@ export class SigningsDashboardComponent
     chart: {
       type: 'polarArea',
       height: 300,
-      foreColor: '#000', // default; will be updated below
+      foreColor: '#000',
     },
     labels: [],
     colors: [
@@ -148,9 +148,10 @@ export class SigningsDashboardComponent
   // MutationObserver to track theme changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private signingsService: SigningsService) {}
+  constructor(private signingsService: SigningsService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Signings | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 
@@ -196,10 +197,6 @@ export class SigningsDashboardComponent
     }
   }
 
-  /**
-   * toggleChartTheme updates the chart text colors (foreColor) and tooltip theme based on dark mode.
-   * If dark mode is active (document.body has 'dark-mode'), chart text turns white (#fff); otherwise, black (#000).
-   */
   toggleChartTheme(): void {
     const isDark = document.body.classList.contains('dark-mode');
     const foreColor = isDark ? '#fff' : '#000';
@@ -214,7 +211,6 @@ export class SigningsDashboardComponent
           xaxis: { labels: { style: { colors: [foreColor] } } },
           yaxis: {
             labels: { style: { colors: [foreColor] } },
-            // Include the title text and style here so it isn't removed
             title: { text: 'Incremental ACV ($)', style: { color: foreColor } },
           },
           tooltip: { theme: isDark ? 'dark' : 'light' },
@@ -314,11 +310,8 @@ export class SigningsDashboardComponent
         const industries = chartData.map((item: any) => item.industry);
         const values = chartData.map((item: any) => item.incremental_acv);
 
-        // Check current theme for initial foreColor.
         const isDark = document.body.classList.contains('dark-mode');
         const foreColor = isDark ? '#fff' : '#000';
-
-        // Update barChart options.
         this.barChart.series = [{ name: 'iACV', data: values }];
         this.barChart = {
           ...this.barChart,
@@ -328,12 +321,21 @@ export class SigningsDashboardComponent
             categories: industries,
             title: { text: 'Industry' },
           },
+          tooltip: {
+            theme: isDark ? 'dark' : 'light',
+            y: {
+              formatter: (value: number) => {
+                return `$${Math.round(value).toLocaleString()}`;
+              }},
+          },
+
           chart: { ...this.barChart.chart, foreColor: foreColor },
         };
       },
       error: (err) => console.error('Industry ACV error:', err),
     });
   }
+  
 
   loadProvincialDistributionChart(): void {
     this.signingsService

@@ -10,6 +10,7 @@ import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { WinsService } from '../../services/wins-services/wins.service';
+import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -22,7 +23,7 @@ import { FormsModule } from '@angular/forms';
     NgApexchartsModule,
     SidebarComponent,
     HeaderComponent,
-    FormsModule
+    FormsModule,
   ],
 })
 export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -45,7 +46,7 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
     client_industry: Set<string>;
   } = {
     win_category: new Set<string>(),
-    client_industry: new Set<string>()
+    client_industry: new Set<string>(),
   };
 
   uniqueCategories: string[] = [];
@@ -61,9 +62,18 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   // MutationObserver to detect dark-mode changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private winsService: WinsService) {}
+  constructor(private winsService: WinsService, private titleService: Title) {}
 
   ngOnInit(): void {
+    // Force body class from localStorage as early as possible.
+    const storedTheme = localStorage.getItem('darkMode');
+    if (storedTheme === 'true') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+
+    this.titleService.setTitle('Count to Wins | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 
@@ -93,17 +103,21 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Immediately update charts with current theme.
+    // Immediately update charts with the current theme.
     this.toggleChartTheme();
 
-    // Use multiple delays to re-check the theme in case the dark-mode class is applied late.
-    setTimeout(() => {
-      this.toggleChartTheme();
-    }, 500);
-
+    // Use multiple delays to ensure that the chart updates get applied.
     setTimeout(() => {
       this.toggleChartTheme();
     }, 1000);
+
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 1500);
+
+    setTimeout(() => {
+      this.toggleChartTheme();
+    }, 2000);
   }
 
   ngOnDestroy(): void {
@@ -113,25 +127,34 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Helper to get the current dark mode state.
+   * This version checks the document body directly.
+   */
+  private getDarkModeState(): boolean {
+    return document.body.classList.contains('dark-mode');
+  }
+
+  /**
    * Updates chart options to reflect the active theme.
-   * When dark mode is active (body has "dark-mode"), sets foreColor to white (#fff) and uses ApexCharts' theme.
+   * When dark mode is active, sets foreColor to white (#fff); otherwise black.
    */
   toggleChartTheme(): void {
-    const isDark = document.body.classList.contains('dark-mode');
-    const foreColor = isDark ? '#fff' : '#000';
+    const isDark = this.getDarkModeState();
+    const axisLabelColor = isDark ? '#fff' : '#000';
 
     // Update Category Distribution Chart (chartOptionsOne)
     if (this.categoryChartRef) {
       this.categoryChartRef.updateOptions(
         {
           chart: {
-            foreColor: foreColor,
-            theme: { mode: isDark ? 'dark' : 'light' }, // use ApexCharts' theme feature
+            foreColor: isDark ? '#fff' : '#000',
+            theme: { mode: isDark ? 'dark' : 'light' },
           },
-          xaxis: { labels: { style: { colors: [foreColor] } } },
+          xaxis: { labels: { style: { colors: [axisLabelColor] } } },
+          yaxis: { labels: { style: { colors: [axisLabelColor] } } },
           tooltip: { theme: isDark ? 'dark' : 'light' },
         },
-        false,
+        true, // force a full redraw
         true
       );
     }
@@ -141,13 +164,14 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.evolutionChartRef.updateOptions(
         {
           chart: {
-            foreColor: foreColor,
-            theme: { mode: isDark ? 'dark' : 'light' }, // use ApexCharts' theme feature
+            foreColor: isDark ? '#fff' : '#000',
+            theme: { mode: isDark ? 'dark' : 'light' },
           },
-          xaxis: { labels: { style: { colors: [foreColor] } } },
+          xaxis: { labels: { style: { colors: [axisLabelColor] } } },
+          yaxis: { labels: { style: { colors: [axisLabelColor] } } },
           tooltip: { theme: isDark ? 'dark' : 'light' },
         },
-        false,
+        true, // force a full redraw
         true
       );
     }
@@ -171,21 +195,22 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
           win_category: w.win_category.toUpperCase(),
           win_date: `${w.fiscal_year} Q${w.fiscal_quarter}`,
           fiscal_year: w.fiscal_year,
-          fiscal_quarter: w.fiscal_quarter
+          fiscal_quarter: w.fiscal_quarter,
         }));
-  
+
         this.winsUnfiltered = formattedData;
         this.wins = [...formattedData];
-  
-        this.uniqueIndustries = [...new Set<string>(
-          formattedData.map((row: any) => row.client_industry)
-        )];
-  
-        this.uniqueCategories = [...new Set<string>(
-          formattedData.map((row: any) => row.win_category)
-        )];
-  
-  
+
+        this.uniqueIndustries = [
+          ...new Set<string>(
+            formattedData.map((row: any) => row.client_industry)
+          ),
+        ];
+
+        this.uniqueCategories = [
+          ...new Set<string>(formattedData.map((row: any) => row.win_category)),
+        ];
+
         this.markLoaded();
       },
       error: (err) => {
@@ -195,7 +220,11 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  toggleFilter(category: keyof typeof this.selectedFilters, value: string, event: Event): void {
+  toggleFilter(
+    category: keyof typeof this.selectedFilters,
+    value: string,
+    event: Event
+  ): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
       this.selectedFilters[category].add(value);
@@ -205,10 +234,14 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyFilters(): void {
-    this.wins = this.winsUnfiltered.filter(row =>
-    (!this.selectedFilters.win_category.size || this.selectedFilters.win_category.has(row.win_category)) &&
-    (!this.selectedFilters.client_industry.size || this.selectedFilters.client_industry.has(row.client_industry)) &&
-    (!this.searchTerm || row.client_name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    this.wins = this.winsUnfiltered.filter(
+      (row) =>
+        (!this.selectedFilters.win_category.size ||
+          this.selectedFilters.win_category.has(row.win_category)) &&
+        (!this.selectedFilters.client_industry.size ||
+          this.selectedFilters.client_industry.has(row.client_industry)) &&
+        (!this.searchTerm ||
+          row.client_name.toLowerCase().includes(this.searchTerm.toLowerCase()))
     );
     this.showFilterOverlay = false;
   }
@@ -246,8 +279,8 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadCategoryChart(): void {
-    // Check the active theme when initializing the chart.
-    const isDark = document.body.classList.contains('dark-mode');
+    // Use the helper to check the active theme.
+    const isDark = this.getDarkModeState();
     const foreColor = isDark ? '#fff' : '#000';
 
     this.winsService
@@ -302,8 +335,8 @@ export class WinsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadEvolutionChart(): void {
-    // Check the active theme when initializing the chart.
-    const isDark = document.body.classList.contains('dark-mode');
+    // Use the helper to check the active theme.
+    const isDark = this.getDarkModeState();
     const foreColor = isDark ? '#fff' : '#000';
 
     this.winsService.getWinsOverTime(this.username, this.year).subscribe({

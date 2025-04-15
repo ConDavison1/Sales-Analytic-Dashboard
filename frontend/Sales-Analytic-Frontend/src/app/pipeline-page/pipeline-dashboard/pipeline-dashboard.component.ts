@@ -11,6 +11,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { PipelineService } from '../../services/pipeline-services/pipeline.service';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   standalone: true,
@@ -58,9 +59,10 @@ export class PipelineDashboardComponent
   // MutationObserver to detect theme changes.
   private themeObserver!: MutationObserver;
 
-  constructor(private pipelineService: PipelineService) {}
+  constructor(private pipelineService: PipelineService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Pipeline | Sales Analytics');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.username = user.username || '';
 
@@ -146,6 +148,10 @@ export class PipelineDashboardComponent
             labels: { style: { colors: [foreColor] } },
           },
           tooltip: { theme: isDark ? 'dark' : 'light' },
+          y: {
+            formatter: (value: number) => {
+              return `$${Math.round(value).toLocaleString()}`;
+            }},
         },
         false,
         true
@@ -197,15 +203,15 @@ export class PipelineDashboardComponent
   }
 
   toggleFilter(
-    category: keyof typeof this.selectedFilters,
+    stage: keyof typeof this.selectedFilters,
     value: string,
     event: Event
   ): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.selectedFilters[category].add(value);
+      this.selectedFilters[stage].add(value);
     } else {
-      this.selectedFilters[category].delete(value);
+      this.selectedFilters[stage].delete(value);
     }
   }
 
@@ -267,7 +273,6 @@ export class PipelineDashboardComponent
               barHeight: '80%',
               borderRadius: 0,
               distributed: true,
-              // @ts-ignore: Allow unofficial funnel support
               isFunnel: true,
             },
           },
@@ -300,6 +305,7 @@ export class PipelineDashboardComponent
           console.warn('Invalid or missing heatmap data:', res);
           return;
         }
+  
         const data = res.heatmap_data;
         const productCategories = [
           ...new Set(data.map((d: any) => d.product_category)),
@@ -318,9 +324,10 @@ export class PipelineDashboardComponent
             return match ? match.value : 0;
           }),
         }));
+  
         const isDark = document.body.classList.contains('dark-mode');
         const foreColor = isDark ? '#fff' : '#000';
-
+  
         this.heatmapChart = {
           series,
           chart: {
@@ -329,7 +336,12 @@ export class PipelineDashboardComponent
             foreColor: foreColor,
             theme: { mode: isDark ? 'dark' : 'light' },
           },
-          dataLabels: { enabled: true },
+          dataLabels: {
+            enabled: true,
+            formatter: function (val: number) {
+              return `$${Math.round(val).toLocaleString()}`;
+            }
+          },
           xaxis: {
             categories: forecastCategories,
             labels: { style: { colors: [foreColor] } },
@@ -370,6 +382,13 @@ export class PipelineDashboardComponent
               },
             },
           },
+          tooltip: {
+            y: {
+              formatter: (value: number) => {
+                return `$${Math.round(value).toLocaleString()}`;
+              },
+            },
+          },
           fill: { opacity: 1 },
         };
       },
@@ -378,4 +397,6 @@ export class PipelineDashboardComponent
       },
     });
   }
+  
+  
 }

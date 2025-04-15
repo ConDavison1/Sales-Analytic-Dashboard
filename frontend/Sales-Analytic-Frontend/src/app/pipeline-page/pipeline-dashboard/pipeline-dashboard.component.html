@@ -15,8 +15,13 @@
 
       <!-- Pipeline Table -->
       <div class="table-container">
-        <h2 class="text-xl font-semibold mb-4">Current Opportunites</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">Filters</button>
+        <!-- New header container for title and filters button -->
+        <div class="table-header">
+          <h2>Current Opportunities</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <table class="scrollable-table">
           <thead>
             <tr>
@@ -26,7 +31,6 @@
               <th>Forecast Category</th>
               <th>Probability</th>
               <th>Value</th>
-              <!-- <th>Close Date</th> -->
             </tr>
           </thead>
           <tbody>
@@ -37,7 +41,6 @@
               <td>{{ row.forecast_category }}</td>
               <td>{{ row.probability }}</td>
               <td>{{ row.opportunity_value }}</td>
-              <!-- <td>{{ row.close_date }}</td> -->
             </tr>
           </tbody>
         </table>
@@ -74,41 +77,70 @@
         </apx-chart>
       </div>
 
-       <!--Pipeline Filters-->
-       <div class="filter-overlay" (click)="onOverlayClick($event)" *ngIf="showFilterOverlay">
+      <!-- Pipeline Filters -->
+      <div
+        class="filter-overlay"
+        (click)="onOverlayClick($event)"
+        *ngIf="showFilterOverlay"
+      >
         <div class="filter-panel" (click)="$event.stopPropagation()">
-            <h2>Pipeline Filters</h2>
+          <h3>Pipeline Filters</h3>
 
-            <div class="filter-group">
-                <h3>Stage</h3>
-                <label *ngFor="let stage of uniqueStages">
-                    <input type="checkbox" [value]="stage" [checked]="selectedFilters.stage.has(stage)" (change)="toggleFilter('stage', stage, $event)" />
-                    {{ stage }}
-                </label>
-            </div>
+          <!-- Stage Filters -->
+          <div class="filter-group">
+            <h3>Stage</h3>
+            <label *ngFor="let stage of uniqueStages">
+              <input
+                type="checkbox"
+                [value]="stage"
+                [checked]="selectedFilters.stage.has(stage)"
+                (change)="toggleFilter('stage', stage, $event)"
+              />
+              <span>{{ stage }}</span>
+            </label>
+          </div>
 
-            <div class="filter-group">
-                <h3>Forecast Category</h3>
-                <label *ngFor="let category of uniqueForecastCategories">
-                    <input type="checkbox" [value]="category" [checked]="selectedFilters.forecast_category.has(category)" (change)="toggleFilter('forecast_category', category, $event)" />
-                    {{ category }}
-                </label>
-            </div>
+          <!-- Forecast Category Filters -->
+          <div class="filter-group">
+            <h3>Forecast Category</h3>
+            <label *ngFor="let category of uniqueForecastCategories">
+              <input
+                type="checkbox"
+                [value]="category"
+                [checked]="selectedFilters.forecast_category.has(category)"
+                (change)="toggleFilter('forecast_category', category, $event)"
+              />
+              <span>{{ category }}</span>
+            </label>
+          </div>
 
-            <div class="filter-group">
-              <h3>Account Name</h3>
-              <label>
-                <input type="text" [(ngModel)]="searchTerm" placeholder="Search by account name" class="search-input" />
-              </label>
-            </div>
+          <!-- Account Name Search (unstyled as requested) -->
+          <div class="filter-group">
+            <h3>Account Name</h3>
+            <label>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeholder="Search by account name"
+                class="search-input"
+              />
+            </label>
+          </div>
 
-            <div class="filter-actions">
-                <button class="apply-filters" (click)="applyFilters()">Apply Filters</button>
-                <button class="clear-filters" (click)="clearFilters()">Clear Filters</button>
-                <button class="close-filters" (click)="showFilterOverlay = false">Close</button>
-            </div>
+          <!-- Filter Action Buttons -->
+          <div class="filter-actions">
+            <button class="apply-filters" (click)="applyFilters()">
+              Apply Filters
+            </button>
+            <button class="clear-filters" (click)="clearFilters()">
+              Clear Filters
+            </button>
+            <button class="close-filters" (click)="showFilterOverlay = false">
+              Close
+            </button>
+          </div>
         </div>
-    </div>
+      </div>
     </div>
   </div>
 </div>

@@ -11,6 +11,9 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
+import { Title } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+
 import {
   FormGroup,
   FormBuilder,
@@ -27,6 +30,7 @@ import {
     CommonModule,
     NgApexchartsModule,
     ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './clients-page.component.html',
   styleUrls: ['./clients-page.component.css'],
@@ -43,16 +47,35 @@ export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
   industryTreemap: any = {};
   provincePieChart: any = {};
   clients: any[] = [];
+  clientsUnfiltered: any[] = [];
+
+  showFilterOverlay: boolean = false;
+  searchTerm: string = '';
+
+  selectedFilters: {
+    industry: Set<string>;
+    account_executive: Set<string>;
+  } = {
+    industry: new Set<string>(),
+    account_executive: new Set<string>()
+  }
+
+  uniqueIndustries: string[] = [];
+  uniqueExecutives: string[] = [];
 
   private themeObserver!: MutationObserver;
 
   constructor(
     private clientService: ClientService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Clients | Sales Analytics');
+
+
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const token = localStorage.getItem('token');
     this.username = user.username || '';
@@ -62,7 +85,31 @@ export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadProvincePieChart();
       this.clientService.getClients(this.username).subscribe({
         next: (res) => {
-          this.clients = res.clients;
+          const formattedData = res.clients.map((c: any) => ({
+            client_id: c.client_id,
+            client_name: c.client_name,
+            industry: c.industry,
+            city: c.city,
+            province: c.province,
+            account_executive: c.account_executive,
+            created_date: c.created_date,
+          }));
+
+          this.clientsUnfiltered = formattedData;
+          this.clients = [...formattedData];
+
+          this.uniqueIndustries = [
+            ...new Set<string>(
+              formattedData.map((row: any) => row.industry as string)
+            ),
+          ];
+
+          this.uniqueExecutives = [
+            ...new Set<string>(
+              formattedData.map((row: any) => row.account_executive as string)
+            ),
+          ];
+
         },
         error: (err) => {
           console.error('Client fetch error:', err);
@@ -102,6 +149,44 @@ export class ClientsPageComponent implements OnInit, AfterViewInit, OnDestroy {
       // Charts are ready, apply theme one last time
       setTimeout(() => this.toggleChartTheme(), 200);
     }
+  }
+
+  applyFilters(): void {
+    this.clients = this.clientsUnfiltered.filter(
+      (row) =>
+        (!this.selectedFilters.industry.size ||
+          this.selectedFilters.industry.has(row.industry)) &&
+        (!this.selectedFilters.account_executive.size ||
+          this.selectedFilters.account_executive.has(row.account_executive)) &&
+        (!this.searchTerm ||
+          row.client_name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    );
+    this.showFilterOverlay = false;
+  }
+
+  toggleFilter(
+    industry: keyof typeof this.selectedFilters,
+    value: string,
+    event: Event
+  ): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedFilters[industry].add(value);
+    } else {
+      this.selectedFilters[industry].delete(value);
+    }
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.industry.clear();
+    this.selectedFilters.account_executive.clear();
+    this.searchTerm = '';
+    this.clients = [...this.clientsUnfiltered];
+    this.showFilterOverlay = false;
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    this.showFilterOverlay = false;
   }
 
   toggleChartTheme(): void {

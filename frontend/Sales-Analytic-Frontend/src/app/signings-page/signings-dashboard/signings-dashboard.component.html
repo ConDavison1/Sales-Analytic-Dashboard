@@ -15,16 +15,17 @@
 
       <!-- Table -->
       <div class="table-container">
-        <h2>Signings</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">
-          Filters
-        </button>
+        <div class="table-header">
+          <h2>Signings</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <table class="scrollable-table">
           <thead>
             <tr>
               <th>Client</th>
               <th>Product</th>
-
               <th>Total Value</th>
               <th>iACV</th>
               <th>Start Date</th>
@@ -38,7 +39,7 @@
               <td>{{ row.client_name }}</td>
               <td>{{ row.product_name }}</td>
               <td>{{ row.total_contract_value }}</td>
-              <td>{{ row.incremental_acv }}</td>
+              <td>{{ row.incremental_acv | currency:'USD':'symbol':'1.0-0' }}</td>
               <td>{{ row.start_date }}</td>
               <td>{{ row.end_date }}</td>
               <td>{{ row.fiscal_year }}</td>
@@ -60,10 +61,10 @@
           [plotOptions]="barChart.plotOptions"
           [dataLabels]="barChart.dataLabels"
           [colors]="barChart.colors"
-        >
-        </apx-chart>
+          [tooltip]="barChart.tooltip"
+        ></apx-chart>
       </div>
-      <!-- Provincial Distribution Polar Area Chart -->
+
       <div class="chart-container">
         <h3>Provincial Distribution</h3>
         <apx-chart
@@ -76,7 +77,7 @@
         ></apx-chart>
       </div>
 
-      <!--Signings Filters-->
+      <!-- Filters -->
       <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"
@@ -94,7 +95,7 @@
                 [checked]="selectedFilters.product_category.has(category)"
                 (change)="toggleFilter('product_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -107,7 +108,7 @@
                 [checked]="selectedFilters.fiscal_quarter.has(quarter)"
                 (change)="toggleFilter('fiscal_quarter', quarter, $event)"
               />
-              {{ quarter }}
+              <span>{{ quarter }}</span>
             </label>
           </div>
 
@@ -117,7 +118,7 @@
               <input
                 type="text"
                 [(ngModel)]="searchTerm"
-                placeHolder="Search by client name"
+                placeholder="Search by client name"
                 class="search-input"
               />
             </label>

@@ -13,12 +13,15 @@
         </div>
       </div>
 
-      <!-- Clients Section -->
+      <!-- Wins Table -->
       <div class="table-container">
-        <h2 class="table-title">Wins List</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">
-          Filters
-        </button>
+        <!-- New flex container for table header -->
+        <div class="table-header">
+          <h2 class="table-title">Wins List</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <div class="scrollable-table">
           <table class="custom-table">
             <thead>
@@ -57,6 +60,7 @@
           [series]="chartOptionsOne.series"
           [chart]="chartOptionsOne.chart"
           [xaxis]="chartOptionsOne.xaxis"
+          [yaxis]="chartOptionsOne.yaxis"
           [stroke]="chartOptionsOne.stroke"
           [tooltip]="chartOptionsOne.tooltip"
           [legend]="chartOptionsOne.legend"
@@ -75,12 +79,14 @@
           [series]="chartOptionsTwo.series"
           [chart]="chartOptionsTwo.chart"
           [xaxis]="chartOptionsTwo.xaxis"
+          [yaxis]="chartOptionsTwo.yaxis"
           [stroke]="chartOptionsTwo.stroke"
           [tooltip]="chartOptionsTwo.tooltip"
+          [legend]="chartOptionsTwo.legend"
         ></apx-chart>
       </div>
 
-      <!-- Filters Section -->
+      <!-- Wins Filters -->
       <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"
@@ -98,7 +104,7 @@
                 [checked]="selectedFilters.win_category.has(category)"
                 (change)="toggleFilter('win_category', category, $event)"
               />
-              {{ category }}
+              <span>{{ category }}</span>
             </label>
           </div>
 
@@ -111,7 +117,7 @@
                 [checked]="selectedFilters.client_industry.has(industry)"
                 (change)="toggleFilter('client_industry', industry, $event)"
               />
-              {{ industry }}
+              <span>{{ industry }}</span>
             </label>
           </div>
 

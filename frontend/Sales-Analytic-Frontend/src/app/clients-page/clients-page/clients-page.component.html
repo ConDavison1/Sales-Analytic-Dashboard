@@ -4,65 +4,129 @@
     <div class="clients-page">
       <app-header></app-header>
 
-
-
-         <!-- Clients Table -->
-         <div class="table-container">
+      <!-- Clients Table -->
+      <div class="table-container">
+        <!-- New flex container to position title and filters button -->
+        <div class="table-header">
           <h2 class="table-title">Client List</h2>
-          <div class="scrollable-table">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Client ID</th>
-                  <th>Client Name</th>
-                  <th>Industry</th>
-                  <th>City</th>
-                  <th>Province</th>
-                  <th>Account Executive</th>
-                  <th>Created Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let client of clients">
-                  <td>{{ client.client_id }}</td>
-                  <td>{{ client.client_name }}</td>
-                  <td>{{ client.industry }}</td>
-                  <td>{{ client.city }}</td>
-                  <td>{{ client.province }}</td>
-                  <td>{{ client.account_executive }}</td>
-                  <td>{{ client.created_date }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
+        <div class="scrollable-table">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Client ID</th>
+                <th>Client Name</th>
+                <th>Industry</th>
+                <th>City</th>
+                <th>Province</th>
+                <th>Account Executive</th>
+                <th>Created Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of clients">
+                <td>{{ client.client_id }}</td>
+                <td>{{ client.client_name }}</td>
+                <td>{{ client.industry }}</td>
+                <td>{{ client.city }}</td>
+                <td>{{ client.province }}</td>
+                <td>{{ client.account_executive }}</td>
+                <td>{{ client.created_date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Industry Treemap Chart -->
+      <div class="chart-container" *ngIf="industryTreemap.series">
+        <h3>Top Industries by Client Count</h3>
+        <apx-chart
+          #industryChartRef
+          [series]="industryTreemap.series"
+          [chart]="industryTreemap.chart"
+          [tooltip]="industryTreemap.tooltip"
+          [dataLabels]="industryTreemap.dataLabels"
+          [colors]="industryTreemap.colors"
+        ></apx-chart>
+      </div>
+
+      <!-- Province Pie Chart -->
+      <div class="chart-container" *ngIf="provincePieChart.series">
+        <h3>Client Distribution by Province</h3>
+        <apx-chart
+          #provinceChartRef
+          [series]="provincePieChart.series"
+          [chart]="provincePieChart.chart"
+          [labels]="provincePieChart.labels"
+          [dataLabels]="provincePieChart.dataLabels"
+          [colors]="provincePieChart.colors"
+        ></apx-chart>
+      </div>
+
+      <!-- Client Filters -->
+      <div
+        class="filter-overlay"
+        (click)="onOverlayClick($event)"
+        *ngIf="showFilterOverlay"
+      >
+        <div class="filter-panel" (click)="$event.stopPropagation()">
+          <h2>Client Filters</h2>
+
+          <div class="filter-group">
+            <h3>Client Industry</h3>
+            <label *ngFor="let industry of uniqueIndustries">
+              <input
+                type="checkbox"
+                [value]="industry"
+                [checked]="selectedFilters.industry.has(industry)"
+                (change)="toggleFilter('industry', industry, $event)"
+              />
+              <span>{{ industry }}</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Account Executive</h3>
+            <label *ngFor="let executive of uniqueExecutives">
+              <input
+                type="checkbox"
+                [value]="executive"
+                [checked]="selectedFilters.account_executive.has(executive)"
+                (change)="toggleFilter('account_executive', executive, $event)"
+              />
+              <span>{{ executive }}</span>
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Client Name</h3>
+            <label>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeholder="Search by client name"
+                class="search-input"
+              />
+            </label>
+          </div>
+
+          <div class="filter-actions">
+            <button class="apply-filters" (click)="applyFilters()">
+              Apply Filters
+            </button>
+            <button class="clear-filters" (click)="clearFilters()">
+              Clear Filters
+            </button>
+            <button class="close-filters" (click)="showFilterOverlay = false">
+              Close
+            </button>
           </div>
         </div>
-        <!-- Industry Treemap Chart -->
-        <div class="chart-container" *ngIf="industryTreemap.series">
-          <h3>Top Industries by Client Count</h3>
-          <apx-chart
-            #industryChartRef
-            [series]="industryTreemap.series"
-            [chart]="industryTreemap.chart"
-            [tooltip]="industryTreemap.tooltip"
-            [dataLabels]="industryTreemap.dataLabels"
-            [colors]="industryTreemap.colors"
-          ></apx-chart>
-        </div>
-
-        <!-- Province Pie Chart -->
-        <div class="chart-container" *ngIf="provincePieChart.series">
-          <h3>Client Distribution by Province</h3>
-          <apx-chart
-            #provinceChartRef
-            [series]="provincePieChart.series"
-            [chart]="provincePieChart.chart"
-            [labels]="provincePieChart.labels"
-            [dataLabels]="provincePieChart.dataLabels"
-            [colors]="provincePieChart.colors"
-          ></apx-chart>
-        </div>
-
-
+      </div>
     </div>
   </div>
 </div>
