@@ -4,69 +4,71 @@
     <div class="clients-page">
       <app-header></app-header>
 
-
-
-         <!-- Clients Table -->
-         <div class="table-container">
+      <!-- Clients Table -->
+      <div class="table-container">
+        <!-- New flex container to position title and filters button -->
+        <div class="table-header">
           <h2 class="table-title">Client List</h2>
           <button class="open-filter" (click)="showFilterOverlay = true">
             Filters
           </button>
-          <div class="scrollable-table">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Client ID</th>
-                  <th>Client Name</th>
-                  <th>Industry</th>
-                  <th>City</th>
-                  <th>Province</th>
-                  <th>Account Executive</th>
-                  <th>Created Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let client of clients">
-                  <td>{{ client.client_id }}</td>
-                  <td>{{ client.client_name }}</td>
-                  <td>{{ client.industry }}</td>
-                  <td>{{ client.city }}</td>
-                  <td>{{ client.province }}</td>
-                  <td>{{ client.account_executive }}</td>
-                  <td>{{ client.created_date }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
-        <!-- Industry Treemap Chart -->
-        <div class="chart-container" *ngIf="industryTreemap.series">
-          <h3>Top Industries by Client Count</h3>
-          <apx-chart
-            #industryChartRef
-            [series]="industryTreemap.series"
-            [chart]="industryTreemap.chart"
-            [tooltip]="industryTreemap.tooltip"
-            [dataLabels]="industryTreemap.dataLabels"
-            [colors]="industryTreemap.colors"
-          ></apx-chart>
+        <div class="scrollable-table">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Client ID</th>
+                <th>Client Name</th>
+                <th>Industry</th>
+                <th>City</th>
+                <th>Province</th>
+                <th>Account Executive</th>
+                <th>Created Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of clients">
+                <td>{{ client.client_id }}</td>
+                <td>{{ client.client_name }}</td>
+                <td>{{ client.industry }}</td>
+                <td>{{ client.city }}</td>
+                <td>{{ client.province }}</td>
+                <td>{{ client.account_executive }}</td>
+                <td>{{ client.created_date }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <!-- Province Pie Chart -->
-        <div class="chart-container" *ngIf="provincePieChart.series">
-          <h3>Client Distribution by Province</h3>
-          <apx-chart
-            #provinceChartRef
-            [series]="provincePieChart.series"
-            [chart]="provincePieChart.chart"
-            [labels]="provincePieChart.labels"
-            [dataLabels]="provincePieChart.dataLabels"
-            [colors]="provincePieChart.colors"
-          ></apx-chart>
-        </div>
+      <!-- Industry Treemap Chart -->
+      <div class="chart-container" *ngIf="industryTreemap.series">
+        <h3>Top Industries by Client Count</h3>
+        <apx-chart
+          #industryChartRef
+          [series]="industryTreemap.series"
+          [chart]="industryTreemap.chart"
+          [tooltip]="industryTreemap.tooltip"
+          [dataLabels]="industryTreemap.dataLabels"
+          [colors]="industryTreemap.colors"
+        ></apx-chart>
+      </div>
 
-        <!--Client Filters-->
-        <div
+      <!-- Province Pie Chart -->
+      <div class="chart-container" *ngIf="provincePieChart.series">
+        <h3>Client Distribution by Province</h3>
+        <apx-chart
+          #provinceChartRef
+          [series]="provincePieChart.series"
+          [chart]="provincePieChart.chart"
+          [labels]="provincePieChart.labels"
+          [dataLabels]="provincePieChart.dataLabels"
+          [colors]="provincePieChart.colors"
+        ></apx-chart>
+      </div>
+
+      <!-- Client Filters -->
+      <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"
         *ngIf="showFilterOverlay"
@@ -125,7 +127,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>

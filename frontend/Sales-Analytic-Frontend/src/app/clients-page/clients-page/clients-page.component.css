@@ -59,10 +59,18 @@
   color: var(--text-color);
 }
 
+/* New table header container to align title and Filters button */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 .table-title {
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin: 0;
   color: var(--text-color);
 }
 
@@ -150,6 +158,7 @@
   gap: 12px;
   margin-top: 12px;
 }
+
 .chart-container {
   background-color: var(--card-bg);
   border-radius: 8px;
@@ -160,9 +169,10 @@
   max-width: 100%;
   grid-column: span 2;
 }
+
 .chart-container h3 {
-text-align: center;
-justify-content: center;
+  text-align: center;
+  justify-content: center;
 }
 
 .form-group input {
@@ -173,22 +183,6 @@ justify-content: center;
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: border-color 0.3s ease-in-out;
-}
-
-.submit-button {
-  margin-top: 12px;
-  padding: 12px;
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.submit-button:hover {
-  background-color: #0056b3;
 }
 
 .filter-overlay {
@@ -208,9 +202,9 @@ justify-content: center;
   background: var(--bg-color);
   padding: 24px;
   border-radius: 10px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90%;
+  max-width: 900px;
+  width: 100%;
+  max-height: 50%;
   overflow-y: auto;
 }
 
@@ -416,6 +410,7 @@ justify-content: center;
     display: none;
   }
 }
+
 /* Custom Scrollbar Styling */
 .scrollable-table::-webkit-scrollbar {
   width: 8px;

@@ -15,10 +15,13 @@
 
       <!-- Revenue Table -->
       <div class="table-container">
-        <h2>Revenue Records</h2>
-        <button class="open-filter" (click)="showFilterOverlay = true">
-          Filters
-        </button>
+        <!-- New flex container for table header -->
+        <div class="table-header">
+          <h2>Revenue Records</h2>
+          <button class="open-filter" (click)="showFilterOverlay = true">
+            Filters
+          </button>
+        </div>
         <table class="scrollable-table">
           <thead>
             <tr>
@@ -78,7 +81,7 @@
         ></apx-chart>
       </div>
 
-      <!--Revenue Filters-->
+      <!-- Revenue Filters -->
       <div
         class="filter-overlay"
         (click)="onOverlayClick($event)"

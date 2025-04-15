@@ -106,12 +106,30 @@
 .table-container tbody::-webkit-scrollbar {
   width: 8px;
 }
+
 .table-container tbody::-webkit-scrollbar-thumb {
   background-color: #5f606e;
   border-radius: 4px;
 }
+
 .table-container tbody::-webkit-scrollbar-track {
   background-color: var(--bg-color);
+}
+
+/* New flex container for table header */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Optional: Adjust header title styles */
+.table-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .filter-overlay {
